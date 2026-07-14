@@ -87,7 +87,7 @@
     "test:coverage": "jest --coverage --runInBand && npm run test:content",
     "build:programs": "tsx scripts/build-programs.ts",
     "import:programs": "tsx scripts/import-yok-atlas-programs.ts",
-    "validate:pack": "tsx scripts/validate-pack.ts",
+    "validate:pack": "npm run build:programs && tsx scripts/validate-pack.ts",
     "build:pack": "tsx scripts/build-pack.ts",
     "check:pack-change": "tsx scripts/check-pack-content-change.ts",
     "sync:pack-version": "tsx scripts/sync-pack-version.ts",
