@@ -4,7 +4,11 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import worker, { handleRequest, type Env as WorkerEnv } from '../../infra/cloudflare/src/index.ts';
+import worker, {
+  CLASSIFIER_AI_TIMEOUT_MS,
+  handleRequest,
+  type Env as WorkerEnv,
+} from '../../infra/cloudflare/src/index.ts';
 import { parseAnnualClassifierArgs } from '../annual-classifier.ts';
 import { validateAnnualClassifierArtifacts } from '../validate-annual-classifier-artifacts.ts';
 import {
@@ -20,6 +24,7 @@ import {
   type PdfTextPage,
 } from '../lib/annual-classifier-extraction.ts';
 import {
+  ANNUAL_CLASSIFIER_PROVIDER_TIMEOUT_MS,
   runAnnualClassifierBlock,
   type AnnualClassifierProvider,
   type ClassifierProviderRequest,
@@ -169,6 +174,165 @@ test('two independent passes agree and cache only ID-only decisions', async () =
     assert.equal(calls.length, 2);
     assert.equal(cachedResult.report.execution.textCacheHits, 1);
     assert.equal(cachedResult.report.execution.visionCacheHits, 1);
+  } finally {
+    await rm(cacheDirectory, { recursive: true, force: true });
+  }
+});
+
+test('vision units run two at a time without completion order or isolated failures leaking', async () => {
+  const { registry, catalog, block, topicIds } = await loadFixtureData();
+  const cacheDirectory = await mkdtemp(path.join(os.tmpdir(), 'annual-classifier-concurrency-'));
+  const concurrentSources = {
+    ...sources,
+    visionPages: Array.from({ length: 6 }, (_, index) => ({
+      page: index + 4,
+      imageDataUrl: 'data:image/jpeg;base64,UkFXX0lNQUdF',
+    })),
+  };
+  const firstUnit = `${block.id}-vision-primary-pages-4-5`;
+  const failedUnit = `${block.id}-vision-primary-pages-6-7`;
+  const lastUnit = `${block.id}-vision-primary-pages-8-9`;
+  let activeVisionCalls = 0;
+  let maxActiveVisionCalls = 0;
+  let resolveFirstUnitStarted!: () => void;
+  const firstUnitStarted = new Promise<void>((resolve) => {
+    resolveFirstUnitStarted = resolve;
+  });
+  const completionOrder: string[] = [];
+  const responseAtPage = (page: number) => {
+    const response = classifications(block.id, topicIds[0]!, [1, 2, 3, 4, 5]);
+    return {
+      ...response,
+      classifications: response.classifications.map((classification) => ({
+        ...classification,
+        page,
+      })),
+    };
+  };
+  const provider: AnnualClassifierProvider = {
+    async classify(request) {
+      if (request.mode === 'text') return responseAtPage(4);
+      activeVisionCalls += 1;
+      maxActiveVisionCalls = Math.max(maxActiveVisionCalls, activeVisionCalls);
+      try {
+        if (request.requestId === firstUnit) {
+          resolveFirstUnitStarted();
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          completionOrder.push(request.requestId);
+          return responseAtPage(4);
+        }
+        if (request.requestId === failedUnit) {
+          await firstUnitStarted;
+          completionOrder.push(request.requestId);
+          throw new Error('isolated vision unit failure');
+        }
+        assert.equal(request.requestId, lastUnit);
+        await firstUnitStarted;
+        completionOrder.push(request.requestId);
+        return responseAtPage(8);
+      } finally {
+        activeVisionCalls -= 1;
+      }
+    },
+  };
+  try {
+    const result = await runAnnualClassifierBlock({
+      year: 2026,
+      exam: 'tyt',
+      questionBlock: block,
+      bookletRegistry: registry,
+      topicCatalog: catalog,
+      sources: concurrentSources,
+      provider,
+      cacheDirectory,
+      reviewedAt: '2026-07-15',
+    });
+    assert.equal(maxActiveVisionCalls, 2);
+    assert.deepEqual(completionOrder, [failedUnit, lastUnit, firstUnit]);
+    assert.equal(result.report.execution.visionProviderCalls, 3);
+    assert.equal(result.report.execution.visionRetryUsed, false);
+    assert.equal(result.report.summary.agreed, 5);
+    assert.deepEqual(
+      result.visionReview.records.map((record) => record.page),
+      [4, 4, 4, 4, 4],
+    );
+    assert.equal((await readdir(cacheDirectory)).length, 3);
+  } finally {
+    await rm(cacheDirectory, { recursive: true, force: true });
+  }
+});
+
+test('large sections are split into bounded text and vision inference units', async () => {
+  const { registry, catalog, block, topicIds } = await loadFixtureData();
+  const cacheDirectory = await mkdtemp(path.join(os.tmpdir(), 'annual-classifier-chunks-'));
+  const requests: ClassifierProviderRequest[] = [];
+  const largeSources = {
+    textPages: Array.from({ length: 14 }, (_, index) => ({
+      page: index + 4,
+      text: `page-${index + 4}`,
+    })),
+    visionPages: Array.from({ length: 14 }, (_, index) => ({
+      page: index + 4,
+      imageDataUrl: 'data:image/jpeg;base64,UkFXX0lNQUdF',
+    })),
+  };
+  const provider: AnnualClassifierProvider = {
+    async classify(request) {
+      requests.push(request);
+      return classifications(block.id, topicIds[0]!, [1, 2, 3, 4, 5]);
+    },
+  };
+  try {
+    const result = await runAnnualClassifierBlock({
+      year: 2026,
+      exam: 'tyt',
+      questionBlock: block,
+      bookletRegistry: registry,
+      topicCatalog: catalog,
+      sources: largeSources,
+      provider,
+      cacheDirectory,
+      reviewedAt: '2026-07-15',
+    });
+    assert.equal(result.report.execution.textProviderCalls, 4);
+    assert.equal(result.report.execution.visionProviderCalls, 7);
+    assert.equal(result.report.execution.textRetryUsed, false);
+    assert.equal(result.report.execution.visionRetryUsed, false);
+    assert.equal(result.report.summary.agreed, 5);
+
+    const textRequests = requests.filter((request) => request.mode === 'text');
+    const visionRequests = requests.filter((request) => request.mode === 'vision');
+    assert.deepEqual(
+      textRequests.map((request) => request.requestId).sort(),
+      [
+        `${block.id}-text-primary-pages-4-5-6-7`,
+        `${block.id}-text-primary-pages-8-9-10-11`,
+        `${block.id}-text-primary-pages-12-13-14-15`,
+        `${block.id}-text-primary-pages-16-17`,
+      ].sort(),
+    );
+    assert.deepEqual(
+      visionRequests.map((request) => request.requestId).sort(),
+      [
+        `${block.id}-vision-primary-pages-4-5`,
+        `${block.id}-vision-primary-pages-6-7`,
+        `${block.id}-vision-primary-pages-8-9`,
+        `${block.id}-vision-primary-pages-10-11`,
+        `${block.id}-vision-primary-pages-12-13`,
+        `${block.id}-vision-primary-pages-14-15`,
+        `${block.id}-vision-primary-pages-16-17`,
+      ].sort(),
+    );
+    for (const request of textRequests) {
+      const content = request.messages[1].content;
+      assert.equal(typeof content, 'string');
+      assert.ok((content as string).match(/\[PHYSICAL_PAGE_/g)!.length <= 4);
+    }
+    for (const request of visionRequests) {
+      const content = request.messages[1].content;
+      assert.ok(Array.isArray(content));
+      assert.ok(content.filter((part) => part.type === 'image_url').length <= 2);
+    }
   } finally {
     await rm(cacheDirectory, { recursive: true, force: true });
   }
@@ -342,6 +506,10 @@ function validWorkerBody() {
 }
 
 test('Cloudflare gateway enforces auth, model/mode and no-store responses', async () => {
+  assert.ok(
+    ANNUAL_CLASSIFIER_PROVIDER_TIMEOUT_MS >= CLASSIFIER_AI_TIMEOUT_MS + 10_000,
+    'the client must remain connected long enough to receive the Worker timeout response',
+  );
   const calls: { model: string; input: Record<string, unknown> }[] = [];
   const env: WorkerEnv = {
     CLASSIFIER_AUTH_TOKEN: 't'.repeat(32),
@@ -385,5 +553,16 @@ test('Cloudflare gateway enforces auth, model/mode and no-store responses', asyn
     ],
   };
   assert.equal((await handleRequest(workerRequest(vision), env)).status, 400);
+  assert.equal(calls.length, 1);
+
+  const oversizedVision = structuredClone(vision);
+  oversizedVision.messages[1]!.content = [
+    { type: 'text', text: 'classify' },
+    ...Array.from({ length: 3 }, () => ({
+      type: 'image_url',
+      image_url: { url: 'data:image/jpeg;base64,AAAA' },
+    })),
+  ];
+  assert.equal((await handleRequest(workerRequest(oversizedVision), env)).status, 400);
   assert.equal(calls.length, 1);
 });

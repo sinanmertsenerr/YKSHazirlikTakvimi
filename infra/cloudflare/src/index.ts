@@ -3,8 +3,8 @@ const VISION_MODEL = '@cf/google/gemma-4-26b-a4b-it' as const;
 const MAX_BODY_BYTES = 12 * 1024 * 1024;
 const MAX_TEXT_CHARACTERS = 450_000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const MAX_VISION_IMAGES = 3;
-const AI_TIMEOUT_MS = 28_000;
+const MAX_VISION_IMAGES = 2;
+export const CLASSIFIER_AI_TIMEOUT_MS = 90_000;
 
 type AllowedModel = typeof TEXT_MODEL | typeof VISION_MODEL;
 
@@ -234,7 +234,7 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
           },
         },
       }),
-      AI_TIMEOUT_MS,
+      CLASSIFIER_AI_TIMEOUT_MS,
     );
     return jsonResponse(200, { result });
   } catch {

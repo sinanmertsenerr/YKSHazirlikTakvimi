@@ -29,8 +29,10 @@ import {
 } from './topic-review-contract.ts';
 
 const MIN_CONSENSUS_CONFIDENCE = 0.8;
-const PROVIDER_TIMEOUT_MS = 35_000;
-const MAX_VISION_PAGES_PER_REQUEST = 3;
+export const ANNUAL_CLASSIFIER_PROVIDER_TIMEOUT_MS = 105_000;
+const MAX_TEXT_PAGES_PER_REQUEST = 4;
+const MAX_VISION_PAGES_PER_REQUEST = 2;
+const MAX_INFERENCE_UNIT_CONCURRENCY = 2;
 
 export const classifierPromptCatalogSchema = z.object({
   exams: z.array(
@@ -103,7 +105,7 @@ export class HttpAnnualClassifierProvider implements AnnualClassifierProvider {
 
   async classify(request: ClassifierProviderRequest): Promise<unknown> {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS);
+    const timer = setTimeout(() => controller.abort(), ANNUAL_CLASSIFIER_PROVIDER_TIMEOUT_MS);
     try {
       const response = await this.fetchImpl(this.endpoint, {
         method: 'POST',
@@ -408,10 +410,12 @@ function buildTextUnits(
   onlyQuestions?: number[],
 ): InferenceUnit[] {
   if (!pages.length) throw new Error('Text pass has no extracted section pages');
-  const source = pages.map(({ page, text }) => `[PHYSICAL_PAGE_${page}]\n${text}`).join('\n\n');
-  return [
-    {
-      unitId: 'section-text',
+  const units: InferenceUnit[] = [];
+  for (let index = 0; index < pages.length; index += MAX_TEXT_PAGES_PER_REQUEST) {
+    const chunk = pages.slice(index, index + MAX_TEXT_PAGES_PER_REQUEST);
+    const source = chunk.map(({ page, text }) => `[PHYSICAL_PAGE_${page}]\n${text}`).join('\n\n');
+    units.push({
+      unitId: `pages-${chunk.map((page) => page.page).join('-')}`,
       messages: [
         { role: 'system', content: buildSystemPrompt() },
         {
@@ -419,8 +423,9 @@ function buildTextUnits(
           content: `${buildInstruction(block, taxonomy, onlyQuestions)}\n\n<OFFICIAL_SECTION_TEXT>\n${source}\n</OFFICIAL_SECTION_TEXT>`,
         },
       ],
-    },
-  ];
+    });
+  }
+  return units;
 }
 
 function buildVisionUnits(
@@ -513,8 +518,7 @@ async function runInferenceUnits({
   stats: PassStats;
 }): Promise<AnnualClassifierResult[]> {
   const model = mode === 'text' ? ANNUAL_CLASSIFIER_TEXT_MODEL : ANNUAL_CLASSIFIER_VISION_MODEL;
-  const results: AnnualClassifierResult[] = [];
-  for (const unit of units) {
+  const runUnit = async (unit: InferenceUnit): Promise<AnnualClassifierResult[]> => {
     const key: AnnualClassifierCacheKey = {
       bookletSha256,
       taxonomySha256,
@@ -527,8 +531,7 @@ async function runInferenceUnits({
     const cached = await readCache(cacheDirectory, key);
     if (cached) {
       stats.cacheHits += 1;
-      results.push(...validateResponseForScope(cached, block, taxonomy).classifications);
-      continue;
+      return validateResponseForScope(cached, block, taxonomy).classifications;
     }
     stats.providerCalls += 1;
     try {
@@ -541,14 +544,40 @@ async function runInferenceUnits({
       });
       const response = validateResponseForScope(payload, block, taxonomy);
       await writeCache(cacheDirectory, key, response);
-      results.push(...response.classifications);
+      return response.classifications;
     } catch (error) {
       if (error instanceof FatalClassifierProviderError) throw error;
       // A failed/invalid unit is deliberately empty. The independent retry wave
       // gets one chance; unresolved IDs then become disputes, never publication.
+      return [];
     }
+  };
+
+  const resultsByUnit: (AnnualClassifierResult[] | undefined)[] = new Array(units.length);
+  const terminalErrors = new Map<number, unknown>();
+  let nextUnitIndex = 0;
+  let stopScheduling = false;
+  const worker = async (): Promise<void> => {
+    while (!stopScheduling) {
+      const unitIndex = nextUnitIndex;
+      nextUnitIndex += 1;
+      if (unitIndex >= units.length) return;
+      try {
+        resultsByUnit[unitIndex] = await runUnit(units[unitIndex]!);
+      } catch (error) {
+        terminalErrors.set(unitIndex, error);
+        stopScheduling = true;
+      }
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(MAX_INFERENCE_UNIT_CONCURRENCY, units.length) }, () => worker()),
+  );
+  if (terminalErrors.size) {
+    const firstFailedUnit = Math.min(...terminalErrors.keys());
+    throw terminalErrors.get(firstFailedUnit);
   }
-  return results;
+  return resultsByUnit.flatMap((unitResults) => unitResults ?? []);
 }
 
 function unresolvedResult(questionNo: number): AnnualClassifierResult {
