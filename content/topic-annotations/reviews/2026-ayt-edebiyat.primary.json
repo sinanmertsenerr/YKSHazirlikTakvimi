@@ -1,0 +1,52 @@
+{
+  "year": 2026,
+  "exam": "ayt",
+  "sectionId": "ayt-edebiyat-sosyal-1",
+  "subjectId": "ayt-edebiyat",
+  "bookletId": "2026-ayt",
+  "bookletSha256": "3e85eed4978afc62dd5f38ffa079e06aa90cf951af05d0f1183f6acbbab9a026",
+  "reviewer": "codex-primary-d",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    { "questionNo": 1, "topicId": "ayt-anlam-bilgisi", "page": 3 },
+    { "questionNo": 2, "topicId": "ayt-anlam-bilgisi", "page": 3 },
+    { "questionNo": 3, "topicId": "ayt-anlam-bilgisi", "page": 4 },
+    { "questionNo": 4, "topicId": "ayt-anlam-bilgisi", "page": 4 },
+    { "questionNo": 5, "topicId": "ayt-anlam-bilgisi", "page": 5 },
+    { "questionNo": 6, "topicId": "ayt-anlam-bilgisi", "page": 5 },
+    { "questionNo": 7, "topicId": "ayt-divan-edebiyati", "page": 5 },
+    { "questionNo": 8, "topicId": "ayt-edebi-sanatlar", "page": 5 },
+    { "questionNo": 9, "topicId": "ayt-siir-bilgisi-uyak", "page": 6 },
+    { "questionNo": 10, "topicId": "ayt-anlam-bilgisi", "page": 6 },
+    {
+      "questionNo": 11,
+      "topicId": "ayt-islamiyet-oncesi-turk-edebiyati-ve-gecis-donemi",
+      "page": 6
+    },
+    {
+      "questionNo": 12,
+      "topicId": "ayt-islamiyet-oncesi-turk-edebiyati-ve-gecis-donemi",
+      "page": 7
+    },
+    { "questionNo": 13, "topicId": "ayt-halk-edebiyati-anonim", "page": 7 },
+    { "questionNo": 14, "topicId": "ayt-divan-edebiyati", "page": 7 },
+    {
+      "questionNo": 15,
+      "topicId": "ayt-siir-bilgisi-nazim-bicimi",
+      "page": 8
+    },
+    { "questionNo": 16, "topicId": "ayt-divan-edebiyati", "page": 8 },
+    { "questionNo": 17, "topicId": "ayt-divan-edebiyati", "page": 8 },
+    { "questionNo": 18, "topicId": "ayt-tanzimat", "page": 8 },
+    { "questionNo": 19, "topicId": "ayt-servetifunun", "page": 8 },
+    { "questionNo": 20, "topicId": "ayt-milli-edebiyat", "page": 9 },
+    { "questionNo": 21, "topicId": "ayt-cumhuriyet-siir", "page": 9 },
+    {
+      "questionNo": 22,
+      "topicId": "ayt-cumhuriyet-ogretici-metinler",
+      "page": 9
+    },
+    { "questionNo": 23, "topicId": "ayt-cumhuriyet-tiyatro", "page": 9 },
+    { "questionNo": 24, "topicId": "ayt-edebiyat-akimlari", "page": 10 }
+  ]
+}

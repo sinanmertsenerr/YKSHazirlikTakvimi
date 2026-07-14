@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YKS Hazırlık — Tasarım Sistemi & Ekranlar</title>
+<style>
+  :root{
+    --brand:#4F46E5; --brand-soft:#EEF0FF;
+    --tyt:#0D9488; --tyt-soft:#E6F5F3;
+    --ayt:#7C3AED; --ayt-soft:#F1EAFD;
+    --success:#16A34A; --warning:#D97706; --danger:#DC2626;
+    --bg:#F2F2F7; --surface:#FFFFFF; --surface2:#F7F7FA;
+    --label:#111113; --label2:#6E6E73; --label3:#AEAEB2;
+    --sep:rgba(60,60,67,.12);
+    --glass:rgba(255,255,255,.62); --glass-brd:rgba(255,255,255,.75);
+    --page-bg:#E9E9F0; --page-fg:#111113; --page-card:#FFFFFF;
+    --shadow:0 18px 50px rgba(17,17,30,.16);
+  }
+  [data-theme="dark"]{
+    --brand:#818CF8; --brand-soft:#232448;
+    --tyt:#2DD4BF; --tyt-soft:#0E2A28;
+    --ayt:#A78BFA; --ayt-soft:#26203B;
+    --success:#4ADE80; --warning:#FBBF24; --danger:#F87171;
+    --bg:#000000; --surface:#1C1C1E; --surface2:#2C2C2E;
+    --label:#F2F2F7; --label2:#98989F; --label3:#5A5A60;
+    --sep:rgba(84,84,88,.5);
+    --glass:rgba(28,28,32,.6); --glass-brd:rgba(255,255,255,.14);
+    --page-bg:#0B0B0F; --page-fg:#F2F2F7; --page-card:#17171B;
+    --shadow:0 18px 50px rgba(0,0,0,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--page-bg); color:var(--page-fg);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:40px 24px 80px;
+    transition:background .3s,color .3s;
+  }
+  .top{max-width:1400px;margin:0 auto 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  h1{font-size:28px;letter-spacing:-.02em}
+  .sub{color:var(--label2);margin-top:6px;font-size:14px;max-width:640px;line-height:1.5}
+  .toggle{
+    border:1px solid var(--sep);background:var(--page-card);color:var(--page-fg);
+    border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+  }
+  h2{max-width:1400px;margin:48px auto 4px;font-size:18px}
+  .note{max-width:1400px;margin:0 auto 20px;color:var(--label2);font-size:13px}
+  .gallery{max-width:1400px;margin:0 auto;display:flex;gap:36px;overflow-x:auto;padding:24px 4px 12px}
+  .shot{flex:0 0 auto}
+  .cap{margin-top:14px;text-align:center}
+  .cap b{font-size:13px;display:block}
+  .cap span{font-size:12px;color:var(--label2)}
+
+  /* ---------- Telefon çerçevesi ---------- */
+  .phone{
+    width:375px;height:812px;border-radius:54px;background:var(--bg);
+    box-shadow:var(--shadow),0 0 0 10px #17171a,0 0 0 12px #3a3a40;
+    overflow:hidden;position:relative;transition:background .3s;
+  }
+  .island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:118px;height:34px;border-radius:20px;background:#000;z-index:40}
+  .status{display:flex;justify-content:space-between;align-items:center;padding:16px 30px 0;font-size:14px;font-weight:600;color:var(--label);position:relative;z-index:30}
+  .status .r{display:flex;gap:5px;align-items:center;font-size:12px}
+  .content{padding:12px 18px 120px;height:calc(100% - 46px);overflow:hidden;position:relative}
+
+  /* ---------- Yüzen liquid glass tab bar ---------- */
+  .tabbar{
+    position:absolute;left:18px;right:18px;bottom:18px;height:66px;border-radius:33px;
+    background:var(--glass);border:1px solid var(--glass-brd);
+    backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);
+    box-shadow:0 12px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.25);
+    display:flex;align-items:center;justify-content:space-around;z-index:50;
+  }
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--label2)}
+  .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .tab.on{color:var(--brand)}
+
+  /* ---------- Ortak bileşenler ---------- */
+  .lt{font-size:32px;font-weight:800;letter-spacing:-.02em;color:var(--label);margin:6px 0 2px}
+  .lt-sub{font-size:14px;color:var(--label2);margin-bottom:14px}
+  .card{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .row{display:flex;align-items:center;gap:12px}
+  .grow{flex:1;min-width:0}
+  .h17{font-size:16px;font-weight:600;color:var(--label)}
+  .s15{font-size:14px;color:var(--label2)}
+  .f13{font-size:12px;color:var(--label2)}
+  .c11{font-size:11px;color:var(--label3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .chev{color:var(--label3);font-size:18px}
+  .seg{
+    display:flex;background:var(--glass);border:1px solid var(--glass-brd);border-radius:12px;padding:3px;margin-bottom:14px;
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  }
+  .seg div{flex:1;text-align:center;font-size:13px;font-weight:700;padding:7px 0;border-radius:9px;color:var(--label2)}
+  .seg .on{background:var(--surface);color:var(--label);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .bar-track{height:7px;border-radius:4px;background:var(--surface2);overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .ring{transform:rotate(-90deg)}
+  .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+
+  /* Geri sayım kartı */
+  .count{
+    border-radius:20px;padding:20px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 55%,#9333EA 100%);
+  }
+  [data-theme="dark"] .count{background:linear-gradient(135deg,#3730A3 0%,#6D28D9 55%,#7E22CE 100%)}
+  .count .big{font-size:52px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .count .halo{position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.12)}
+  .count .halo2{position:absolute;right:30px;bottom:-70px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08)}
+
+  .kpi{display:flex;gap:10px;margin-bottom:12px}
+  .kpi .card{flex:1;margin:0;padding:12px;text-align:center}
+  .kpi .v{font-size:22px;font-weight:800;color:var(--label)}
+  .kpi .k{font-size:11px;color:var(--label2);margin-top:2px}
+
+  table.mini{width:100%;border-collapse:collapse;font-size:12px}
+  table.mini td{padding:6px 0;color:var(--label2);border-top:1px solid var(--sep)}
+  table.mini td:last-child{text-align:right;color:var(--label);font-weight:600}
+
+  /* ---------- Token bölümü ---------- */
+  .tokens{max-width:1400px;margin:16px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+  .tk{background:var(--page-card);border:1px solid var(--sep);border-radius:16px;padding:20px}
+  .tk h3{font-size:14px;margin-bottom:14px}
+  .sw{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px}
+  .sw i{width:26px;height:26px;border-radius:8px;flex:0 0 auto;border:1px solid var(--sep)}
+  .sw code{color:var(--label2);margin-left:auto;font-size:11.5px}
+  .tk p{font-size:12.5px;color:var(--label2);line-height:1.55;margin-bottom:8px}
+  .ts{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .ts em{font-style:normal;color:var(--label2);font-size:11px;width:110px;flex:0 0 auto}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5M5.5 9v10.5h13V9"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5V5.5M8 7.5h8M8 11h5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16M8 14l3.2-3.6 2.8 2.4L18.5 8"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m12 4 10 4.5L12 13 2 8.5zM6.5 10.8v4.7c0 1.4 2.5 2.7 5.5 2.7s5.5-1.3 5.5-2.7v-4.7M22 9v5"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14.5H5.8A1.8 1.8 0 0 1 4 17.7zM17 9h3v8.7a1.8 1.8 0 0 1-1.8 1.8H17M7.5 9h6M7.5 12.5h6M7.5 16h4"/></symbol>
+</defs></svg>
+
+<div class="top">
+  <div>
+    <h1>YKS Hazırlık — Tasarım</h1>
+    <p class="sub">iOS 26 Liquid Glass estetiği baz alınmıştır: yüzen glass tab bar ve segment kontroller,
+    düz "surface" içerik kartları, sistem tipografisi. Android'de aynı token'lar Material 3 yüzeylerine eşlenir
+    (sağ alttaki notlar). Tüm veriler örnektir.</p>
+  </div>
+  <button class="toggle" onclick="const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">☀︎ / ☾ Tema</button>
+</div>
+
+<h2>Ekranlar</h2>
+<p class="note">Soldan sağa uygulama akışı. Sağ üstteki düğmeyle açık/koyu temayı karşılaştır.</p>
+
+<div class="gallery">
+
+  <!-- ═══════════ 01 ANA SAYFA ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="lt">Merhaba, Sinan</div>
+      <div class="lt-sub">14 Temmuz Salı · 🔥 12 günlük seri</div>
+
+      <div class="count">
+        <div class="halo"></div><div class="halo2"></div>
+        <div class="c11" style="color:rgba(255,255,255,.85)">YKS 2027'ye</div>
+        <div class="big">341 <span style="font-size:22px;font-weight:700">gün</span></div>
+        <div style="font-size:12.5px;margin-top:10px;color:rgba(255,255,255,.9)">TYT · 19 Haz 2027 &nbsp;&nbsp; AYT · 20 Haz 2027</div>
+      </div>
+
+      <div class="kpi">
+        <div class="card"><div class="v">142</div><div class="k">bugün çözülen soru</div></div>
+        <div class="card"><div class="v">3</div><div class="k">çalışılan konu</div></div>
+        <div class="card"><div class="v">78,5</div><div class="k">son TYT neti</div></div>
+      </div>
+
+      <div class="card">
+        <div class="h17" style="margin-bottom:12px">Konu ilerlemesi</div>
+        <div class="row" style="margin-bottom:10px">
+          <span class="chip" style="background:var(--tyt-soft);color:var(--tyt)">TYT</span>
+          <div class="grow bar-track"><div class="bar-fill" style="width:62%;background:var(--tyt)"></div></div>
+          <span class="f13" style="font-weight:700;color:var(--label)">62%</span>
+        </div>
+        <div class="row">
+          <span class="chip" style="background:var(--ayt-soft);color:var(--ayt)">AYT</span>
+          <div class="grow bar-track"><div class="bar-fill" style="width:38%;background:var(--ayt)"></div></div>
+          <span class="f13" style="font-weight:700;color:var(--label)">38%</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div class="grow">
+            <div class="c11">Son deneme · 12 Tem</div>
+            <div class="h17" style="margin-top:3px">TYT Genel — 78,5 net</div>
+          </div>
+          <span class="chip" style="background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)">▲ +3,25</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="row">
+          <div class="grow">
+            <div class="c11" style="color:var(--warning)">Yaklaşan</div>
+            <div class="h17" style="margin-top:3px">Tercih dönemi başlıyor</div>
+            <div class="f13">24 Temmuz · 10 gün kaldı</div>
+          </div><span class="chev">›</span>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>01 · Ana Sayfa</b><span>Geri sayım · özet · seri · yaklaşan tarih</span></div></div>
+
+  <!-- ═══════════ 02 KONULAR ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="lt">Konular</div>
+      <div class="lt-sub">Ders seç, konu konu ilerlemeni işaretle</div>
+      <div class="seg"><div class="on">TYT</div><div>AYT</div></div>
+
+      <!-- ders kartı şablonu -->
+      <div class="card"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--tyt)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="34.6"/></svg>
+        <div class="grow"><div class="h17">Türkçe</div><div class="f13">40 soru · 10/14 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--tyt)">71%</span><span class="chev">›</span>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="56"/></svg>
+        <div class="grow"><div class="h17">Matematik</div><div class="f13">~31 soru · 10/19 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--brand)">53%</span><span class="chev">›</span>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--warning)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="83.6"/></svg>
+        <div class="grow"><div class="h17">Geometri</div><div class="f13">~9 soru · 4/12 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--warning)">30%</span><span class="chev">›</span>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--danger)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="101"/></svg>
+        <div class="grow"><div class="h17">Fizik</div><div class="f13">7 soru · 2/13 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--danger)">15%</span><span class="chev">›</span>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--success)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="21.5"/></svg>
+        <div class="grow"><div class="h17">Kimya</div><div class="f13">7 soru · 8/10 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--success)">82%</span><span class="chev">›</span>
+      </div></div>
+
+      <div class="card" style="opacity:.85"><div class="row">
+        <svg class="ring" width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--surface2)" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="var(--tyt)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="66"/></svg>
+        <div class="grow"><div class="h17">Biyoloji</div><div class="f13">6 soru · 5/10 konu bitti</div></div>
+        <span class="f13" style="font-weight:800;color:var(--tyt)">45%</span><span class="chev">›</span>
+      </div></div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab on"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>02 · Konular</b><span>TYT/AYT segment · ders kartları · ilerleme ringleri</span></div></div>
+
+  <!-- ═══════════ 03 KONU DETAYI ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="f13" style="color:var(--brand);font-weight:600;margin:4px 0 2px">‹ Matematik</div>
+      <div class="lt" style="font-size:26px">Problemler</div>
+      <div class="row" style="margin-bottom:12px;gap:8px">
+        <span class="chip" style="background:var(--tyt-soft);color:var(--tyt)">TYT</span>
+        <span class="chip" style="background:var(--brand-soft);color:var(--brand)">2026'da 13 soru</span>
+        <span class="chip" style="background:var(--surface2);color:var(--label2)">9-10-11. sınıf</span>
+      </div>
+
+      <div class="card">
+        <div class="h17" style="margin-bottom:2px">Yıllara göre soru sayısı</div>
+        <div class="f13" style="margin-bottom:10px">Kaynak: ÖSYM temel soru kitapçıkları</div>
+        <svg width="100%" height="120" viewBox="0 0 320 120">
+          <g font-size="9" fill="var(--label3)" text-anchor="middle">
+            <rect x="8"   y="44" width="22" height="60" rx="4" fill="var(--brand)" opacity=".35"/><text x="19" y="117">'18</text><text x="19" y="38" fill="var(--label2)">11</text>
+            <rect x="43"  y="33" width="22" height="71" rx="4" fill="var(--brand)" opacity=".45"/><text x="54" y="117">'19</text><text x="54" y="27" fill="var(--label2)">13</text>
+            <rect x="78"  y="38" width="22" height="66" rx="4" fill="var(--brand)" opacity=".55"/><text x="89" y="117">'20</text><text x="89" y="32" fill="var(--label2)">12</text>
+            <rect x="113" y="27" width="22" height="77" rx="4" fill="var(--brand)" opacity=".6"/><text x="124" y="117">'21</text><text x="124" y="21" fill="var(--label2)">14</text>
+            <rect x="148" y="38" width="22" height="66" rx="4" fill="var(--brand)" opacity=".7"/><text x="159" y="117">'22</text><text x="159" y="32" fill="var(--label2)">12</text>
+            <rect x="183" y="33" width="22" height="71" rx="4" fill="var(--brand)" opacity=".78"/><text x="194" y="117">'23</text><text x="194" y="27" fill="var(--label2)">13</text>
+            <rect x="218" y="38" width="22" height="66" rx="4" fill="var(--brand)" opacity=".86"/><text x="229" y="117">'24</text><text x="229" y="32" fill="var(--label2)">12</text>
+            <rect x="253" y="33" width="22" height="71" rx="4" fill="var(--brand)" opacity=".93"/><text x="264" y="117">'25</text><text x="264" y="27" fill="var(--label2)">13</text>
+            <rect x="288" y="33" width="22" height="71" rx="4" fill="var(--brand)"/><text x="299" y="117">'26</text><text x="299" y="27" fill="var(--label2)">13</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="card">
+        <div class="c11" style="margin-bottom:8px">Durumun</div>
+        <div class="seg" style="margin-bottom:8px"><div>Başlamadım</div><div class="on" style="color:var(--warning)">Çalışıyorum</div><div>Bitti</div></div>
+        <div class="f13">Güven: <span style="color:var(--warning)">★★★</span><span style="color:var(--label3)">★★</span></div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="h17" style="margin-bottom:10px">Çıkmış sorular · 2026</div>
+        <div class="row" style="padding:7px 0;border-top:1px solid var(--sep)">
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">S.24</span>
+          <div class="grow f13" style="color:var(--label)">Yaş problemi — iki bilinmeyenli</div>
+          <span class="dot" style="background:var(--warning)"></span><span class="chev">↗</span>
+        </div>
+        <div class="row" style="padding:7px 0;border-top:1px solid var(--sep)">
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">S.27</span>
+          <div class="grow f13" style="color:var(--label)">Hareket — karşılıklı yaklaşma</div>
+          <span class="dot" style="background:var(--danger)"></span><span class="chev">↗</span>
+        </div>
+        <div class="row" style="padding:7px 0;border-top:1px solid var(--sep)">
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">S.31</span>
+          <div class="grow f13" style="color:var(--label)">Yüzde — indirim üzerinden kâr</div>
+          <span class="dot" style="background:var(--success)"></span><span class="chev">↗</span>
+        </div>
+        <div class="f13" style="margin-top:8px;color:var(--label3)">● kolay ● orta ● zor — satır, ÖSYM kaynak sayfasını açar</div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab on"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>03 · Konu Detayı</b><span>Yıl dağılımı · durum işaretleme · çıkmış soru meta listesi</span></div></div>
+
+  <!-- ═══════════ 04 GELİŞİM ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="lt">Gelişim</div>
+      <div class="lt-sub">Denemelerin ve net eğilimin</div>
+      <div class="seg"><div class="on">TYT</div><div>AYT</div></div>
+
+      <div class="kpi">
+        <div class="card"><div class="v">78,5</div><div class="k">son net</div></div>
+        <div class="card"><div class="v">74,2</div><div class="k">son 5 ort.</div></div>
+        <div class="card"><div class="v" style="color:var(--brand)">95</div><div class="k">hedef</div></div>
+      </div>
+
+      <div class="card">
+        <div class="h17" style="margin-bottom:10px">Net grafiği · son 8 deneme</div>
+        <svg width="100%" height="130" viewBox="0 0 320 130">
+          <line x1="0" y1="22" x2="320" y2="22" stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".5"/>
+          <text x="316" y="16" font-size="9" fill="var(--brand)" text-anchor="end">hedef 95</text>
+          <polyline points="14,96 56,88 98,94 140,76 182,80 224,66 266,60 308,50"
+            fill="none" stroke="var(--tyt)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="var(--tyt)">
+            <circle cx="14" cy="96" r="3.5"/><circle cx="56" cy="88" r="3.5"/><circle cx="98" cy="94" r="3.5"/>
+            <circle cx="140" cy="76" r="3.5"/><circle cx="182" cy="80" r="3.5"/><circle cx="224" cy="66" r="3.5"/>
+            <circle cx="266" cy="60" r="3.5"/><circle cx="308" cy="50" r="4.5" stroke="var(--surface)" stroke-width="2"/>
+          </g>
+          <g font-size="9" fill="var(--label3)" text-anchor="middle">
+            <text x="14" y="126">63,2</text><text x="140" y="126">71,5</text><text x="308" y="126">78,5</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="card">
+        <div class="h17" style="margin-bottom:10px">Ders kırılımı · son 5 ort.</div>
+        <div class="row" style="margin-bottom:8px"><span class="f13" style="width:70px">Türkçe</span><div class="grow bar-track"><div class="bar-fill" style="width:78%;background:var(--tyt)"></div></div><span class="f13" style="font-weight:700;color:var(--label)">31,2</span></div>
+        <div class="row" style="margin-bottom:8px"><span class="f13" style="width:70px">Matematik</span><div class="grow bar-track"><div class="bar-fill" style="width:55%;background:var(--brand)"></div></div><span class="f13" style="font-weight:700;color:var(--label)">22,0</span></div>
+        <div class="row" style="margin-bottom:8px"><span class="f13" style="width:70px">Fen</span><div class="grow bar-track"><div class="bar-fill" style="width:52%;background:var(--warning)"></div></div><span class="f13" style="font-weight:700;color:var(--label)">10,4</span></div>
+        <div class="row"><span class="f13" style="width:70px">Sosyal</span><div class="grow bar-track"><div class="bar-fill" style="width:53%;background:var(--ayt)"></div></div><span class="f13" style="font-weight:700;color:var(--label)">10,6</span></div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="row" style="margin-bottom:6px">
+          <div class="grow h17">Denemeler</div>
+          <span class="chip" style="background:var(--brand);color:#fff">+ Deneme ekle</span>
+        </div>
+        <table class="mini">
+          <tr><td>12 Tem · 3D Genel-4</td><td>78,5 <span style="color:var(--success)">▲</span></td></tr>
+          <tr><td>5 Tem · Limit TYT-9</td><td>75,25 <span style="color:var(--success)">▲</span></td></tr>
+          <tr><td>28 Haz · Karekök G-2</td><td>71,0 <span style="color:var(--danger)">▼</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab on"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>04 · Gelişim</b><span>Net eğilimi · ders kırılımı · deneme listesi</span></div></div>
+
+  <!-- ═══════════ 05 TERCİH ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="lt">Tercih</div>
+      <div class="lt-sub">Netlerine göre olası programlar</div>
+
+      <div class="card" style="background:linear-gradient(135deg,var(--surface),var(--surface2))">
+        <div class="row">
+          <div class="grow">
+            <div class="c11">Tahmini SAY puanı</div>
+            <div style="font-size:34px;font-weight:800;color:var(--label);letter-spacing:-.02em">486,2</div>
+            <div class="f13">Tahmini sıralama: <b style="color:var(--label)">≈ 24.000 – 29.000</b></div>
+          </div>
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">Netleri düzenle</span>
+        </div>
+        <div class="f13" style="margin-top:10px;color:var(--label3)">OBP dahil · 2026 verisine göre kalibre · <b>tahmindir</b></div>
+      </div>
+
+      <div class="row" style="gap:8px;margin-bottom:12px">
+        <span class="chip" style="background:var(--brand);color:#fff">Tümü</span>
+        <span class="chip" style="background:var(--surface);color:var(--label2)">Şehir</span>
+        <span class="chip" style="background:var(--surface);color:var(--label2)">Devlet</span>
+        <span class="chip" style="background:var(--surface);color:var(--label2)">Burslu</span>
+      </div>
+
+      <div class="card"><div class="row">
+        <div class="grow">
+          <div class="h17">Bilgisayar Müh. (İng.)</div>
+          <div class="f13">Hacettepe Ü. · Ankara · Devlet</div>
+          <div class="f13" style="margin-top:4px">2025: <b style="color:var(--label)">478,4 puan · 27.300</b></div>
+        </div>
+        <div style="text-align:right">
+          <span class="chip" style="background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)">Güvenli</span>
+          <div style="color:var(--warning);font-size:15px;margin-top:8px">★</div>
+        </div>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <div class="grow">
+          <div class="h17">Elektrik-Elektronik Müh.</div>
+          <div class="f13">İTÜ · İstanbul · Devlet</div>
+          <div class="f13" style="margin-top:4px">2025: <b style="color:var(--label)">492,1 puan · 21.900</b></div>
+        </div>
+        <div style="text-align:right">
+          <span class="chip" style="background:color-mix(in srgb,var(--warning) 16%,transparent);color:var(--warning)">Sınırda</span>
+          <div style="color:var(--label3);font-size:15px;margin-top:8px">☆</div>
+        </div>
+      </div></div>
+
+      <div class="card"><div class="row">
+        <div class="grow">
+          <div class="h17">Yazılım Müh. (%50 Burslu)</div>
+          <div class="f13">Bahçeşehir Ü. · İstanbul · Vakıf</div>
+          <div class="f13" style="margin-top:4px">2025: <b style="color:var(--label)">471,0 puan · 30.100</b></div>
+        </div>
+        <div style="text-align:right">
+          <span class="chip" style="background:color-mix(in srgb,var(--success) 14%,transparent);color:var(--success)">Güvenli</span>
+          <div style="color:var(--label3);font-size:15px;margin-top:8px">☆</div>
+        </div>
+      </div></div>
+
+      <div class="card" style="margin-bottom:0"><div class="row">
+        <div class="grow">
+          <div class="h17">Tıp Fakültesi</div>
+          <div class="f13">Ankara Ü. · Ankara · Devlet</div>
+          <div class="f13" style="margin-top:4px">2025: <b style="color:var(--label)">514,7 puan · 14.200</b></div>
+        </div>
+        <div style="text-align:right">
+          <span class="chip" style="background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger)">İddialı</span>
+          <div style="color:var(--label3);font-size:15px;margin-top:8px">☆</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab on"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>05 · Tercih Simülatörü</b><span>Puan+sıralama tahmini · Güvenli/Sınırda/İddialı kovaları · favoriler</span></div></div>
+
+  <!-- ═══════════ 06 HABERLER ═══════════ -->
+  <div class="shot"><div class="phone"><div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">●●●● 📶 🔋</span></div>
+    <div class="content">
+      <div class="lt">Haberler</div>
+      <div class="lt-sub">ÖSYM · YÖK · seçili kaynaklar</div>
+
+      <div style="display:flex;gap:10px;overflow:hidden;margin-bottom:14px">
+        <div class="card" style="flex:0 0 170px;margin:0;border-top:3px solid var(--warning)">
+          <div class="c11" style="color:var(--warning)">Takvim</div>
+          <div class="h17" style="font-size:14px;margin-top:4px">Tercih dönemi</div>
+          <div class="f13">24 Tem – 1 Ağu</div>
+        </div>
+        <div class="card" style="flex:0 0 170px;margin:0;border-top:3px solid var(--brand)">
+          <div class="c11" style="color:var(--brand)">Takvim</div>
+          <div class="h17" style="font-size:14px;margin-top:4px">Yerleştirme sonuçları</div>
+          <div class="f13">Ağustos (beklenen)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="margin-bottom:6px">
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">ÖSYM</span>
+          <span class="f13" style="margin-left:auto">2 sa önce</span>
+        </div>
+        <div class="h17">2026 YKS yerleştirme tercih kılavuzu yayımlandı</div>
+        <div class="f13" style="margin-top:4px">Tercih işlemleri 24 Temmuz'da başlayacak. Kılavuza ÖSYM'nin sitesinden…</div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="margin-bottom:6px">
+          <span class="chip" style="background:var(--ayt-soft);color:var(--ayt)">YÖK</span>
+          <span class="f13" style="margin-left:auto">5 sa önce</span>
+        </div>
+        <div class="h17">YÖK Atlas 2026 verileri güncellendi</div>
+        <div class="f13" style="margin-top:4px">Yeni taban puan ve başarı sıralamaları erişime açıldı…</div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="margin-bottom:6px">
+          <span class="chip" style="background:var(--surface2);color:var(--label2)">Basın</span>
+          <span class="f13" style="margin-left:auto">dün</span>
+        </div>
+        <div class="h17">Üniversite kontenjanlarında bu yıl neler değişti?</div>
+        <div class="f13" style="margin-top:4px">Mühendislik ve tıp kontenjanlarına ilişkin değerlendirme…</div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="row" style="margin-bottom:6px">
+          <span class="chip" style="background:var(--brand-soft);color:var(--brand)">ÖSYM</span>
+          <span class="f13" style="margin-left:auto">2 gün önce</span>
+        </div>
+        <div class="h17">YKS sonuç belgeleri e-Devlet'te</div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
+      <div class="tab"><svg><use href="#i-book"/></svg>Konular</div>
+      <div class="tab"><svg><use href="#i-chart"/></svg>Gelişim</div>
+      <div class="tab"><svg><use href="#i-cap"/></svg>Tercih</div>
+      <div class="tab on"><svg><use href="#i-news"/></svg>Haberler</div>
+    </div>
+  </div><div class="cap"><b>06 · Haberler</b><span>Takvim şeridi · kaynak rozetli haber kartları</span></div></div>
+
+</div>
+
+<h2>Tasarım Token'ları</h2>
+<p class="note">Bu değerler <code>src/theme/</code> içindeki token dosyasının birebir kaynağıdır (PROMPT.md §10).</p>
+<div class="tokens">
+  <div class="tk">
+    <h3>Renkler (açık · koyu)</h3>
+    <div class="sw"><i style="background:#4F46E5"></i>brand — marka, geri sayım, CTA<code>#4F46E5 · #818CF8</code></div>
+    <div class="sw"><i style="background:#0D9488"></i>tyt — TYT'ye ait her öğe<code>#0D9488 · #2DD4BF</code></div>
+    <div class="sw"><i style="background:#7C3AED"></i>ayt — AYT'ye ait her öğe<code>#7C3AED · #A78BFA</code></div>
+    <div class="sw"><i style="background:#16A34A"></i>success — artış, "Güvenli"<code>#16A34A · #4ADE80</code></div>
+    <div class="sw"><i style="background:#D97706"></i>warning — "Sınırda", uyarı<code>#D97706 · #FBBF24</code></div>
+    <div class="sw"><i style="background:#DC2626"></i>danger — düşüş, "İddialı"<code>#DC2626 · #F87171</code></div>
+    <div class="sw"><i style="background:#F2F2F7"></i>bg (grouped background)<code>#F2F2F7 · #000000</code></div>
+    <div class="sw"><i style="background:#FFFFFF"></i>surface (kart)<code>#FFFFFF · #1C1C1E</code></div>
+  </div>
+  <div class="tk">
+    <h3>Tipografi (sistem fontu)</h3>
+    <div class="ts"><em>LargeTitle 34/800</em><span style="font-size:26px;font-weight:800">Konular</span></div>
+    <div class="ts"><em>Title2 22/700</em><span style="font-size:20px;font-weight:700">Net grafiği</span></div>
+    <div class="ts"><em>Headline 17/600</em><span style="font-size:16px;font-weight:600">Bilgisayar Müh.</span></div>
+    <div class="ts"><em>Body 17/400</em><span style="font-size:16px">Paragraf çalış…</span></div>
+    <div class="ts"><em>Footnote 13</em><span style="font-size:13px;color:var(--label2)">40 soru · 10/14 konu</span></div>
+    <div class="ts"><em>Caption 11/600 caps</em><span class="c11">Tahmini SAY puanı</span></div>
+    <p style="margin-top:10px">Radius: kart 16 · buton 12 · sheet 24 · tab bar 33 (pill).<br>Spacing: 4/8/12/16/24. Dokunma hedefi ≥ 44pt.</p>
+  </div>
+  <div class="tk">
+    <h3>Liquid Glass kuralları</h3>
+    <p><b>Glass kullanılan yerler:</b> tab bar (native — iOS 26'da otomatik), TYT/AYT segment kontrolü, yüzen aksiyonlar. <code>GlassView</code> (expo-glass-effect).</p>
+    <p><b>Glass kullanılmayan yerler:</b> içerik kartları — okunabilirlik için düz <code>surface</code>.</p>
+    <p><b>Fallback zinciri:</b> <code>isLiquidGlassAvailable()</code> false → <code>expo-blur</code>; reduce-transparency açık → düz yüzey.</p>
+    <h3 style="margin-top:16px">Android (Material 3) uyarlaması</h3>
+    <p>Tab bar → Material bottom navigation (native tabs zaten halleder). Segment → M3 SegmentedButton. Radius M3 ölçeğine: 12/16/28. Ripple efektleri native. Aynı renk token'ları; Dynamic Color v1.1 backlog.</p>
+  </div>
+</div>
+
+<script>
+  if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+</script>
+</body>
+</html>

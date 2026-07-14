@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "authority": "Yükseköğretim Kurulu (YÖK)",
+  "product": "YÖK Atlas",
+  "verifiedAt": "2026-07-14T19:50:18.898Z",
+  "source": {
+    "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
+    "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
+    "detailBaseUrl": "https://yokatlas.yok.gov.tr/detay",
+    "snapshotSource": "snapshot",
+    "snapshotYear": 2025,
+    "spaBundle": {
+      "url": "https://yokatlas.yok.gov.tr/static/js/main.c2960988.js",
+      "sha256": "8790166556afe546f29189069aa04805be5068d05fcb4ef8a6cb2c27c85b8914"
+    }
+  },
+  "selection": {
+    "level": "lisans",
+    "birimTuruId": 46,
+    "scoreTypes": [
+      "SAY",
+      "EA",
+      "SÖZ"
+    ],
+    "supportedUniversityTypes": [
+      "DEVLET",
+      "VAKIF",
+      "KKTC"
+    ],
+    "localePolicy": "source-only"
+  },
+  "pagination": {
+    "pageSize": 500,
+    "delayMs": 250,
+    "requestCount": 24,
+    "totalsByScoreType": {
+      "SAY": 5653,
+      "EA": 3987,
+      "SÖZ": 1948
+    }
+  },
+  "fieldMappings": {
+    "currentYear": {
+      "year": "yil",
+      "quota": "kontenjan",
+      "minScore": "minPuan",
+      "minRank": "basariSirasi"
+    },
+    "historicalYears": [
+      {
+        "offset": -1,
+        "quota": "gk1",
+        "minScore": "minPuan1",
+        "minRank": "basariSirasi1"
+      },
+      {
+        "offset": -2,
+        "quota": "gk2",
+        "minScore": "minPuan2",
+        "minRank": "basariSirasi2"
+      },
+      {
+        "offset": -3,
+        "quota": "gk3",
+        "minScore": "minPuan3",
+        "minRank": "basariSirasi3"
+      }
+    ],
+    "placed": "null — no proven year-by-year placed-count field is imported; values are never inferred",
+    "unsupportedScholarship": "null — source label remains visible in birimAdi and is counted below; no lossy category mapping"
+  },
+  "result": {
+    "receivedRows": 11588,
+    "importedPrograms": 11444,
+    "programYears": 41130,
+    "skippedPrograms": 144,
+    "skippedByUniversityType": {
+      "YURTDISI VAKIF": 35,
+      "YURTDISI KAMU": 109
+    },
+    "omittedScholarshipLabels": {},
+    "fixtureSha256": "5af74b04182f672eb1b01b80d0589484de35294ba83cc9e8d178948397255f06"
+  }
+}

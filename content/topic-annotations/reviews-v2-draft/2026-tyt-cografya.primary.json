@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "reviewRole": "primary",
+  "waveId": "2026-tyt-cografya",
+  "year": 2026,
+  "exam": "tyt",
+  "sectionId": "tyt-sosyal",
+  "bookletSectionId": "sosyal-bilimler",
+  "questionBlockId": "tyt-sosyal-cografya-default",
+  "allowedSubjectIds": ["tyt-cografya"],
+  "answerSetId": "default",
+  "alternativeForSubjectId": null,
+  "countsTowardDefaultStats": true,
+  "questionRange": { "first": 6, "last": 10 },
+  "bookletRegistryId": "2026-tyt",
+  "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+  "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+  "reviewer": "codex-primary-f",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 6,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "iklim-tipleri" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 7,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "ic-ve-dis-kuvvetler" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 8,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "nufus-ve-goc" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 9,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "bolgeler-ve-ulkeler" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 10,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "dogal-afetler" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    }
+  ]
+}

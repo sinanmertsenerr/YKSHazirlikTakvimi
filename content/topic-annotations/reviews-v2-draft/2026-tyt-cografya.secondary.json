@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "examYear": 2026,
+  "examId": "tyt",
+  "sectionId": "sosyal-bilimler-cografya",
+  "allowedSubjectIds": ["tyt-cografya"],
+  "answerSet": "standard",
+  "alternativeFor": null,
+  "evidenceOnly": false,
+  "officialSource": {
+    "registryId": "2026-tyt",
+    "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+    "questionRange": { "first": 6, "last": 10 }
+  },
+  "reviewer": "codex-secondary-g",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 6,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "iklim-tipleri" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 7,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "ic-ve-dis-kuvvetler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 8,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "nufus-ve-goc" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 9,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "bolgeler-ve-ulkeler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 10,
+      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "dogal-afetler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    }
+  ]
+}

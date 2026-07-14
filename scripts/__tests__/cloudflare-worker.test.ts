@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { handleRequest, type Env } from '../../infra/cloudflare/src/index.ts';
+
+const token = '0123456789abcdef0123456789abcdef';
+
+function textPayload() {
+  return {
+    model: '@cf/qwen/qwen3-30b-a3b-fp8',
+    mode: 'text',
+    requestId: '2026-tyt-turkce-text-pass-1',
+    messages: [
+      { role: 'system', content: 'Return only the requested taxonomy IDs.' },
+      { role: 'user', content: 'Evidence held only for this private inference request.' },
+    ],
+    responseJsonSchema: {
+      type: 'object',
+      properties: { topicId: { type: 'string' } },
+      required: ['topicId'],
+      additionalProperties: false,
+    },
+    maxCompletionTokens: 512,
+    temperature: 0,
+  };
+}
+
+function request(body: unknown, authorization = `Bearer ${token}`) {
+  return new Request('https://classifier.example/v1/classify', {
+    method: 'POST',
+    headers: { authorization, 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+function environment(run: Env['AI']['run']): Env {
+  return { AI: { run }, CLASSIFIER_AUTH_TOKEN: token };
+}
+
+test('Cloudflare classifier rejects unauthenticated requests before inference', async () => {
+  let called = false;
+  const response = await handleRequest(
+    request(textPayload(), 'Bearer incorrect-token-value-000000000000'),
+    environment(async () => {
+      called = true;
+      return {};
+    }),
+  );
+
+  assert.equal(response.status, 401);
+  assert.equal(called, false);
+  assert.equal(response.headers.get('cache-control'), 'no-store, max-age=0');
+  assert.deepEqual(await response.json(), { error: 'unauthorized' });
+});
+
+test('Cloudflare classifier accepts only the pinned text model contract', async () => {
+  let receivedModel = '';
+  let receivedInput: Record<string, unknown> | undefined;
+  const response = await handleRequest(
+    request(textPayload()),
+    environment(async (model, input) => {
+      receivedModel = model;
+      receivedInput = input;
+      return { response: '{"topicId":"paragraf"}' };
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(receivedModel, '@cf/qwen/qwen3-30b-a3b-fp8');
+  assert.equal(receivedInput?.store, false);
+  assert.equal(receivedInput?.stream, false);
+  assert.equal(receivedInput?.temperature, 0);
+  assert.deepEqual(await response.json(), {
+    result: { response: '{"topicId":"paragraf"}' },
+  });
+});
+
+test('Cloudflare classifier fails closed for model/mode drift and remote images', async () => {
+  let calls = 0;
+  const env = environment(async () => {
+    calls += 1;
+    return {};
+  });
+  const wrongMode = { ...textPayload(), mode: 'vision' };
+  const remoteImage = {
+    ...textPayload(),
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    mode: 'vision',
+    messages: [
+      textPayload().messages[0],
+      {
+        role: 'user',
+        content: [{ type: 'image_url', image_url: { url: 'https://example.com/question.png' } }],
+      },
+    ],
+  };
+
+  const wrongModeResponse = await handleRequest(request(wrongMode), env);
+  const remoteImageResponse = await handleRequest(request(remoteImage), env);
+
+  assert.equal(wrongModeResponse.status, 400);
+  assert.equal(remoteImageResponse.status, 400);
+  assert.equal(calls, 0);
+});
+
+test('Cloudflare classifier hides inference failures behind a bounded error response', async () => {
+  const response = await handleRequest(
+    request(textPayload()),
+    environment(async () => {
+      throw new Error('provider detail that must not escape');
+    }),
+  );
+
+  assert.equal(response.status, 502);
+  assert.deepEqual(await response.json(), { error: 'inference-failed' });
+});

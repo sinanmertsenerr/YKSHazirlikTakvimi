@@ -1,0 +1,252 @@
+import type { Program } from '@/data/content';
+import { trSearch } from '@/utils/format';
+
+export type ProgramQueryLanguage = 'tr' | 'en';
+
+export type ProgramListFilters = {
+  scoreType: Extract<Program['scoreType'], 'say' | 'ea' | 'soz'>;
+  language: ProgramQueryLanguage;
+  search?: string;
+  city?: string | null;
+  instructionLanguage?: string | null;
+  type?: Program['type'];
+  scholarship?: NonNullable<Program['scholarship']>;
+};
+
+export type SqlQuery = {
+  sql: string;
+  parameters: (number | string)[];
+};
+
+const PROGRAM_COLUMNS = `
+  p.id, p.university, p.university_en, p.name, p.name_en, p.city, p.city_en,
+  p.type, p.score_type, p.scholarship, p.language, p.language_en, p.verified,
+  p.source, p.verified_at, p.approximate, p.sample
+`;
+
+export const PUBLISHABLE_PROGRAM_PREDICATE = `
+  p.verified = 1
+  AND p.source IS NOT NULL
+  AND length(trim(p.source)) > 0
+  AND p.verified_at IS NOT NULL
+  AND p.approximate = 0
+  AND p.sample = 0
+`;
+
+export function publishableYearPredicate(alias: string): string {
+  if (!/^[a-z][a-z0-9_]*$/i.test(alias)) throw new Error('Unsafe SQL alias');
+  return `
+    ${alias}.verified = 1
+    AND ${alias}.source IS NOT NULL
+    AND length(trim(${alias}.source)) > 0
+    AND ${alias}.verified_at IS NOT NULL
+    AND ${alias}.approximate = 0
+    AND ${alias}.sample = 0
+  `;
+}
+
+const PUBLISHABLE_YEAR_EXISTS = `EXISTS (
+  SELECT 1
+  FROM program_year py_exists
+  WHERE py_exists.program_id = p.id
+    AND ${publishableYearPredicate('py_exists')}
+)`;
+
+/** Mirrors trSearch for the Turkish characters used by YÖK Atlas labels. */
+function normalizedSqlColumn(column: string): string {
+  return `lower(
+    replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+      ${column},
+      'İ', 'i'), 'I', 'ı'), 'Ş', 's'), 'ş', 's'), 'Ğ', 'g'), 'ğ', 'g'),
+      'Ç', 'c'), 'ç', 'c'), 'Ö', 'o'), 'ö', 'o'), 'Ü', 'u'), 'ü', 'u'),
+      'Â', 'a'), 'â', 'a')
+  )`;
+}
+
+/** Escapes LIKE metacharacters so user input is always treated as literal text. */
+export function escapeProgramLike(value: string): string {
+  return value.replaceAll('!', '!!').replaceAll('%', '!%').replaceAll('_', '!_');
+}
+
+export function normalizeProgramSearch(value: string): string {
+  return escapeProgramLike(trSearch(value));
+}
+
+function filterWhere(filters: ProgramListFilters): {
+  clauses: string[];
+  parameters: (number | string)[];
+} {
+  const clauses = [PUBLISHABLE_PROGRAM_PREDICATE, PUBLISHABLE_YEAR_EXISTS, 'p.score_type = ?'];
+  const parameters: (number | string)[] = [filters.scoreType];
+
+  if (filters.city) {
+    clauses.push(`${filters.language === 'en' ? 'p.city_en' : 'p.city'} = ?`);
+    parameters.push(filters.city);
+  }
+  if (filters.instructionLanguage) {
+    clauses.push(`${filters.language === 'en' ? 'p.language_en' : 'p.language'} = ?`);
+    parameters.push(filters.instructionLanguage);
+  }
+  if (filters.type) {
+    clauses.push('p.type = ?');
+    parameters.push(filters.type);
+  }
+  if (filters.scholarship) {
+    clauses.push('p.scholarship = ?');
+    parameters.push(filters.scholarship);
+  }
+
+  const search = normalizeProgramSearch(filters.search ?? '');
+  if (search) {
+    const nameColumn = filters.language === 'en' ? 'p.name_en' : 'p.name';
+    const universityColumn = filters.language === 'en' ? 'p.university_en' : 'p.university';
+    clauses.push(
+      `${normalizedSqlColumn(`${nameColumn} || ' ' || ${universityColumn}`)} LIKE '%' || ? || '%' ESCAPE '!'`,
+    );
+    parameters.push(search);
+  }
+
+  return { clauses, parameters };
+}
+
+function assertPage(limit: number, offset: number): void {
+  // The repository requests one look-ahead row on top of its public 200-row maximum.
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 201) {
+    throw new RangeError('Program SQL limit must be between 1 and 201');
+  }
+  if (!Number.isSafeInteger(offset) || offset < 0) {
+    throw new RangeError('Program query offset must be a nonnegative integer');
+  }
+}
+
+export function buildProgramListQuery(
+  filters: ProgramListFilters,
+  limit: number,
+  offset: number,
+): SqlQuery {
+  assertPage(limit, offset);
+  const where = filterWhere(filters);
+  return {
+    sql: `
+      SELECT ${PROGRAM_COLUMNS}
+      FROM program p
+      LEFT JOIN program_year latest
+        ON latest.program_id = p.id
+       AND latest.year = (
+         SELECT max(py_latest.year)
+         FROM program_year py_latest
+         WHERE py_latest.program_id = p.id
+           AND ${publishableYearPredicate('py_latest')}
+       )
+      WHERE ${where.clauses.join('\n        AND ')}
+      ORDER BY latest.min_rank IS NULL, latest.min_rank, p.id
+      LIMIT ? OFFSET ?
+    `,
+    parameters: [...where.parameters, limit, offset],
+  };
+}
+
+export function buildFavoriteProgramIdsQuery(
+  filters: ProgramListFilters,
+  favoriteIds: readonly string[],
+): SqlQuery {
+  if (!favoriteIds.length) throw new RangeError('Favorite ID query cannot be empty');
+  const where = filterWhere(filters);
+  return {
+    sql: `
+      SELECT p.id
+      FROM program p
+      WHERE ${where.clauses.join('\n        AND ')}
+        AND p.id IN (${favoriteIds.map(() => '?').join(', ')})
+    `,
+    parameters: [...where.parameters, ...favoriteIds],
+  };
+}
+
+export function buildProgramsByIdsQuery(ids: readonly string[]): SqlQuery {
+  if (!ids.length) throw new RangeError('Program ID query cannot be empty');
+  return {
+    sql: `
+      SELECT ${PROGRAM_COLUMNS}
+      FROM program p
+      WHERE ${PUBLISHABLE_PROGRAM_PREDICATE}
+        AND ${PUBLISHABLE_YEAR_EXISTS}
+        AND p.id IN (${ids.map(() => '?').join(', ')})
+    `,
+    parameters: [...ids],
+  };
+}
+
+export function buildProgramDetailQuery(id: string): SqlQuery {
+  return {
+    sql: `
+      SELECT ${PROGRAM_COLUMNS}
+      FROM program p
+      WHERE ${PUBLISHABLE_PROGRAM_PREDICATE}
+        AND ${PUBLISHABLE_YEAR_EXISTS}
+        AND p.id = ?
+      LIMIT 1
+    `,
+    parameters: [id],
+  };
+}
+
+export function buildProgramYearsQuery(ids: readonly string[]): SqlQuery {
+  if (!ids.length) throw new RangeError('Program year query cannot be empty');
+  return {
+    sql: `
+      SELECT program_id, year, quota, placed, min_score, min_rank, verified, source,
+             verified_at, approximate, sample
+      FROM program_year py
+      WHERE py.program_id IN (${ids.map(() => '?').join(', ')})
+        AND ${publishableYearPredicate('py')}
+      ORDER BY py.program_id, py.year DESC
+    `,
+    parameters: [...ids],
+  };
+}
+
+export function buildProgramCitiesQuery(language: ProgramQueryLanguage): SqlQuery {
+  const cityColumn = language === 'en' ? 'p.city_en' : 'p.city';
+  return {
+    sql: `
+      SELECT DISTINCT ${cityColumn} AS city
+      FROM program p
+      WHERE ${PUBLISHABLE_PROGRAM_PREDICATE}
+        AND ${PUBLISHABLE_YEAR_EXISTS}
+      ORDER BY ${cityColumn} COLLATE NOCASE, ${cityColumn}
+    `,
+    parameters: [],
+  };
+}
+
+export function buildProgramLanguagesQuery(language: ProgramQueryLanguage): SqlQuery {
+  const languageColumn = language === 'en' ? 'p.language_en' : 'p.language';
+  return {
+    sql: `
+      SELECT DISTINCT ${languageColumn} AS instruction_language
+      FROM program p
+      WHERE ${PUBLISHABLE_PROGRAM_PREDICATE}
+        AND ${PUBLISHABLE_YEAR_EXISTS}
+        AND ${languageColumn} IS NOT NULL
+        AND length(trim(${languageColumn})) > 0
+      ORDER BY ${languageColumn} COLLATE NOCASE, ${languageColumn}
+    `,
+    parameters: [],
+  };
+}
+
+export function uniqueFavoriteIds(ids: readonly string[]): string[] {
+  return [...new Set(ids.filter((id) => id.trim().length > 0))];
+}
+
+export function orderRecordsByIds<T extends { id: string }>(
+  records: readonly T[],
+  ids: readonly string[],
+): T[] {
+  const byId = new Map(records.map((record) => [record.id, record]));
+  return ids.flatMap((id) => {
+    const record = byId.get(id);
+    return record ? [record] : [];
+  });
+}

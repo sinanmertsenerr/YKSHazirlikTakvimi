@@ -1,0 +1,85 @@
+name: Discover next official ÖSYM booklets
+
+on:
+  schedule:
+    # Publication timing can move; check twice weekly during the normal release window.
+    - cron: '17 6 * 6,7 1,4'
+  workflow_dispatch:
+    inputs:
+      year:
+        description: Next contiguous YKS year (defaults to registry lastYear + 1)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discover-osym-booklets
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Select the next contiguous year
+        id: scope
+        env:
+          REQUESTED_YEAR: ${{ inputs.year }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          last_year="$(node -e "const registry=require('./content/osym-booklets.json'); process.stdout.write(String(registry.coverage.lastYear))")"
+          next_year="$((last_year + 1))"
+          year="${REQUESTED_YEAR:-$next_year}"
+          if [[ ! "$year" =~ ^[0-9]{4}$ ]] || (( 10#$year < 2018 || 10#$year > 2100 )); then
+            echo "year must be an integer from 2018 through 2100" >&2
+            exit 1
+          fi
+          if (( 10#$year != next_year )); then
+            echo "year must be the next contiguous registry year $next_year" >&2
+            exit 1
+          fi
+          run=true
+          if [[ "${{ github.event_name }}" == "schedule" ]] && (( next_year > 10#$(date -u +%Y) )); then
+            run=false
+          fi
+          echo "year=$year" >> "$GITHUB_OUTPUT"
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "output=tmp/osym-booklet-discovery/$year-candidate.json" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        if: steps.scope.outputs.run == 'true'
+        run: npm ci
+
+      - name: Install Poppler
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends poppler-utils
+
+      - name: Produce review-only candidate
+        if: steps.scope.outputs.run == 'true'
+        env:
+          YEAR: ${{ steps.scope.outputs.year }}
+          OUTPUT: ${{ steps.scope.outputs.output }}
+        run: npm run discover:booklets -- --year "$YEAR" --output "$OUTPUT"
+
+      - name: Upload candidate (never publish content)
+        if: steps.scope.outputs.run == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: osym-booklet-registry-candidate-${{ steps.scope.outputs.year }}
+          path: ${{ steps.scope.outputs.output }}
+          if-no-files-found: error
+          retention-days: 14

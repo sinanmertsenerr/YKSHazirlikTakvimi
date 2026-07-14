@@ -1,0 +1,10 @@
+node_modules
+.expo
+dist
+coverage
+assets/pack
+content/*.json
+designs
+PROMPT.md
+.env.example
+infra/cloudflare/wrangler.toml

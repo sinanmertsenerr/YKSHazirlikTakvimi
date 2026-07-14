@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "reviewRole": "primary",
+  "waveId": "2026-tyt-din-kulturu",
+  "year": 2026,
+  "exam": "tyt",
+  "sectionId": "tyt-sosyal",
+  "bookletSectionId": "sosyal-bilimler",
+  "questionBlockId": "tyt-sosyal-din-default",
+  "allowedSubjectIds": ["tyt-din-kulturu"],
+  "answerSetId": "default",
+  "alternativeForSubjectId": null,
+  "countsTowardDefaultStats": true,
+  "questionRange": { "first": 16, "last": 20 },
+  "bookletRegistryId": "2026-tyt",
+  "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+  "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+  "reviewer": "codex-primary-f",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 16,
+      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "bilgi-ve-inanc" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 17,
+      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "bilgi-ve-inanc" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 18,
+      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "hz-muhammed" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 19,
+      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "din-ve-hayat" },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 20,
+      "primaryTopicRef": {
+        "subjectId": "tyt-din-kulturu",
+        "topicId": "islam-dusuncesinde-yorumlar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    }
+  ]
+}

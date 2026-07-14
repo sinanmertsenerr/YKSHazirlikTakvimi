@@ -1,0 +1,151 @@
+name: Annual official-question topic classification dry run
+
+on:
+  schedule:
+    - cron: '31 3 15 7 *'
+  workflow_dispatch:
+    inputs:
+      year:
+        description: Official booklet year already pinned in content/osym-booklets.json
+        required: true
+        type: string
+      exam:
+        description: Session scope
+        required: true
+        type: choice
+        options: [both, tyt, ayt]
+        default: both
+      block_id:
+        description: Optional exact block ID (choose a single exam when using this)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: annual-topic-classification-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  classify:
+    strategy:
+      fail-fast: false
+      matrix:
+        exam: [tyt, ayt]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Resolve fail-closed scope
+        id: scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_YEAR: ${{ inputs.year }}
+          REQUESTED_EXAM: ${{ inputs.exam }}
+          REQUESTED_BLOCK: ${{ inputs.block_id }}
+          MATRIX_EXAM: ${{ matrix.exam }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "schedule" ]]; then
+            year="$(date -u +'%Y')"
+            should_run=true
+            block_id=""
+          else
+            year="$REQUESTED_YEAR"
+            should_run=false
+            block_id="$REQUESTED_BLOCK"
+            if [[ "$REQUESTED_EXAM" == "both" || "$REQUESTED_EXAM" == "$MATRIX_EXAM" ]]; then
+              should_run=true
+            fi
+            if [[ -n "$block_id" && "$REQUESTED_EXAM" == "both" ]]; then
+              echo "block_id requires selecting exactly one exam" >&2
+              exit 1
+            fi
+          fi
+          if [[ ! "$year" =~ ^[0-9]{4}$ ]] || (( 10#$year < 2018 || 10#$year > 2100 )); then
+            echo "year must be an integer from 2018 through 2100" >&2
+            exit 1
+          fi
+          echo "year=$year" >> "$GITHUB_OUTPUT"
+          echo "run=$should_run" >> "$GITHUB_OUTPUT"
+          echo "block_id=$block_id" >> "$GITHUB_OUTPUT"
+          echo "output=tmp/annual-topic-classifier/$year-$MATRIX_EXAM" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        if: steps.scope.outputs.run == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.scope.outputs.run == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Require private classifier credentials
+        if: steps.scope.outputs.run == 'true'
+        shell: bash
+        env:
+          CF_CLASSIFIER_ENDPOINT: ${{ secrets.CF_CLASSIFIER_ENDPOINT }}
+          CF_CLASSIFIER_TOKEN: ${{ secrets.CF_CLASSIFIER_TOKEN }}
+        run: |
+          set -euo pipefail
+          [[ -n "${CF_CLASSIFIER_ENDPOINT:-}" ]] || { echo "Missing CF_CLASSIFIER_ENDPOINT secret" >&2; exit 1; }
+          [[ -n "${CF_CLASSIFIER_TOKEN:-}" ]] || { echo "Missing CF_CLASSIFIER_TOKEN secret" >&2; exit 1; }
+
+      - name: Install dependencies and Poppler
+        if: steps.scope.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          npm ci
+
+      - name: Validate pinned sources and current content
+        if: steps.scope.outputs.run == 'true'
+        run: |
+          npm run validate:booklets
+          npm run validate:pack
+          npm run test:annual-classifier
+
+      - name: Build validated pack and SQLite snapshot
+        if: steps.scope.outputs.run == 'true'
+        run: npm run build:pack
+
+      - name: Run two-pass classifier (dry run only)
+        if: steps.scope.outputs.run == 'true'
+        shell: bash
+        env:
+          CF_CLASSIFIER_ENDPOINT: ${{ secrets.CF_CLASSIFIER_ENDPOINT }}
+          CF_CLASSIFIER_TOKEN: ${{ secrets.CF_CLASSIFIER_TOKEN }}
+          YEAR: ${{ steps.scope.outputs.year }}
+          EXAM: ${{ matrix.exam }}
+          BLOCK_ID: ${{ steps.scope.outputs.block_id }}
+          OUTPUT: ${{ steps.scope.outputs.output }}
+        run: |
+          set -euo pipefail
+          args=(--year "$YEAR" --exam "$EXAM" --output "$OUTPUT" --dry-run)
+          if [[ -n "$BLOCK_ID" ]]; then
+            args+=(--block-id "$BLOCK_ID")
+          else
+            args+=(--all-blocks)
+          fi
+          npm run classify:annual -- "${args[@]}"
+
+      - name: Enforce ID-only artifact contract
+        if: steps.scope.outputs.run == 'true'
+        env:
+          OUTPUT: ${{ steps.scope.outputs.output }}
+        run: npm run validate:annual-artifacts -- "$OUTPUT"
+
+      - name: Upload reviews and disputes (never raw questions)
+        if: steps.scope.outputs.run == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: annual-topic-classification-${{ steps.scope.outputs.year }}-${{ matrix.exam }}
+          path: ${{ steps.scope.outputs.output }}/*.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 14

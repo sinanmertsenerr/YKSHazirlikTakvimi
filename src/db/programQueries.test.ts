@@ -1,0 +1,99 @@
+import {
+  buildFavoriteProgramIdsQuery,
+  buildProgramCitiesQuery,
+  buildProgramLanguagesQuery,
+  buildProgramListQuery,
+  normalizeProgramSearch,
+  orderRecordsByIds,
+  publishableYearPredicate,
+  uniqueFavoriteIds,
+} from './programQueries';
+
+describe('program SQLite query construction', () => {
+  it('keeps every truth predicate in SQL and binds all user-controlled filters', () => {
+    const query = buildProgramListQuery(
+      {
+        scoreType: 'ea',
+        language: 'tr',
+        city: 'ANKARA',
+        instructionLanguage: 'İngilizce',
+        type: 'vakif',
+        scholarship: '%50',
+        search: 'İŞ_%!',
+      },
+      61,
+      120,
+    );
+
+    expect(query.sql).toContain('p.verified = 1');
+    expect(query.sql).toContain('p.approximate = 0');
+    expect(query.sql).toContain('p.sample = 0');
+    expect(query.sql).toContain('py_exists.verified = 1');
+    expect(query.sql).toContain('p.score_type = ?');
+    expect(query.sql).toContain('p.city = ?');
+    expect(query.sql).toContain('p.language = ?');
+    expect(query.sql).toContain('p.type = ?');
+    expect(query.sql).toContain('p.scholarship = ?');
+    expect(query.sql).toContain("p.name || ' ' || p.university");
+    expect(query.sql).not.toContain('ANKARA');
+    expect(query.sql).not.toContain('İŞ_%!');
+    expect(query.parameters).toEqual([
+      'ea',
+      'ANKARA',
+      'İngilizce',
+      'vakif',
+      '%50',
+      'is!_!%!!',
+      61,
+      120,
+    ]);
+  });
+
+  it('normalizes Turkish search and escapes LIKE wildcards as literals', () => {
+    expect(normalizeProgramSearch('  ÜNİVERSİTE_%!  ')).toBe('universite!_!%!!');
+    expect(normalizeProgramSearch('KÂĞIT')).toBe('kagıt');
+  });
+
+  it('uses only the selected locale column for city facets', () => {
+    expect(buildProgramCitiesQuery('tr').sql).toContain('p.city AS city');
+    expect(buildProgramCitiesQuery('en').sql).toContain('p.city_en AS city');
+    expect(buildProgramLanguagesQuery('tr').sql).toContain('p.language AS instruction_language');
+    expect(buildProgramLanguagesQuery('en').sql).toContain('p.language_en AS instruction_language');
+  });
+
+  it('chunks favorite IDs through bound parameters without changing filter semantics', () => {
+    const query = buildFavoriteProgramIdsQuery(
+      { scoreType: 'soz', language: 'tr', type: 'kibris' },
+      ['3001', '3002'],
+    );
+
+    expect(query.sql).toContain('p.type = ?');
+    expect(query.sql).toContain('p.id IN (?, ?)');
+    expect(query.parameters).toEqual(['soz', 'kibris', '3001', '3002']);
+  });
+
+  it('preserves the stored favorite order and removes duplicate/blank IDs', () => {
+    const ids = uniqueFavoriteIds(['c', 'a', 'c', '', 'b']);
+    const ordered = orderRecordsByIds(
+      [
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+        { id: 'c', label: 'C' },
+      ],
+      ids,
+    );
+
+    expect(ids).toEqual(['c', 'a', 'b']);
+    expect(ordered.map((record) => record.id)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('rejects unsafe aliases and unbounded pages', () => {
+    expect(() => publishableYearPredicate('py; DROP TABLE program')).toThrow('Unsafe SQL alias');
+    expect(() => buildProgramListQuery({ scoreType: 'say', language: 'tr' }, 202, 0)).toThrow(
+      'Program SQL limit',
+    );
+    expect(() => buildProgramListQuery({ scoreType: 'say', language: 'tr' }, 60, -1)).toThrow(
+      'Program query offset',
+    );
+  });
+});

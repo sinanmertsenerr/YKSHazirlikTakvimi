@@ -1,0 +1,55 @@
+{
+  "year": 2026,
+  "exam": "ayt",
+  "sectionId": "ayt-sosyal-2",
+  "subjectId": "ayt-tarih-2",
+  "bookletId": "2026-ayt",
+  "bookletSha256": "3e85eed4978afc62dd5f38ffa079e06aa90cf951af05d0f1183f6acbbab9a026",
+  "reviewer": "codex-primary-d",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    { "questionNo": 1, "topicId": "ayt-tarih-2-tarih-ve-zaman", "page": 15 },
+    {
+      "questionNo": 2,
+      "topicId": "ayt-tarih-2-ilk-ve-orta-caglarda-turk-dunyasi",
+      "page": 15
+    },
+    {
+      "questionNo": 3,
+      "topicId": "ayt-tarih-2-selcuklu-turkiyesi",
+      "page": 15
+    },
+    {
+      "questionNo": 4,
+      "topicId": "ayt-tarih-2-beylikten-devlete-osmanli",
+      "page": 15
+    },
+    {
+      "questionNo": 5,
+      "topicId": "ayt-tarih-2-degisen-dunya-dengeleri-ve-osmanli",
+      "page": 16
+    },
+    {
+      "questionNo": 6,
+      "topicId": "ayt-tarih-2-uluslararasi-iliskilerde-denge",
+      "page": 16
+    },
+    {
+      "questionNo": 7,
+      "topicId": "ayt-tarih-2-yirminci-yuzyil-basinda-osmanli-ve-dunya",
+      "page": 16
+    },
+    { "questionNo": 8, "topicId": "ayt-tarih-2-milli-mucadele", "page": 16 },
+    { "questionNo": 9, "topicId": "ayt-tarih-2-milli-mucadele", "page": 16 },
+    {
+      "questionNo": 10,
+      "topicId": "ayt-tarih-2-ataturkculuk-ve-turk-inkilabi",
+      "page": 17
+    },
+    {
+      "questionNo": 11,
+      "topicId": "ayt-tarih-2-ikinci-dunya-savasi",
+      "page": 17
+    }
+  ]
+}

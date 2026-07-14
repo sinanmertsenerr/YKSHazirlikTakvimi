@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "examYear": 2026,
+  "examId": "tyt",
+  "sectionId": "temel-matematik",
+  "allowedSubjectIds": ["tyt-matematik", "tyt-geometri"],
+  "answerSet": "standard",
+  "alternativeFor": null,
+  "evidenceOnly": false,
+  "officialSource": {
+    "registryId": "2026-tyt",
+    "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+    "questionRange": { "first": 1, "last": 40 }
+  },
+  "reviewer": "codex-secondary-g",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 1,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "rasyonel-sayilar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 2,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "uslu-sayilar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 3,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "koklu-sayilar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 4,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "rasyonel-sayilar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 5,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "denklem-cozme" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 6,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "carpanlara-ayirma" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 7,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "mutlak-deger" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 8,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "sayi-basamaklari" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 9,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 10,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "kumeler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 11,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "mantik" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 12,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "fonksiyonlar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 13,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "bolme-ve-bolunebilme" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 14,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "cokgenler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 15,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "sayi-basamaklari" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 16,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "veri-istatistik" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 17,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 18,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-kesir" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 19,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-yuzde" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 20,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "oran-oranti" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 21,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-yas" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 22,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-hiz" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 23,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-grafik" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 24,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-hiz" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 25,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 26,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 27,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 28,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "problemler-rutin-olmayan" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 29,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "permutasyon-kombinasyon" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 30,
+      "primaryTopicRef": { "subjectId": "tyt-matematik", "topicId": "olasilik" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 31,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "ucgende-acilar" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 32,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "aci-kenar-bagintilari" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 33,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "aci-kenar-bagintilari" },
+      "relatedTopicRefs": [{ "subjectId": "tyt-geometri", "topicId": "ucgende-alan" }],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 34,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "ozel-ucgenler" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 35,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "benzerlik" },
+      "relatedTopicRefs": [{ "subjectId": "tyt-geometri", "topicId": "ucgende-alan" }],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 36,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "dortgenler-deltoid" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 37,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "dortgenler-dikdortgen" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 38,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "cokgenler" },
+      "relatedTopicRefs": [{ "subjectId": "tyt-geometri", "topicId": "dortgenler-yamuk" }],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 39,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "kati-cisimler-prizma" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 40,
+      "primaryTopicRef": { "subjectId": "tyt-geometri", "topicId": "kati-cisimler-prizma" },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    }
+  ]
+}

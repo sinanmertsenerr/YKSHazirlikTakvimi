@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "packVersion": "2026.07.3",
+  "minAppVersion": "1.0.0",
+  "examYear": 2026,
+  "files": {
+    "topics": {
+      "path": "topics.json",
+      "sha256": "ef8de94b81e33fcc1dbc2101b3234e22d95f14c2bd904d053ff4306c66e32079",
+      "bytes": 1118558
+    },
+    "coefficients": {
+      "path": "coefficients.json",
+      "sha256": "b078cd91ec7f9e1e0864051df7eaaa3f4b7f4ce3e1e7190e47409c07e890f4e5",
+      "bytes": 2047
+    },
+    "rankTables": {
+      "path": "rank-tables.json",
+      "sha256": "4f349521ebca5b2ed701cd36abc6daa192e701ed261f525e7d0e4119e4461456",
+      "bytes": 633
+    },
+    "programs": {
+      "path": "programs.db",
+      "sha256": "5eb7fc87508a8edb091c3774f62b9241261e284f12f18bba6c430be0b5216a02",
+      "bytes": 10485760
+    },
+    "calendar": {
+      "path": "calendar.json",
+      "sha256": "ba7fb8250223a9f5ea3988d1e1574527e0474953f7a4253dd628bc8018630fbe",
+      "bytes": 3335
+    },
+    "news": {
+      "path": "news.json",
+      "sha256": "ce6ea69df21050d93f302386082291af38cfb809c05c6cca9876b2e7960fe0c2",
+      "bytes": 10722
+    }
+  }
+}
