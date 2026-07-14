@@ -1,2 +1,2 @@
-# YKS-Haz-rl-k-Takvimi
+# YKS-Hazırlık-Takvimi
 YKS Konularını içeren hazırlığını takip edebildiğin bir uygulama.
