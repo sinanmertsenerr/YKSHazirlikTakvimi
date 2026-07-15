@@ -129,7 +129,7 @@ export default function ProgressScreen() {
                 <View key={item.sectionId} style={styles.breakdownRow}>
                   <Text
                     numberOfLines={1}
-                    style={[typography.footnote, { color: colors.label, width: 88 }]}
+                    style={[typography.footnote, { color: colors.label, flexShrink: 1 }]}
                   >
                     {definition ? localized(definition.name, i18n.language) : item.sectionId}
                   </Text>
@@ -138,6 +138,8 @@ export default function ProgressScreen() {
                     progress={Math.max(0, item.average / max)}
                   />
                   <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
                     style={[
                       typography.footnote,
                       {
@@ -200,15 +202,15 @@ export default function ProgressScreen() {
             >
               <Card style={styles.examCard}>
                 <View style={styles.examRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[typography.headline, { color: colors.label }]}>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text numberOfLines={1} style={[typography.headline, { color: colors.label }]}>
                       {exam.publisher || `${exam.exam.toUpperCase()} ${t('progress.exams')}`}
                     </Text>
                     <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
                       {formatInstantDate(exam.date, i18n.language)}
                     </Text>
                   </View>
-                  <Text style={[styles.examNet, { color: colors.label }]}>
+                  <Text numberOfLines={1} style={[styles.examNet, { color: colors.label }]}>
                     {formatNumber(currentTotal, i18n.language)}
                   </Text>
                   {difference == null ? null : (

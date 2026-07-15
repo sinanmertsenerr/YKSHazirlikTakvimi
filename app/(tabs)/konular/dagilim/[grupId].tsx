@@ -47,7 +47,7 @@ export default function OfficialTopicGroupDetailScreen() {
 
   return (
     <Screen>
-      <AppHeader back subtitle={t('topics.officialGroupDetail')} title={group.sourceLabelTr} />
+      <AppHeader back subtitle={group.sourceLabelTr} title={t('topics.officialGroupDetail')} />
       <View style={styles.chips}>
         <Chip backgroundColor={colors.brandSoft} color={colors.brand}>
           {group.exam.toUpperCase()}

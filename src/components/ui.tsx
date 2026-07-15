@@ -89,7 +89,13 @@ export function AppHeader({
               <MaterialIcons color={colors.brand} name="arrow-back-ios-new" size={20} />
             </Pressable>
           ) : null}
-          <Text accessibilityRole="header" style={[typography.largeTitle, { color: colors.label }]}>
+          <Text
+            accessibilityRole="header"
+            adjustsFontSizeToFit
+            minimumFontScale={0.5}
+            numberOfLines={2}
+            style={[typography.largeTitle, styles.headerTitle, { color: colors.label }]}
+          >
             {title}
           </Text>
         </View>
@@ -103,7 +109,10 @@ export function AppHeader({
           ) : null)}
       </View>
       {subtitle ? (
-        <Text style={[typography.subhead, { color: colors.secondaryLabel, marginTop: 2 }]}>
+        <Text
+          numberOfLines={2}
+          style={[typography.subhead, { color: colors.secondaryLabel, marginTop: 2 }]}
+        >
           {subtitle}
         </Text>
       ) : null}
@@ -135,7 +144,12 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
   const { colors, typography } = useTheme();
   return (
     <View style={styles.sectionTitleRow}>
-      <Text style={[typography.headline, { color: colors.label, flex: 1 }]}>{children}</Text>
+      <Text
+        numberOfLines={2}
+        style={[typography.headline, { color: colors.label, flex: 1, minWidth: 0 }]}
+      >
+        {children}
+      </Text>
       {action}
     </View>
   );
@@ -174,7 +188,9 @@ export function Chip({
 }) {
   const { colors } = useTheme();
   const content = (
-    <Text style={[styles.chipText, { color: color ?? colors.label }]}>{children}</Text>
+    <Text numberOfLines={1} style={[styles.chipText, { color: color ?? colors.label }]}>
+      {children}
+    </Text>
   );
   const chipStyle = [
     styles.chip,
@@ -234,6 +250,8 @@ export function SegmentedControl<T extends string>({
             ]}
           >
             <Text
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
               numberOfLines={2}
               style={[
                 styles.segmentText,
@@ -322,6 +340,7 @@ export function Button({
   icon,
   disabled,
   accessibilityLabel,
+  style,
 }: {
   title: string;
   onPress: () => void;
@@ -329,6 +348,7 @@ export function Button({
   icon?: keyof typeof MaterialIcons.glyphMap;
   disabled?: boolean;
   accessibilityLabel?: string;
+  style?: StyleProp<ViewStyle>;
 }) {
   const { colors, radii } = useTheme();
   const background =
@@ -353,10 +373,13 @@ export function Button({
         { backgroundColor: background, borderRadius: radii.button },
         pressed && styles.pressed,
         disabled && { opacity: 0.45 },
+        style,
       ]}
     >
       {icon ? <MaterialIcons color={foreground} name={icon} size={20} /> : null}
-      <Text style={[styles.buttonText, { color: foreground }]}>{title}</Text>
+      <Text numberOfLines={1} style={[styles.buttonText, { color: foreground }]}>
+        {title}
+      </Text>
     </Pressable>
   );
 }
@@ -518,6 +541,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerText: { flex: 1, flexDirection: 'row', alignItems: 'center', minWidth: 0 },
+  headerTitle: { flex: 1, minWidth: 0 },
   backButton: { width: 36, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' },
   card: {
     padding: 16,
@@ -543,6 +567,7 @@ const styles = StyleSheet.create({
   segment: { flexDirection: 'row', padding: 3, minHeight: 48, marginBottom: 14 },
   segmentOption: {
     flex: 1,
+    minWidth: 0,
     minHeight: 40,
     paddingHorizontal: 4,
     alignItems: 'center',
@@ -562,7 +587,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  buttonText: { fontSize: 16, lineHeight: 20, fontWeight: '700', textAlign: 'center' },
+  buttonText: {
+    flexShrink: 1,
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   iconButton: {
     width: 44,
     height: 44,

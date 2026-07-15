@@ -99,7 +99,12 @@ export default function NewsScreen() {
           style={[styles.offline, { backgroundColor: colors.warning, borderRadius: 12 }]}
         >
           <MaterialIcons color="#111113" name="cloud-off" size={20} />
-          <Text style={[typography.footnote, { color: '#111113', flex: 1, fontWeight: '700' }]}>
+          <Text
+            style={[
+              typography.footnote,
+              { color: '#111113', flex: 1, minWidth: 0, fontWeight: '700' },
+            ]}
+          >
             {t('news.offline')}
           </Text>
         </View>
@@ -131,7 +136,11 @@ export default function NewsScreen() {
               >
                 {event.title[language]}
               </Text>
-              <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                style={[typography.footnote, { color: colors.secondaryLabel }]}
+              >
                 {formatDateOnly(event.start, language)}
                 {event.end ? ` – ${formatDateOnly(event.end, language)}` : ''}
               </Text>
@@ -195,11 +204,14 @@ export default function NewsScreen() {
                 >
                   {item.source}
                 </Chip>
-                <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+                <Text
+                  numberOfLines={1}
+                  style={[typography.footnote, { color: colors.secondaryLabel }]}
+                >
                   {relativeTime(new Date(item.publishedAt).getTime(), language)}
                 </Text>
               </View>
-              <Text style={[typography.headline, { color: colors.label }]}>
+              <Text numberOfLines={2} style={[typography.headline, { color: colors.label }]}>
                 {localizeEmbeddedDateTokens(item.title[language], language)}
               </Text>
               <Text
@@ -236,6 +248,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
     marginBottom: 8,
   },
 });

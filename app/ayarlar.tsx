@@ -223,7 +223,12 @@ function TimeControl({
       >
         <MaterialIcons color={colors.brand} name="remove" size={20} />
       </Pressable>
-      <Text accessibilityLabel={time} style={[typography.headline, { color: colors.label }]}>
+      <Text
+        accessibilityLabel={time}
+        adjustsFontSizeToFit
+        numberOfLines={1}
+        style={[typography.headline, { color: colors.label }]}
+      >
         {time}
       </Text>
       <Pressable
@@ -751,7 +756,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.65 },
   disabled: { opacity: 0.45 },
   numberFields: { flexDirection: 'row', gap: 12, paddingHorizontal: 14, paddingBottom: 14 },
-  numberField: { flex: 1, gap: 6 },
+  numberField: { flex: 1, minWidth: 0, gap: 6 },
   numberInputRow: { alignItems: 'center', flexDirection: 'row', gap: 7 },
   numberInput: {
     borderWidth: StyleSheet.hairlineWidth,
@@ -773,5 +778,5 @@ const styles = StyleSheet.create({
     width: 48,
   },
   legalText: { lineHeight: 19 },
-  sourceButtons: { flexDirection: 'row', gap: 10 },
+  sourceButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
 });

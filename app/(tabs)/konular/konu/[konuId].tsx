@@ -209,7 +209,10 @@ export default function TopicDetailScreen() {
                 {question.officialQuestionNo}
               </Chip>
               {question.descriptor ? (
-                <Text style={[typography.footnote, { color: colors.label, flex: 1 }]}>
+                <Text
+                  numberOfLines={2}
+                  style={[typography.footnote, { color: colors.label, flex: 1, minWidth: 0 }]}
+                >
                   {question.descriptor[language]}
                 </Text>
               ) : null}
@@ -233,7 +236,7 @@ export default function TopicDetailScreen() {
           topic.outcomes.map((outcome) => (
             <View key={outcome.tr} style={styles.outcome}>
               <MaterialIcons color={colors.brand} name="check-circle-outline" size={20} />
-              <Text style={[typography.footnote, { color: colors.label, flex: 1 }]}>
+              <Text style={[typography.footnote, { color: colors.label, flex: 1, minWidth: 0 }]}>
                 {outcome[language]}
               </Text>
             </View>
@@ -253,6 +256,7 @@ const styles = StyleSheet.create({
   questionRow: {
     minHeight: 54,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
     borderTopWidth: StyleSheet.hairlineWidth,

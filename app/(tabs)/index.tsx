@@ -123,13 +123,24 @@ export default function HomeScreen() {
             {remaining} <Text style={styles.daysUnit}>{t('common.day')}</Text>
           </Text>
         )}
-        <Text style={[typography.footnote, styles.whiteSub]}>
-          {tytDate ? `TYT · ${formatDateOnly(tytDate.start, language)}` : 'TYT · —'}
-          {'   '}
-          {aytDate ? `AYT · ${formatDateOnly(aytDate.start, language)}` : 'AYT · —'}
-          {'   '}
-          {ydtDate ? `YDT · ${formatDateOnly(ydtDate.start, language)}` : 'YDT · —'}
-        </Text>
+        <View style={styles.examRow}>
+          {[
+            { key: 'TYT', date: tytDate },
+            { key: 'AYT', date: aytDate },
+            { key: 'YDT', date: ydtDate },
+          ].map(({ key, date }) => (
+            <View key={key} style={styles.examCol}>
+              <Text style={[typography.caption, styles.examLabel]}>{key}</Text>
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                style={[typography.footnote, styles.examDate]}
+              >
+                {date ? formatDateOnly(date.start, language) : '—'}
+              </Text>
+            </View>
+          ))}
+        </View>
         {tytDate?.approximate ? (
           <Chip backgroundColor="rgba(255,255,255,0.18)" color="#FFFFFF">
             {t('common.estimated')}
@@ -248,10 +259,13 @@ const styles = StyleSheet.create({
   missingCalendar: { marginVertical: 16 },
   days: { color: '#fff', fontSize: 52, lineHeight: 58, fontWeight: '800', letterSpacing: -1.5 },
   daysUnit: { fontSize: 22, lineHeight: 28, fontWeight: '700' },
-  whiteSub: { color: 'rgba(255,255,255,0.9)', marginBottom: 2 },
+  examRow: { flexDirection: 'row', gap: 8 },
+  examCol: { flex: 1, minWidth: 0, alignItems: 'center', gap: 2 },
+  examLabel: { color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 },
+  examDate: { color: '#fff', fontWeight: '600', textAlign: 'center' },
   stats: { flexDirection: 'row', gap: 10, marginBottom: 12 },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
-  progressPercent: { width: 38, textAlign: 'right', fontWeight: '700' },
+  progressPercent: { minWidth: 38, textAlign: 'right', fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   grow: { flex: 1, minWidth: 0 },
   caption: { textTransform: 'uppercase', letterSpacing: 0.55 },

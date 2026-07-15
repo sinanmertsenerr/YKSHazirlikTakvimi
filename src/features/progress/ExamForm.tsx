@@ -162,7 +162,10 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
         return (
           <Card key={definition.id}>
             <View style={styles.sectionHeading}>
-              <Text style={[typography.headline, { color: colors.label, flex: 1 }]}>
+              <Text
+                numberOfLines={1}
+                style={[typography.headline, { color: colors.label, flex: 1, minWidth: 0 }]}
+              >
                 {localized(definition.name, i18n.language)}
               </Text>
               <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>

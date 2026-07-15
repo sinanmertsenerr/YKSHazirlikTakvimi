@@ -76,10 +76,13 @@ export default function ProgramsScreen() {
         <Card>
           <View style={styles.row}>
             <View style={styles.grow}>
-              <Text style={[typography.headline, { color: colors.label }]}>
+              <Text numberOfLines={2} style={[typography.headline, { color: colors.label }]}>
                 {item.name[language]}
               </Text>
-              <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+              <Text
+                numberOfLines={2}
+                style={[typography.footnote, { color: colors.secondaryLabel }]}
+              >
                 {item.university[language]} · {item.city[language]} ·{' '}
                 {t(programTypeLabelKey(item.type))}
                 {item.scholarship ? ` · ${t(programScholarshipLabelKey(item.scholarship))}` : ''}

@@ -88,7 +88,10 @@ export default function ProgramDetailScreen() {
           .sort((a, b) => b.year - a.year)
           .map((year) => (
             <View key={year.year} style={[styles.yearRow, { borderTopColor: colors.separator }]}>
-              <Text style={[typography.headline, { color: colors.label, width: 52 }]}>
+              <Text
+                numberOfLines={1}
+                style={[typography.headline, { color: colors.label, minWidth: 52 }]}
+              >
                 {year.year}
               </Text>
               <View style={styles.grow}>
@@ -102,7 +105,10 @@ export default function ProgramDetailScreen() {
                   {year.minRank ? formatNumber(year.minRank, language, 0) : '—'}
                 </Text>
               </View>
-              <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+              <Text
+                numberOfLines={1}
+                style={[typography.footnote, { color: colors.secondaryLabel }]}
+              >
                 {t('preference.quota')}: {year.quota ?? '—'}
               </Text>
             </View>

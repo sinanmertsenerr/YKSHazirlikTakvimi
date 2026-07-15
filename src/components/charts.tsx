@@ -51,11 +51,13 @@ export function NetLineChart({ data, target }: { data: Point[]; target?: number 
         </CartesianChart>
       </View>
       <View style={styles.chartLabels}>
-        <Text style={[styles.label, { color: colors.secondaryLabel }]}>{data[0]?.label ?? ''}</Text>
-        <Text style={[styles.label, { color: colors.brand }]}>
+        <Text numberOfLines={1} style={[styles.label, { color: colors.secondaryLabel }]}>
+          {data[0]?.label ?? ''}
+        </Text>
+        <Text numberOfLines={1} style={[styles.label, { color: colors.brand }]}>
           {target == null ? '' : `${t('progress.target')} ${formatNumber(target, i18n.language)}`}
         </Text>
-        <Text style={[styles.label, { color: colors.secondaryLabel }]}>
+        <Text numberOfLines={1} style={[styles.label, { color: colors.secondaryLabel }]}>
           {data.at(-1)?.label ?? ''}
         </Text>
       </View>
@@ -88,7 +90,11 @@ export function YearBarChart({ data }: { data: Point[] }) {
       </View>
       <View style={styles.yearLabels}>
         {data.map((item) => (
-          <Text key={item.index} style={[styles.yearLabel, { color: colors.secondaryLabel }]}>
+          <Text
+            key={item.index}
+            numberOfLines={1}
+            style={[styles.yearLabel, { color: colors.secondaryLabel }]}
+          >
             {item.label}
           </Text>
         ))}
@@ -100,7 +106,7 @@ export function YearBarChart({ data }: { data: Point[] }) {
 const styles = StyleSheet.create({
   chart: { height: 130 },
   chartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
-  label: { fontSize: 11, lineHeight: 14, fontWeight: '600' },
+  label: { flexShrink: 1, fontSize: 11, lineHeight: 14, fontWeight: '600' },
   yearLabels: { flexDirection: 'row', justifyContent: 'space-around' },
-  yearLabel: { fontSize: 9, lineHeight: 12 },
+  yearLabel: { flexShrink: 1, fontSize: 9, lineHeight: 12 },
 });
