@@ -23,6 +23,7 @@ jobs:
       - run: npm ci
       - run: npm run validate:pack
       - run: npm run validate:annual-publication
+      - run: npm run validate:ogm-topics
       - run: npm run build:pack
       - run: npm run typecheck
       - run: npm run lint

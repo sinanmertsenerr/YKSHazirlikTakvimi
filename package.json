@@ -105,8 +105,10 @@
     "check:booklets": "tsx scripts/sync-osym-booklets.ts --check",
     "sync:booklets": "tsx scripts/sync-osym-booklets.ts --write",
     "discover:booklets": "tsx scripts/discover-osym-booklets.ts",
+    "validate:ogm-topics": "tsx scripts/sync-ogm-topic-books.ts --validate-only",
+    "audit:ogm-topics": "tsx scripts/sync-ogm-topic-books.ts --audit",
     "fetch:news": "tsx scripts/fetch-news.ts",
-    "check": "npm run validate:pack && npm run validate:annual-publication && npm run validate:booklets && npm run typecheck && npm run lint && npm test"
+    "check": "npm run validate:pack && npm run validate:annual-publication && npm run validate:booklets && npm run validate:ogm-topics && npm run typecheck && npm run lint && npm test"
   },
   "private": true
 }

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "authority": "MEB OGM",
+  "observedAt": "2026-07-15",
+  "coverage": {
+    "firstYear": 2018,
+    "lastYear": 2025
+  },
+  "landingPageUrl": "https://ogmmateryal.eba.gov.tr/yks-cikmis-soru-kitaplari",
+  "contentPolicy": {
+    "auditOnly": true,
+    "rawPdfStored": false,
+    "questionTextStored": false,
+    "topicMappingsPublished": false
+  },
+  "sources": [
+    {
+      "sourceId": 176299,
+      "key": "tyt",
+      "titleTr": "TYT Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176299",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 35975026,
+        "sha256": "c97dfa21186bcf5dd309cd3fe319d8d2bca6f2110c9652dfedcfb00f511c2545"
+      }
+    },
+    {
+      "sourceId": 176295,
+      "key": "ayt-ea",
+      "titleTr": "AYT Eşit Ağırlık Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176295",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 23726448,
+        "sha256": "87208a748fcf19a4f5cf33540ef54e6a6e92e6eebe908a8939a3639296181df7"
+      }
+    },
+    {
+      "sourceId": 176296,
+      "key": "ayt-soz",
+      "titleTr": "AYT Sözel Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176296",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 28348993,
+        "sha256": "cd9a46189b3a36b319d1d84d2227db9f95820f631ff643da60e849c1097ef599"
+      }
+    },
+    {
+      "sourceId": 176297,
+      "key": "ayt-say",
+      "titleTr": "AYT Sayısal Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176297",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 28708412,
+        "sha256": "6e6b2452e019f72e43a2bf9f2fd4ab018f918ed39d5444fd93d7c73d79b89598"
+      }
+    },
+    {
+      "sourceId": 176294,
+      "key": "tyt-dkab",
+      "titleTr": "TYT Din Kültürü ve Ahlak Bilgisi Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176294",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 15009809,
+        "sha256": "a7cedd03371ee6324a84edf924069d466840a00d7c9aea1d330014299087928c"
+      }
+    },
+    {
+      "sourceId": 176293,
+      "key": "ayt-dkab",
+      "titleTr": "AYT Din Kültürü ve Ahlak Bilgisi Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176293",
+      "intendedUse": "topic-label-reference-audit",
+      "expected": {
+        "bytes": 16372848,
+        "sha256": "dd519d7e067332e29447b985e57a69cef551dcb2473dbba76740fc24d005a776"
+      }
+    },
+    {
+      "sourceId": 176298,
+      "key": "ydt",
+      "titleTr": "YDT Çıkmış Sorular (2018-2025)",
+      "status": "excluded",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176298",
+      "reasonCode": "ydt-outside-current-topic-taxonomy",
+      "reasonTr": "YDT, uygulamanın mevcut TYT/AYT konu taksonomisinin dışındadır; kaynak bilinçli olarak içe aktarılmaz."
+    }
+  ]
+}
