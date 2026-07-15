@@ -1,5 +1,47 @@
 # Content changelog
 
+## 2026-07-15 — 2026 review corpus migrated to the official MEB taxonomy
+
+- Migrated all 27 review/draft files under `content/topic-annotations/` from the pre-MEB topic
+  ids to the official taxonomy via the reviewed `legacy-id-map.json` (121 mappings with
+  editorial notes; hash-neutral — no stored hash covers topic ids). The consensus batch was
+  regenerated with `compare-topic-reviews` (`--current-date 2026-07-14`), never hand-edited.
+- TYT Turkish stays 39/40 agreed with question 20 disputed; under the coarser official taxonomy
+  the third review now forms a documented 2/3 majority for `tyt-turkce-paragrafta-anlam` (see
+  `topic-annotations/README.md`). The annual-classifier content-test backlog is closed: 167/167.
+
+## 2026-07-15 — Official-source automation becomes alert-only and visible
+
+- Added `check:ogm-new-editions` (scans the official MEB landing page for new/removed content
+  ids against the pinned registry; alert-only, never writes) to the weekly OGM audit.
+- Every official-source workflow now reports through a deduplicated GitHub issue instead of a
+  silent red run: OGM audit failures, ÖSYM booklet audit failures, weekly content-refresh
+  failures, and newly produced ÖSYM discovery candidates (success-path notification).
+
+## 2026-07-15 — YDT (Yabancı Dil) exam added end-to-end
+
+- Included MEB OGM source 176298 (YDT İngilizce, 2018-2025) in the audited registry with live
+  API provenance (bookObjectId, SHA-256, 12 tests / 640 questions) and extracted its official
+  "KONU BAZLI SORU DAĞILIM TABLOSU" (12 categories × 8 years, 80 questions per year).
+- Added the `ydt` exam to the taxonomy (duration 120 min per the pinned 2026 guide line "YDT ...
+  120 dakika sürecektir"; 80 questions per the official MEB table), subject `ydt-ingilizce`
+  with the 12 official categories as study topics.
+- Added the DİL score type: weightsPercent `dil` = TYT 40 / YDT 60 per guide Tablo 1E, and
+  imported 664 DİL-scored programs from YÖK Atlas (total 12108 programs).
+- UI notes that YDT data comes from the English booklet only; other language sessions have no
+  published official distribution.
+
+## 2026-07-15 — Study topics adopted from the official MEB OGM taxonomy
+
+- Replaced the 359 hand-authored study topics with 591 topics generated 1:1 from the official
+  MEB OGM topic groups (`scripts/build-topics-from-official.ts`); topic ids are now
+  subject-prefixed official group ids. Yearly per-topic counts render from the official
+  statistics bridge; `topics.json` yearlyStats remain null placeholders reserved for the
+  ÖSYM-booklet editorial-consensus pipeline.
+- KNOWN FOLLOW-UP: the 2026 topic-annotation review corpus (content/topic-annotations/) still
+  references the pre-MEB topic ids and must be re-reviewed against the new taxonomy; until then
+  the annual-classifier content tests stay red (13 failures) by design (fail-closed).
+
 ## 2026-07-14 — Exact official question-block pipeline
 
 - Verified the printed section headers in all 18 pinned 2018–2026 TYT/AYT booklets and added exact
