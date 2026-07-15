@@ -23,6 +23,11 @@ import {
   type AnnualClassifierResult,
 } from './annual-classifier-contract.ts';
 import {
+  deriveOfficialPageQuestionScopes,
+  trimVerifiedTrailingBoilerplatePages,
+  type OfficialPageQuestionScope,
+} from './annual-classifier-extraction.ts';
+import {
   topicReviewCatalogSchema,
   validateCanonicalTopicReview,
   type CanonicalTopicReview,
@@ -204,6 +209,34 @@ function findBooklet(
   return matches[0]!;
 }
 
+function findOfficialSectionQuestionRange(
+  registry: OsymBookletRegistry,
+  exam: 'tyt' | 'ayt',
+  block: OfficialQuestionBlock,
+): { first: number; last: number } {
+  const sectionBlocks = registry.questionBlockProfiles[exam].questionBlocks.filter(
+    (candidate) =>
+      candidate.bookletSectionId === block.bookletSectionId &&
+      candidate.sectionId === block.sectionId,
+  );
+  if (!sectionBlocks.length) {
+    throw new Error(`Official section ${block.bookletSectionId} has no question blocks`);
+  }
+  return {
+    first: Math.min(...sectionBlocks.map((candidate) => candidate.officialQuestionRange.first)),
+    last: Math.max(...sectionBlocks.map((candidate) => candidate.officialQuestionRange.last)),
+  };
+}
+
+function assertTextVisionPageParity(sources: AnnualClassifierSources): void {
+  if (
+    sources.textPages.length !== sources.visionPages.length ||
+    sources.textPages.some((textPage, index) => textPage.page !== sources.visionPages[index]?.page)
+  ) {
+    throw new Error('Vision evidence pages must exactly match the text-derived physical pages');
+  }
+}
+
 function selectAllowedTaxonomy(
   catalog: ClassifierPromptCatalog,
   exam: 'tyt' | 'ayt',
@@ -300,10 +333,15 @@ function validateResponseForScope(
   payload: unknown,
   block: OfficialQuestionBlock,
   taxonomy: AllowedTaxonomy,
+  allowedQuestionNumbers: readonly number[],
 ): AnnualClassifierResponse {
   const parsed = annualClassifierResponseSchema.parse(extractJsonCandidate(payload));
   if (parsed.questionBlockId !== block.id) {
     throw new Error('Classifier response question block does not match the request');
+  }
+  const allowedQuestionSet = new Set(allowedQuestionNumbers);
+  if (!allowedQuestionSet.size) {
+    throw new Error('Inference unit question scope cannot be empty');
   }
   const seen = new Set<number>();
   const topicIdsBySubject = new Map(
@@ -318,6 +356,9 @@ function validateResponseForScope(
       result.officialQuestionNo > block.officialQuestionRange.last
     ) {
       throw new Error('Classifier response contains a question outside the official block');
+    }
+    if (!allowedQuestionSet.has(result.officialQuestionNo)) {
+      throw new Error('Classifier response contains a question outside the inference unit scope');
     }
     if (seen.has(result.officialQuestionNo)) {
       throw new Error('Classifier response contains a duplicate question number');
@@ -366,16 +407,20 @@ function buildSystemPrompt(): string {
 function buildInstruction(
   block: OfficialQuestionBlock,
   taxonomy: AllowedTaxonomy,
-  onlyQuestions?: number[],
+  questionNumbers: number[],
 ): string {
-  const questionNumbers =
-    onlyQuestions ??
-    Array.from(
-      {
-        length: block.officialQuestionRange.last - block.officialQuestionRange.first + 1,
-      },
-      (_, index) => block.officialQuestionRange.first + index,
-    );
+  if (
+    !questionNumbers.length ||
+    new Set(questionNumbers).size !== questionNumbers.length ||
+    questionNumbers.some(
+      (questionNo, index) =>
+        questionNo < block.officialQuestionRange.first ||
+        questionNo > block.officialQuestionRange.last ||
+        (index > 0 && questionNo <= questionNumbers[index - 1]!),
+    )
+  ) {
+    throw new Error('Inference unit question IDs must be unique, ordered, and inside the block');
+  }
   return JSON.stringify({
     task: 'classify-official-question-ids-only',
     schemaVersion: ANNUAL_CLASSIFIER_SCHEMA_VERSION,
@@ -400,27 +445,64 @@ function buildInstruction(
 
 type InferenceUnit = {
   unitId: string;
+  questionNumbers: number[];
   messages: [ClassifierMessage, ClassifierMessage];
 };
+
+type ScopedEvidencePage<T extends { page: number }> = T & { questionNumbers: number[] };
+
+function scopeEvidencePages<T extends { page: number }>(
+  pages: T[],
+  pageScopes: OfficialPageQuestionScope[],
+  onlyQuestions?: number[],
+): ScopedEvidencePage<T>[] {
+  const scopeByPage = new Map(pageScopes.map((scope) => [scope.page, scope] as const));
+  if (
+    pages.length !== pageScopes.length ||
+    new Set(pages.map((page) => page.page)).size !== pages.length ||
+    pages.some((page) => !scopeByPage.has(page.page))
+  ) {
+    throw new Error('Text-derived question scopes do not exactly match the evidence pages');
+  }
+  const allowedQuestions = onlyQuestions ? new Set(onlyQuestions) : null;
+  return pages.flatMap((page) => {
+    const scope = scopeByPage.get(page.page)!;
+    const questionNumbers = allowedQuestions
+      ? scope.blockQuestionNumbers.filter((questionNo) => allowedQuestions.has(questionNo))
+      : scope.blockQuestionNumbers;
+    return questionNumbers.length ? [{ ...page, questionNumbers }] : [];
+  });
+}
+
+function inferenceUnitId(
+  pages: ScopedEvidencePage<{ page: number }>[],
+  questionNumbers: number[],
+): string {
+  return `pages-${pages.map((page) => page.page).join('-')}-questions-${questionNumbers.join('-')}`;
+}
 
 function buildTextUnits(
   block: OfficialQuestionBlock,
   taxonomy: AllowedTaxonomy,
   pages: ExtractedTextPage[],
+  pageScopes: OfficialPageQuestionScope[],
   onlyQuestions?: number[],
 ): InferenceUnit[] {
   if (!pages.length) throw new Error('Text pass has no extracted section pages');
+  const scopedPages = scopeEvidencePages(pages, pageScopes, onlyQuestions);
   const units: InferenceUnit[] = [];
-  for (let index = 0; index < pages.length; index += MAX_TEXT_PAGES_PER_REQUEST) {
-    const chunk = pages.slice(index, index + MAX_TEXT_PAGES_PER_REQUEST);
+  for (let index = 0; index < scopedPages.length; index += MAX_TEXT_PAGES_PER_REQUEST) {
+    const chunk = scopedPages.slice(index, index + MAX_TEXT_PAGES_PER_REQUEST);
+    const questionNumbers = chunk.flatMap((page) => page.questionNumbers);
     const source = chunk.map(({ page, text }) => `[PHYSICAL_PAGE_${page}]\n${text}`).join('\n\n');
     units.push({
-      unitId: `pages-${chunk.map((page) => page.page).join('-')}`,
+      unitId: inferenceUnitId(chunk, questionNumbers),
+      questionNumbers,
       messages: [
         { role: 'system', content: buildSystemPrompt() },
         {
           role: 'user',
-          content: `${buildInstruction(block, taxonomy, onlyQuestions)}\n\n<OFFICIAL_SECTION_TEXT>\n${source}\n</OFFICIAL_SECTION_TEXT>`,
+          content: `${buildInstruction(block, taxonomy, questionNumbers)}\n\n<OFFICIAL_SECTION_TEXT>\n${source}\n</OFFICIAL_SECTION_TEXT>`,
         },
       ],
     });
@@ -432,21 +514,25 @@ function buildVisionUnits(
   block: OfficialQuestionBlock,
   taxonomy: AllowedTaxonomy,
   pages: ExtractedVisionPage[],
+  pageScopes: OfficialPageQuestionScope[],
   onlyQuestions?: number[],
 ): InferenceUnit[] {
   if (!pages.length) throw new Error('Vision pass has no rendered section pages');
+  const scopedPages = scopeEvidencePages(pages, pageScopes, onlyQuestions);
   const units: InferenceUnit[] = [];
-  for (let index = 0; index < pages.length; index += MAX_VISION_PAGES_PER_REQUEST) {
-    const chunk = pages.slice(index, index + MAX_VISION_PAGES_PER_REQUEST);
+  for (let index = 0; index < scopedPages.length; index += MAX_VISION_PAGES_PER_REQUEST) {
+    const chunk = scopedPages.slice(index, index + MAX_VISION_PAGES_PER_REQUEST);
+    const questionNumbers = chunk.flatMap((page) => page.questionNumbers);
     const parts: ClassifierMessagePart[] = [
-      { type: 'text', text: buildInstruction(block, taxonomy, onlyQuestions) },
+      { type: 'text', text: buildInstruction(block, taxonomy, questionNumbers) },
     ];
     for (const page of chunk) {
       parts.push({ type: 'text', text: `Physical page ID: ${page.page}` });
       parts.push({ type: 'image_url', image_url: { url: page.imageDataUrl } });
     }
     units.push({
-      unitId: `pages-${chunk.map((page) => page.page).join('-')}`,
+      unitId: inferenceUnitId(chunk, questionNumbers),
+      questionNumbers,
       messages: [
         { role: 'system', content: buildSystemPrompt() },
         { role: 'user', content: parts },
@@ -531,7 +617,8 @@ async function runInferenceUnits({
     const cached = await readCache(cacheDirectory, key);
     if (cached) {
       stats.cacheHits += 1;
-      return validateResponseForScope(cached, block, taxonomy).classifications;
+      return validateResponseForScope(cached, block, taxonomy, unit.questionNumbers)
+        .classifications;
     }
     stats.providerCalls += 1;
     try {
@@ -542,7 +629,7 @@ async function runInferenceUnits({
         messages: unit.messages,
         responseJsonSchema: ANNUAL_CLASSIFIER_RESPONSE_JSON_SCHEMA,
       });
-      const response = validateResponseForScope(payload, block, taxonomy);
+      const response = validateResponseForScope(payload, block, taxonomy, unit.questionNumbers);
       await writeCache(cacheDirectory, key, response);
       return response.classifications;
     } catch (error) {
@@ -612,6 +699,7 @@ async function runPass({
   block,
   taxonomy,
   sources,
+  pageScopes,
   bookletSha256,
   taxonomySha256,
   provider,
@@ -621,6 +709,7 @@ async function runPass({
   block: OfficialQuestionBlock;
   taxonomy: AllowedTaxonomy;
   sources: AnnualClassifierSources;
+  pageScopes: OfficialPageQuestionScope[];
   bookletSha256: string;
   taxonomySha256: string;
   provider: AnnualClassifierProvider;
@@ -633,8 +722,8 @@ async function runPass({
   );
   const buildUnits = (onlyQuestions?: number[]) =>
     mode === 'text'
-      ? buildTextUnits(block, taxonomy, sources.textPages, onlyQuestions)
-      : buildVisionUnits(block, taxonomy, sources.visionPages, onlyQuestions);
+      ? buildTextUnits(block, taxonomy, sources.textPages, pageScopes, onlyQuestions)
+      : buildVisionUnits(block, taxonomy, sources.visionPages, pageScopes, onlyQuestions);
   const primary = await runInferenceUnits({
     units: buildUnits(),
     mode,
@@ -758,12 +847,25 @@ export async function runAnnualClassifierBlock({
   const booklet = findBooklet(bookletRegistry, year, exam);
   const taxonomy = selectAllowedTaxonomy(promptCatalog, exam, questionBlock);
   const taxonomySha256 = stableSha256(promptCatalog);
+  assertTextVisionPageParity(sources);
+  const textPages = trimVerifiedTrailingBoilerplatePages(sources.textPages);
+  const retainedPageNumbers = new Set(textPages.map(({ page }) => page));
+  const scopedSources = {
+    textPages,
+    visionPages: sources.visionPages.filter(({ page }) => retainedPageNumbers.has(page)),
+  };
+  const pageScopes = deriveOfficialPageQuestionScopes({
+    pages: scopedSources.textPages,
+    sectionQuestionRange: findOfficialSectionQuestionRange(bookletRegistry, exam, questionBlock),
+    blockQuestionRange: questionBlock.officialQuestionRange,
+  });
 
   const textPass = await runPass({
     mode: 'text',
     block: questionBlock,
     taxonomy,
-    sources,
+    sources: scopedSources,
+    pageScopes,
     bookletSha256: booklet.sha256,
     taxonomySha256,
     provider,
@@ -773,7 +875,8 @@ export async function runAnnualClassifierBlock({
     mode: 'vision',
     block: questionBlock,
     taxonomy,
-    sources,
+    sources: scopedSources,
+    pageScopes,
     bookletSha256: booklet.sha256,
     taxonomySha256,
     provider,

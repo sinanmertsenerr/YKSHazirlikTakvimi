@@ -4,6 +4,12 @@ import path from 'node:path';
 
 export type PdfTextPage = { page: number; text: string };
 
+export type OfficialPageQuestionScope = {
+  page: number;
+  sectionQuestionRange: { first: number; last: number };
+  blockQuestionNumbers: number[];
+};
+
 export type ExtractedBookletSection = {
   bookletSectionId: string;
   textPages: PdfTextPage[];
@@ -52,6 +58,165 @@ export function splitPdfText(raw: string): PdfTextPage[] {
 
 function looksLikeExamPage(normalized: string): boolean {
   return normalized.length >= 300 && /\b1\b/.test(normalized) && /\b2\b/.test(normalized);
+}
+
+function isOfficialInstructionMarker(text: string): boolean {
+  const normalized = text.trim().toLocaleUpperCase('tr-TR').normalize('NFD').replace(/\p{M}/gu, '');
+  return /^(?:BU TESTTE\b|CEVAPLARINIZI\b)/u.test(normalized);
+}
+
+function explicitQuestionStarts(page: PdfTextPage): number[] {
+  const starts: number[] = [];
+  for (const line of page.text.replace(/\r\n?/g, '\n').split('\n')) {
+    const match = /^\s*(\d{1,3})\.(?:\s+|$)(.*)$/u.exec(line);
+    if (!match || isOfficialInstructionMarker(match[2] ?? '')) continue;
+    starts.push(Number(match[1]));
+  }
+  return [...new Set(starts)].sort((left, right) => left - right);
+}
+
+function officialBoilerplateSignature(text: string): string {
+  return [
+    ...text
+      .toLocaleUpperCase('tr-TR')
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .replace(/[^A-Z0-9]+/g, ''),
+  ]
+    .sort()
+    .join('');
+}
+
+const VERIFIED_TRAILING_BOILERPLATE_SIGNATURES = new Set(
+  [
+    'ÖSYM',
+    'Bu soruların telif hakları ÖSYM’ye aittir. Sorular, ÖSYM’nin yazılı izni olmaksızın hiçbir kişi, kurum veya kuruluş tarafından kullanılamaz. ÖSYM',
+  ].map(officialBoilerplateSignature),
+);
+
+/**
+ * Removes only byte-extracted pages whose complete letter multiset exactly matches a
+ * known ÖSYM end-page signature. A markerless diagram or question continuation is
+ * intentionally retained so downstream ownership derivation fails closed.
+ */
+export function trimVerifiedTrailingBoilerplatePages(pages: PdfTextPage[]): PdfTextPage[] {
+  let endExclusive = pages.length;
+  while (endExclusive > 0) {
+    const page = pages[endExclusive - 1]!;
+    if (
+      explicitQuestionStarts(page).length ||
+      !VERIFIED_TRAILING_BOILERPLATE_SIGNATURES.has(officialBoilerplateSignature(page.text))
+    ) {
+      break;
+    }
+    endExclusive -= 1;
+  }
+  if (!endExclusive) throw new Error('Official section contains only trailing boilerplate pages');
+  return pages.slice(0, endExclusive);
+}
+
+function assertQuestionRange(range: { first: number; last: number }, label: string): void {
+  if (
+    !Number.isInteger(range.first) ||
+    !Number.isInteger(range.last) ||
+    range.first < 1 ||
+    range.last < range.first
+  ) {
+    throw new Error(`${label} question range is invalid`);
+  }
+}
+
+/**
+ * Derives physical-page question ownership only from explicit Poppler layout markers.
+ * Every section page must expose a strictly increasing first `N.` boundary. The next
+ * page boundary (or exact section end) closes the current page; the result is then
+ * clamped to the selected canonical/alternative block.
+ */
+export function deriveOfficialPageQuestionScopes({
+  pages,
+  sectionQuestionRange,
+  blockQuestionRange,
+}: {
+  pages: PdfTextPage[];
+  sectionQuestionRange: { first: number; last: number };
+  blockQuestionRange: { first: number; last: number };
+}): OfficialPageQuestionScope[] {
+  if (!pages.length) throw new Error('Cannot derive question scopes from an empty section');
+  assertQuestionRange(sectionQuestionRange, 'Section');
+  assertQuestionRange(blockQuestionRange, 'Block');
+  if (
+    blockQuestionRange.first < sectionQuestionRange.first ||
+    blockQuestionRange.last > sectionQuestionRange.last
+  ) {
+    throw new Error('Block question range is outside its official section');
+  }
+
+  const questionPages = trimVerifiedTrailingBoilerplatePages(pages);
+  let previousFirstMarker = sectionQuestionRange.first - 1;
+  const markersByPage = questionPages.map((page, index) => {
+    if (!Number.isInteger(page.page) || page.page < 1) {
+      throw new Error('Physical page number is invalid');
+    }
+    if (index > 0 && page.page <= pages[index - 1]!.page) {
+      throw new Error('Physical pages must be unique and strictly increasing');
+    }
+    const markers = explicitQuestionStarts(page);
+    if (!markers.length) {
+      throw new Error(`Physical page ${page.page} is missing an explicit question boundary`);
+    }
+    if (
+      markers.some(
+        (marker) => marker < sectionQuestionRange.first || marker > sectionQuestionRange.last,
+      )
+    ) {
+      throw new Error(`Physical page ${page.page} has an ambiguous question boundary`);
+    }
+    const firstMarker =
+      index === 0
+        ? markers.find((marker) => marker === sectionQuestionRange.first)
+        : markers.find((marker) => marker > previousFirstMarker);
+    if (firstMarker === undefined) {
+      throw new Error(
+        `Physical page ${page.page} has nonmonotonic or ambiguous question boundaries`,
+      );
+    }
+    previousFirstMarker = firstMarker;
+    return { page: page.page, firstMarker };
+  });
+
+  if (markersByPage[0]!.firstMarker !== sectionQuestionRange.first) {
+    throw new Error('The first section page is missing the exact section-start boundary');
+  }
+  for (let index = 1; index < markersByPage.length; index += 1) {
+    const previous = markersByPage[index - 1]!;
+    const current = markersByPage[index]!;
+    if (current.firstMarker <= previous.firstMarker) {
+      throw new Error(
+        `Physical page ${current.page} has nonmonotonic or ambiguous question boundaries`,
+      );
+    }
+  }
+
+  return markersByPage.map(({ page, firstMarker }, index) => {
+    const first = firstMarker;
+    const last =
+      index + 1 < markersByPage.length
+        ? markersByPage[index + 1]!.firstMarker - 1
+        : sectionQuestionRange.last;
+    if (last < first) {
+      throw new Error(`Physical page ${page} has ambiguous question ownership`);
+    }
+    const blockFirst = Math.max(first, blockQuestionRange.first);
+    const blockLast = Math.min(last, blockQuestionRange.last);
+    return {
+      page,
+      sectionQuestionRange: { first, last },
+      blockQuestionNumbers:
+        blockFirst > blockLast
+          ? []
+          : Array.from({ length: blockLast - blockFirst + 1 }, (_, offset) => blockFirst + offset),
+    };
+  });
 }
 
 /**
@@ -162,8 +327,11 @@ export async function extractOfficialBookletSections({
     if (!pageNumbers?.length) {
       throw new Error(`Official booklet section ${bookletSectionId} has no pages`);
     }
+    const textPages = trimVerifiedTrailingBoilerplatePages(
+      pageNumbers.map((page) => pageByNumber.get(page)!),
+    );
     const imagePaths: { page: number; path: string }[] = [];
-    for (const page of pageNumbers) {
+    for (const { page } of textPages) {
       const prefix = path.join(tempDirectory, `page-${String(page).padStart(3, '0')}`);
       await runQuiet('pdftoppm', [
         '-f',
@@ -188,7 +356,7 @@ export async function extractOfficialBookletSections({
     }
     sections.set(bookletSectionId, {
       bookletSectionId,
-      textPages: pageNumbers.map((page) => pageByNumber.get(page)!),
+      textPages,
       imagePaths,
     });
   }

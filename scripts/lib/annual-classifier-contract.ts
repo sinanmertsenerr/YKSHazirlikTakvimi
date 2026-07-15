@@ -10,7 +10,7 @@ import {
 } from './topic-review-contract.ts';
 
 export const ANNUAL_CLASSIFIER_SCHEMA_VERSION = 1;
-export const ANNUAL_CLASSIFIER_PROMPT_VERSION = 'annual-topic-v1';
+export const ANNUAL_CLASSIFIER_PROMPT_VERSION = 'annual-topic-v2';
 export const ANNUAL_CLASSIFIER_TEXT_MODEL = '@cf/qwen/qwen3-30b-a3b-fp8';
 export const ANNUAL_CLASSIFIER_VISION_MODEL = '@cf/google/gemma-4-26b-a4b-it';
 export const ANNUAL_CLASSIFIER_MODELS = [
