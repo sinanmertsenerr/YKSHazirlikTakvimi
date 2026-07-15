@@ -71,6 +71,7 @@ export default function TopicDetailScreen() {
   };
   const verifiedStats = getVerifiedTopicStats(topic.yearlyStats);
   const officialStat = officialStatsForSubject(subject.id)?.byTopic.get(topic.id);
+  const expectedLastYear = topic.yearlyStats.at(-1)?.year;
   const officialCoverage =
     topicGroupStatisticsPack.availability === 'available'
       ? topicGroupStatisticsPack.coverage
@@ -127,6 +128,9 @@ export default function TopicDetailScreen() {
               })}
             </Footnote>
             <Footnote>{t('topics.officialCountsSource')}</Footnote>
+            {expectedLastYear && expectedLastYear > officialCoverage.lastYear ? (
+              <Footnote>{t('topics.unpublishedYear', { year: expectedLastYear })}</Footnote>
+            ) : null}
             {officialStat.alternativeIncluded ? (
               <Footnote color={colors.warningText}>
                 {t('topics.alternativeIncludedNotice')}

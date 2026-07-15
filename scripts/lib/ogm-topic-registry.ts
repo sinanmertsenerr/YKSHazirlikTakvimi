@@ -4,7 +4,9 @@ import { z } from 'zod';
 
 export const OGM_TOPIC_REGISTRY_SCHEMA_VERSION = 1;
 export const OGM_TOPIC_FIRST_YEAR = 2018;
-export const OGM_TOPIC_LAST_YEAR = 2025;
+/** Lowest last-year MEB has ever published; a new edition only ever raises it. */
+export const OGM_TOPIC_MIN_LAST_YEAR = 2025;
+export const OGM_TOPIC_MAX_LAST_YEAR = 2100;
 export const OGM_TOPIC_SOURCE_HOSTS = [
   'ogmmateryal.eba.gov.tr',
   'ogm-small-cdn.eba.gov.tr',
@@ -76,7 +78,7 @@ const ogmApiProvenanceSchema = z
       .trim()
       .min(1)
       .max(160)
-      .refine((title) => title.includes('2018-2025')),
+      .refine((title) => /\b2018-20\d{2}\b/.test(title), 'title must state a 2018-20xx span'),
     expectedTestCount: z.int().positive(),
     expectedQuestionCount: z.int().positive(),
     pdfPublicUrl: allowedOgmUrlSchema.nullable(),
@@ -119,11 +121,13 @@ export const ogmTopicSourceRegistrySchema = z
   .object({
     schemaVersion: z.literal(OGM_TOPIC_REGISTRY_SCHEMA_VERSION),
     authority: z.literal('MEB OGM'),
-    observedAt: z.literal('2026-07-15'),
+    // Date-shaped, not pinned to one day, so a re-verification on any later date validates
+    // without a code edit — the audit workflow can refresh this field itself.
+    observedAt: z.iso.date(),
     coverage: z
       .object({
         firstYear: z.literal(OGM_TOPIC_FIRST_YEAR),
-        lastYear: z.literal(OGM_TOPIC_LAST_YEAR),
+        lastYear: z.int().min(OGM_TOPIC_MIN_LAST_YEAR).max(OGM_TOPIC_MAX_LAST_YEAR),
       })
       .strict(),
     landingPageUrl: allowedOgmUrlSchema,
@@ -188,6 +192,17 @@ export const ogmTopicSourceRegistrySchema = z
       }
       seenIds.add(source.sourceId);
       seenKeys.add(source.key);
+
+      if (source.status === 'included') {
+        const expectedSpan = `${OGM_TOPIC_FIRST_YEAR}-${registry.coverage.lastYear}`;
+        if (!source.api.bookTitle.includes(expectedSpan)) {
+          context.addIssue({
+            code: 'custom',
+            path: ['sources', index, 'api', 'bookTitle'],
+            message: `book title must state the registry coverage span ${expectedSpan}`,
+          });
+        }
+      }
 
       const resolver = new URL(source.resolverUrl);
       if (

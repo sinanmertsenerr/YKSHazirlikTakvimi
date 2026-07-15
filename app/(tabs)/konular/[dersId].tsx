@@ -53,6 +53,7 @@ export default function SubjectScreen() {
   const effectiveSort: Sort = sort === 'frequent' && !canSortByFrequency ? 'curriculum' : sort;
   const officialGroups = subject ? officialTopicGroupsForSubject(subject.id) : [];
   const officialStats = subject ? officialStatsForSubject(subject.id) : undefined;
+  const studyTargetYear = subject?.topics[0]?.yearlyStats.at(-1)?.year;
 
   const topics = useMemo(() => {
     if (!subject) return [];
@@ -208,6 +209,14 @@ export default function SubjectScreen() {
               ]}
               value={effectiveSort}
             />
+            {officialStats &&
+            topicGroupStatisticsPack.availability === 'available' &&
+            studyTargetYear &&
+            studyTargetYear > topicGroupStatisticsPack.coverage.lastYear ? (
+              <Footnote>
+                {t('topics.unpublishedYear', { year: studyTargetYear })}
+              </Footnote>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => {

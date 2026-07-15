@@ -106,6 +106,24 @@ test('strict schema rejects raw content and a missing excluded YDT record', asyn
   assert.equal(ogmTopicSourceRegistrySchema.safeParse(withoutYdt).success, false);
 });
 
+test('a future MEB edition (later date, 2018-2026 span) validates without a code change', async () => {
+  const registry = structuredClone(await readRegistry());
+  // Simulate MEB republishing the same content ids as a 2018-2026 edition, re-verified later.
+  registry.observedAt = '2027-02-01';
+  registry.coverage.lastYear = 2026;
+  for (const source of registry.sources) {
+    if (source.status === 'included') {
+      source.api.bookTitle = source.api.bookTitle.replace('2018-2025', '2018-2026');
+    }
+  }
+  assert.equal(ogmTopicSourceRegistrySchema.safeParse(registry).success, true);
+
+  // A title/coverage mismatch must still fail closed.
+  const mismatched = structuredClone(registry);
+  mismatched.coverage.lastYear = 2025;
+  assert.equal(ogmTopicSourceRegistrySchema.safeParse(mismatched).success, false);
+});
+
 test('allowlist requires HTTPS and exact OGM hosts', () => {
   assert.equal(
     assertAllowedOgmUrl('https://ogm-small-cdn.eba.gov.tr/book.pdf'),

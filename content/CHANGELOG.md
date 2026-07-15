@@ -1,5 +1,19 @@
 # Content changelog
 
+## 2026-07-15 — Future MEB editions ingest without a code change; honest 2026 UI
+
+- Loosened the OGM registry schema so a future MEB edition (same content ids, a 2018-2026 span,
+  re-verified on any later date) passes audit with no code edit: `observedAt` is now date-shaped,
+  `coverage.lastYear` is a 2025-2100 range, and each book title must state the registry's exact
+  coverage span (fails closed on a title/coverage mismatch). Registry data itself is unchanged
+  (still 2018-2025) — only the accepted shape widened.
+- Per-topic screens now state "2026 dağılımı MEB OGM tarafından henüz yayımlanmadı" instead of
+  silently omitting the year, matching the answer already shown on the official-groups screen.
+- Deliberately NOT done this turn (YAGNI + §9.1): speculative widening of the extraction/build
+  year axis to 2026 before MEB actually publishes that edition — it would be untestable against a
+  format we haven't seen and risks the working 2018-2025 pipeline. It lands with real data the
+  day MEB's new edition is detected by `check:ogm-new-editions`.
+
 ## 2026-07-15 — 2026 review corpus migrated to the official MEB taxonomy
 
 - Migrated all 27 review/draft files under `content/topic-annotations/` from the pre-MEB topic
