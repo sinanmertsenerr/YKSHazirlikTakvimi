@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "authority": "Yükseköğretim Kurulu (YÖK)",
   "product": "YÖK Atlas",
-  "verifiedAt": "2026-07-14T19:50:18.898Z",
+  "verifiedAt": "2026-07-15T12:08:11.434Z",
   "source": {
     "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
     "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
@@ -20,7 +20,8 @@
     "scoreTypes": [
       "SAY",
       "EA",
-      "SÖZ"
+      "SÖZ",
+      "DİL"
     ],
     "supportedUniversityTypes": [
       "DEVLET",
@@ -32,11 +33,12 @@
   "pagination": {
     "pageSize": 500,
     "delayMs": 250,
-    "requestCount": 24,
+    "requestCount": 26,
     "totalsByScoreType": {
       "SAY": 5653,
       "EA": 3987,
-      "SÖZ": 1948
+      "SÖZ": 1948,
+      "DİL": 677
     }
   },
   "fieldMappings": {
@@ -70,15 +72,15 @@
     "unsupportedScholarship": "null — source label remains visible in birimAdi and is counted below; no lossy category mapping"
   },
   "result": {
-    "receivedRows": 11588,
-    "importedPrograms": 11444,
-    "programYears": 41130,
-    "skippedPrograms": 144,
+    "receivedRows": 12265,
+    "importedPrograms": 12108,
+    "programYears": 43563,
+    "skippedPrograms": 157,
     "skippedByUniversityType": {
-      "YURTDISI VAKIF": 35,
-      "YURTDISI KAMU": 109
+      "YURTDISI VAKIF": 40,
+      "YURTDISI KAMU": 117
     },
     "omittedScholarshipLabels": {},
-    "fixtureSha256": "5af74b04182f672eb1b01b80d0589484de35294ba83cc9e8d178948397255f06"
+    "fixtureSha256": "d5271a963edd6204cbaa5bda6c5addbfd1194c87c47269bf1b92cc288f234add"
   }
 }

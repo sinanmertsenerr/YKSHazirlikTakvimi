@@ -12,7 +12,7 @@ import {
 } from '../sync-pack-version.ts';
 
 const manifest = (packVersion: string) => ({
-  schemaVersion: 2,
+  schemaVersion: 3,
   packVersion,
   minAppVersion: '1.0.0',
   examYear: 2026,
@@ -23,6 +23,8 @@ const manifest = (packVersion: string) => ({
     programs: { path: 'programs.db', buildFrom: 'programs.fixture.json' },
     calendar: { path: 'calendar.json' },
     news: { path: 'news.json' },
+    topicGroupStatistics: { path: 'topic-group-statistics.json' },
+    topicGroupMappings: { path: 'topic-group-mappings.json' },
   },
 });
 

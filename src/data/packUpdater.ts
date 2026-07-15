@@ -5,17 +5,23 @@ import { deserializeDatabaseAsync } from 'expo-sqlite';
 import { z } from 'zod';
 
 import bundledManifestJson from '../../assets/pack/manifest.json';
+import {
+  CURRENT_PACK_SCHEMA_VERSION,
+  CURRENT_SCHEMA_VERSION,
+} from '../../scripts/lib/content-schemas';
 
 import {
   calendarPackSchema,
   coefficientsPackSchema,
   newsPackSchema,
   rankTablesPackSchema,
+  topicGroupMappingsPackSchema,
+  topicGroupStatisticsPackSchema,
   topicsPackSchema,
 } from '@/data/content';
 import { useSettingsStore } from '@/stores/settings';
 
-export const PACK_SCHEMA_VERSION = 2;
+export const PACK_SCHEMA_VERSION = CURRENT_PACK_SCHEMA_VERSION;
 const PACK_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const FAILED_CHECK_BACKOFF_MS = 5 * 60 * 1000;
 const PACK_ROOT_NAME = 'yks-content-packs';
@@ -50,6 +56,8 @@ export const packManifestSchema = z
         programs: manifestFileSchema,
         calendar: manifestFileSchema,
         news: manifestFileSchema,
+        topicGroupStatistics: manifestFileSchema,
+        topicGroupMappings: manifestFileSchema,
       })
       .strict(),
   })
@@ -290,6 +298,20 @@ export function validateJsonDocument(
     );
     return;
   }
+  if (key === 'topicGroupStatistics') {
+    const result = topicGroupStatisticsPackSchema.safeParse(document);
+    if (!result.success) {
+      throw new Error('Schema validation failed for topic-group-statistics.json.');
+    }
+    return;
+  }
+  if (key === 'topicGroupMappings') {
+    const result = topicGroupMappingsPackSchema.safeParse(document);
+    if (!result.success) {
+      throw new Error('Schema validation failed for topic-group-mappings.json.');
+    }
+    return;
+  }
   const result = newsPackSchema.safeParse(document);
   if (!result.success) throw new Error('Schema validation failed for news.json.');
   assertUnique(
@@ -333,7 +355,7 @@ async function validateProgramsDatabase(file: File): Promise<void> {
     const schemaVersion = await database.getFirstAsync<{ value: string }>(
       "SELECT value FROM pack_metadata WHERE key = 'schemaVersion'",
     );
-    if (schemaVersion?.value !== String(PACK_SCHEMA_VERSION)) {
+    if (schemaVersion?.value !== String(CURRENT_SCHEMA_VERSION)) {
       throw new Error('Downloaded programs database has an unsupported schema version.');
     }
     const tables = await database.getAllAsync<{ name: string }>(

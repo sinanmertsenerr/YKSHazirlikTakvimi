@@ -44,12 +44,13 @@ export default function HomeScreen() {
   );
   const tytDate = examEvents.find((event) => event.id.toLocaleLowerCase('tr').includes('tyt'));
   const aytDate = examEvents.find((event) => event.id.toLocaleLowerCase('tr').includes('ayt'));
+  const ydtDate = examEvents.find((event) => event.id.toLocaleLowerCase('tr').includes('ydt'));
   const remaining = tytDate ? daysUntil(tytDate.start) : null;
   const upcoming = calendarPack.events
     .filter((event) => daysUntil(event.start) >= 0)
     .sort((a, b) => a.start.localeCompare(b.start))[0];
 
-  const progressFor = (exam: 'tyt' | 'ayt') => {
+  const progressFor = (exam: 'tyt' | 'ayt' | 'ydt') => {
     const subjects = allSubjects(exam);
     const topicKeys = subjects.flatMap((subject) =>
       subject.topics.map((topic) => `${subject.id}:${topic.id}`),
@@ -61,6 +62,7 @@ export default function HomeScreen() {
   };
   const tytProgress = progressFor('tyt');
   const aytProgress = progressFor('ayt');
+  const ydtProgress = progressFor('ydt');
   const tytExams = exams.filter((exam) => exam.exam === 'tyt').sort((a, b) => b.date - a.date);
   const lastExam = tytExams[0];
   const previousExam = tytExams[1];
@@ -125,6 +127,8 @@ export default function HomeScreen() {
           {tytDate ? `TYT · ${formatDateOnly(tytDate.start, language)}` : 'TYT · —'}
           {'   '}
           {aytDate ? `AYT · ${formatDateOnly(aytDate.start, language)}` : 'AYT · —'}
+          {'   '}
+          {ydtDate ? `YDT · ${formatDateOnly(ydtDate.start, language)}` : 'YDT · —'}
         </Text>
         {tytDate?.approximate ? (
           <Chip backgroundColor="rgba(255,255,255,0.18)" color="#FFFFFF">
@@ -162,6 +166,15 @@ export default function HomeScreen() {
           <ProgressBar color={colors.ayt} progress={aytProgress} />
           <Text style={[typography.footnote, styles.progressPercent, { color: colors.label }]}>
             %{Math.round(aytProgress * 100)}
+          </Text>
+        </View>
+        <View style={styles.progressRow}>
+          <Chip backgroundColor={colors.ydtSoft} color={colors.ydtText}>
+            YDT
+          </Chip>
+          <ProgressBar color={colors.ydt} progress={ydtProgress} />
+          <Text style={[typography.footnote, styles.progressPercent, { color: colors.label }]}>
+            %{Math.round(ydtProgress * 100)}
           </Text>
         </View>
       </Card>

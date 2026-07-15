@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { z } from 'zod';
 
+import { EXAM_IDS } from './content-schemas.ts';
 import type { OfficialQuestionBlock, OsymBookletRegistry } from './osym-booklet-registry.ts';
 import {
   ANNUAL_CLASSIFIER_PROMPT_VERSION,
@@ -42,7 +43,7 @@ const MAX_INFERENCE_UNIT_CONCURRENCY = 2;
 export const classifierPromptCatalogSchema = z.object({
   exams: z.array(
     z.object({
-      id: z.enum(['tyt', 'ayt']),
+      id: z.enum(EXAM_IDS),
       sections: z.array(
         z.object({
           id: z.string(),

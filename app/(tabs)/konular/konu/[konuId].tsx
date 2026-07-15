@@ -16,7 +16,13 @@ import {
   SegmentedControl,
   SectionTitle,
 } from '@/components/ui';
-import { findSubject, findTopic, useContentRevisionStore } from '@/data/content';
+import {
+  findSubject,
+  findTopic,
+  officialStatsForSubject,
+  topicGroupStatisticsPack,
+  useContentRevisionStore,
+} from '@/data/content';
 import type { TopicStatus } from '@/db/types';
 import { getVerifiedTopicStats } from '@/features/topics/statistics';
 import { useAppData } from '@/providers/AppDataProvider';
@@ -64,13 +70,33 @@ export default function TopicDetailScreen() {
     }
   };
   const verifiedStats = getVerifiedTopicStats(topic.yearlyStats);
+  const officialStat = officialStatsForSubject(subject.id)?.byTopic.get(topic.id);
+  const officialCoverage =
+    topicGroupStatisticsPack.availability === 'available'
+      ? topicGroupStatisticsPack.coverage
+      : undefined;
 
   return (
     <Screen>
       <AppHeader back title={topic.name[language]} subtitle={subject.name[language]} />
       <View style={styles.chips}>
-        <Chip backgroundColor={colors.tytSoft} color={colors.tytText}>
-          {subject.id.startsWith('tyt') ? 'TYT' : 'AYT'}
+        <Chip
+          backgroundColor={
+            subject.id.startsWith('tyt')
+              ? colors.tytSoft
+              : subject.id.startsWith('ayt')
+                ? colors.aytSoft
+                : colors.ydtSoft
+          }
+          color={
+            subject.id.startsWith('tyt')
+              ? colors.tytText
+              : subject.id.startsWith('ayt')
+                ? colors.aytText
+                : colors.ydtText
+          }
+        >
+          {subject.id.startsWith('tyt') ? 'TYT' : subject.id.startsWith('ayt') ? 'AYT' : 'YDT'}
         </Chip>
       </View>
 
@@ -84,6 +110,29 @@ export default function TopicDetailScreen() {
               label: `'${String(stat.year).slice(-2)}`,
             }))}
           />
+        ) : officialStat && officialCoverage ? (
+          <>
+            <YearBarChart
+              data={officialStat.yearly.map((stat, index) => ({
+                index,
+                value: stat.count,
+                label: `'${String(stat.year).slice(-2)}`,
+              }))}
+            />
+            <Footnote>
+              {t('topics.officialTotal', {
+                count: officialStat.total,
+                first: officialCoverage.firstYear,
+                last: officialCoverage.lastYear,
+              })}
+            </Footnote>
+            <Footnote>{t('topics.officialCountsSource')}</Footnote>
+            {officialStat.alternativeIncluded ? (
+              <Footnote color={colors.warningText}>
+                {t('topics.alternativeIncludedNotice')}
+              </Footnote>
+            ) : null}
+          </>
         ) : (
           <Footnote>{t('topics.unknownCount')}</Footnote>
         )}

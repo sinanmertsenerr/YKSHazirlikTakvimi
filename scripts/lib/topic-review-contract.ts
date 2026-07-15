@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { EXAM_IDS } from './content-schemas.ts';
 import {
   BOOKLET_FIRST_YEAR,
   BOOKLET_MAX_YEAR,
@@ -14,7 +15,7 @@ export const TOPIC_REVIEW_SCHEMA_VERSION = 2;
 export const reviewSlugSchema = z
   .string()
   .min(1)
-  .max(120)
+  .max(180)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const reviewerLabelSchema = z
   .string()
@@ -89,7 +90,7 @@ export const canonicalTopicReviewSchema = z
 export const topicReviewCatalogSchema = z.object({
   exams: z.array(
     z.object({
-      id: z.enum(['tyt', 'ayt']),
+      id: z.enum(EXAM_IDS),
       sections: z.array(
         z.object({
           id: reviewSlugSchema,

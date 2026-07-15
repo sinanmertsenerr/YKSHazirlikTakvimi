@@ -9,7 +9,7 @@ import { allSubjects, topicsPack, useContentRevisionStore } from '@/data/content
 import { useAppData } from '@/providers/AppDataProvider';
 import { useTheme } from '@/theme/useTheme';
 
-type ExamId = 'tyt' | 'ayt';
+type ExamId = 'tyt' | 'ayt' | 'ydt';
 
 export default function TopicsScreen() {
   const { t, i18n } = useTranslation();
@@ -29,11 +29,12 @@ export default function TopicsScreen() {
         </Card>
       ) : null}
       <SegmentedControl
-        accessibilityLabel="TYT AYT"
+        accessibilityLabel="TYT AYT YDT"
         onChange={setExamId}
         options={[
           { label: 'TYT', value: 'tyt' },
           { label: 'AYT', value: 'ayt' },
+          { label: 'YDT', value: 'ydt' },
         ]}
         value={examId}
       />
@@ -44,8 +45,10 @@ export default function TopicsScreen() {
             'done',
         ).length;
         const ratio = subject.topics.length ? done / subject.topics.length : 0;
-        const semanticColor = examId === 'tyt' ? colors.tyt : colors.ayt;
-        const textColor = examId === 'tyt' ? colors.tytText : colors.aytText;
+        const semanticColor =
+          examId === 'tyt' ? colors.tyt : examId === 'ayt' ? colors.ayt : colors.ydt;
+        const textColor =
+          examId === 'tyt' ? colors.tytText : examId === 'ayt' ? colors.aytText : colors.ydtText;
         return (
           <Pressable
             accessibilityLabel={`${subject.name[i18n.language === 'en' ? 'en' : 'tr']}, ${Math.round(ratio * 100)}%`}

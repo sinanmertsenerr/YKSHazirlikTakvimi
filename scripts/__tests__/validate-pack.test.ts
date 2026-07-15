@@ -9,6 +9,7 @@ import {
   validateNewsData,
   validateProgramsFixtureData,
   validateRankTablesData,
+  validateTopicGroupStatisticsData,
   validateTopicsData,
 } from '../validate-pack.ts';
 import { isRelevantNewsTitle } from '../lib/news-relevance.ts';
@@ -24,8 +25,80 @@ async function readJson(path: string): Promise<unknown> {
 test('the complete null-placeholder taxonomy passes', async () => {
   const report = validateTopicsData(await readJson('content/topics.json'));
   assert.deepEqual(report.errors, []);
-  assert.equal(report.summary.topics, 359);
-  assert.equal(report.summary.placeholderSectionYears, 72);
+  assert.equal(report.summary.topics, 591);
+  assert.equal(report.summary.placeholderSectionYears, 81);
+});
+
+test('official topic-group statistics stay pending until exact MEB rows are published', async () => {
+  const pending = await readJson('content/topic-group-statistics.json');
+  assert.deepEqual(validateTopicGroupStatisticsData(pending).errors, []);
+  const invented = structuredClone(pending) as Record<string, unknown>;
+  invented.groups = [{ id: 'invented' }];
+  assert.ok(validateTopicGroupStatisticsData(invented).errors.length > 0);
+});
+
+test('available MEB group provenance must match the pinned official source registry', async () => {
+  const topics = await readJson('content/topics.json');
+  const registry = (await readJson('content/ogm-yks-topic-sources.json')) as {
+    sources: Array<{
+      key: string;
+      sourceId: number;
+      titleTr: string;
+      resolverUrl: string;
+      expected?: { bytes: number; sha256: string };
+    }>;
+  };
+  const source = registry.sources.find((candidate) => candidate.key === 'tyt')!;
+  const available = {
+    schemaVersion: 1,
+    authority: 'MEB OGM',
+    granularity: 'official-topic-group',
+    availability: 'available',
+    coverage: { firstYear: 2018, lastYear: 2025 },
+    landingPageUrl: 'https://ogmmateryal.eba.gov.tr/yks-cikmis-soru-kitaplari',
+    observedAt: '2026-07-15',
+    verificationMethod: 'official-direct',
+    verifiedAt: '2026-07-15T03:00:00+03:00',
+    note: { tr: 'Resmî grup', en: 'Official group' },
+    sources: [
+      {
+        key: source.key,
+        sourceId: source.sourceId,
+        apiBookId: '68b4f30ceb079be0e77092c8',
+        titleTr: source.titleTr,
+        resolverUrl: source.resolverUrl,
+        bytes: source.expected!.bytes,
+        sha256: source.expected!.sha256,
+      },
+    ],
+    groups: [
+      {
+        id: 'tyt-turkce-resmi-grup',
+        exam: 'tyt',
+        displaySubjectId: 'tyt-turkce',
+        sourceKey: 'tyt',
+        evidenceMethod: 'official-pdf-table',
+        questionSet: 'alternative-included',
+        countingPolicy: 'alternative-included',
+        sourceLabelTr: 'Resmî Grup',
+        translationStatus: 'source-only',
+        physicalPage: 1,
+        displayOrder: 0,
+        yearlyCounts: Array.from({ length: 8 }, (_, index) => ({
+          year: 2018 + index,
+          count: 1,
+        })),
+        total: 8,
+      },
+    ],
+  };
+  assert.deepEqual(validateTopicGroupStatisticsData(available, topics, registry).errors, []);
+  available.sources[0]!.sha256 = 'a'.repeat(64);
+  assert.ok(
+    validateTopicGroupStatisticsData(available, topics, registry).errors.some((error) =>
+      error.includes('must exactly match the pinned MEB OGM registry'),
+    ),
+  );
 });
 
 test('a section/year cannot mix unknown and verified numeric topic counts', async () => {
@@ -293,4 +366,18 @@ test('published news contains zero generic, sample, unverified, or unsourced rec
     sample: false,
   });
   assert.ok(news.dataStatus.source);
+});
+
+test('a two-exam pack still parses and duplicate exams fail closed (Expand-Contract)', async () => {
+  const topics = structuredClone(await readJson('content/topics.json')) as {
+    exams: { id: string }[];
+  };
+  const twoExam = structuredClone(topics);
+  twoExam.exams = twoExam.exams.filter((exam) => exam.id !== 'ydt');
+  assert.equal(twoExam.exams.length, 2);
+  assert.deepEqual(validateTopicsData(twoExam).errors, []);
+
+  const duplicated = structuredClone(topics);
+  duplicated.exams.push(structuredClone(duplicated.exams.find((exam) => exam.id === 'ydt')!));
+  assert.notDeepEqual(validateTopicsData(duplicated).errors, []);
 });

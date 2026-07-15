@@ -6,7 +6,9 @@ import { currentIstanbulYear, type ExamYearMode } from '@/features/calendar/exam
 
 export type LanguagePreference = 'system' | 'tr' | 'en';
 export type ThemePreference = 'system' | 'light' | 'dark';
-export type ScoreType = 'say' | 'ea' | 'soz';
+export type ScoreType = 'say' | 'ea' | 'soz' | 'dil';
+
+const SCORE_TYPES: readonly ScoreType[] = ['say', 'ea', 'soz', 'dil'];
 
 export type NotificationPreferences = {
   dailyEnabled: boolean;
@@ -63,10 +65,16 @@ export function migratePersistedSettings(
   persisted: unknown,
   version: number,
 ): Record<string, unknown> {
-  const state = persisted && typeof persisted === 'object' ? persisted : {};
+  const state: Record<string, unknown> =
+    persisted && typeof persisted === 'object' ? { ...persisted } : {};
+  // A persisted score type from a build with a different ScoreType union must not survive
+  // rehydration as an unknown string; reset it to the default instead.
+  if (!SCORE_TYPES.includes(state.targetScoreType as ScoreType)) {
+    state.targetScoreType = 'say';
+  }
   // Older builds did not record whether examYear came from the default or a user action. Preserve
   // that value as manual rather than risking an explicit selection during migration.
-  return version < 1 ? { ...state, examYearMode: 'manual' } : { ...state };
+  return version < 1 ? { ...state, examYearMode: 'manual' } : state;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -105,7 +113,10 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: 'settings-v1',
       storage: createJSONStorage(() => storage),
-      version: 1,
+      // v2 forces one migrate() pass so the targetScoreType hygiene guard runs on every
+      // install persisted before the ScoreType union changed (zustand skips migrate when
+      // the persisted version already matches).
+      version: 2,
       migrate: migratePersistedSettings,
       partialize: (state) => ({
         language: state.language,

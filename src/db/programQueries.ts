@@ -4,7 +4,7 @@ import { trSearch } from '@/utils/format';
 export type ProgramQueryLanguage = 'tr' | 'en';
 
 export type ProgramListFilters = {
-  scoreType: Extract<Program['scoreType'], 'say' | 'ea' | 'soz'>;
+  scoreType: Extract<Program['scoreType'], 'say' | 'ea' | 'soz' | 'dil'>;
   language: ProgramQueryLanguage;
   search?: string;
   city?: string | null;

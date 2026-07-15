@@ -20,6 +20,8 @@ jest.mock('@/data/content', () => {
     coefficientsPackSchema: schemas.coefficientsSchema,
     newsPackSchema: schemas.newsSchema,
     rankTablesPackSchema: schemas.rankTablesSchema,
+    topicGroupMappingsPackSchema: schemas.topicGroupMappingsSchema,
+    topicGroupStatisticsPackSchema: schemas.topicGroupStatisticsSchema,
     topicsPackSchema: schemas.topicsSchema,
   };
 });
@@ -29,6 +31,7 @@ jest.mock('@/stores/settings', () => ({
 
 import coefficientsJson from '../../content/coefficients.json';
 import rankTablesJson from '../../content/rank-tables.json';
+import topicGroupStatisticsJson from '../../content/topic-group-statistics.json';
 
 import {
   activateOnlyAfterValidation,
@@ -56,6 +59,8 @@ const validManifest = {
     programs: descriptor('programs.db'),
     calendar: descriptor('calendar.json'),
     news: descriptor('news.json'),
+    topicGroupStatistics: descriptor('topic-group-statistics.json'),
+    topicGroupMappings: descriptor('topic-group-mappings.json'),
   },
 };
 
@@ -93,7 +98,7 @@ describe('content pack version ordering', () => {
     ).toEqual(['2026.07.3', '2026.07.2']);
   });
 
-  it('accepts only schema-v2 manifests and active pointers', () => {
+  it('accepts only schema-v3 manifests and active pointers', () => {
     expect(packManifestSchema.safeParse(validManifest).success).toBe(true);
     expect(packManifestSchema.safeParse({ ...validManifest, schemaVersion: 1 }).success).toBe(
       false,
@@ -122,6 +127,8 @@ describe('content pack version ordering', () => {
         programs: descriptor('programs.db'),
         calendar: descriptor('calendar.json'),
         news: descriptor('manifest.json'),
+        topicGroupStatistics: descriptor('topic-group-statistics.json'),
+        topicGroupMappings: descriptor('topic-group-mappings.json'),
       },
     });
     expect(result.success).toBe(false);
@@ -150,6 +157,18 @@ describe('content pack version ordering', () => {
       }),
     ).toThrow('Schema validation failed for rank-tables.json.');
     expect(() => validateJsonDocument('rankTables', rankTablesJson)).not.toThrow();
+  });
+
+  it('accepts the strict pending topic-group envelope and rejects invented pending counts', () => {
+    expect(() =>
+      validateJsonDocument('topicGroupStatistics', topicGroupStatisticsJson),
+    ).not.toThrow();
+    expect(() =>
+      validateJsonDocument('topicGroupStatistics', {
+        ...topicGroupStatisticsJson,
+        groups: [{ id: 'invented' }],
+      }),
+    ).toThrow('Schema validation failed for topic-group-statistics.json.');
   });
 
   it('never invokes activation when any candidate validation fails', async () => {

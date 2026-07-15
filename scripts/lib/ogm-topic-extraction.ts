@@ -39,13 +39,32 @@ export type OgmTopicDistributionRow = {
   rawCells: Record<string, string>;
 };
 
+export type OgmTopicDistributionFailure = {
+  sourceGroup: string;
+  physicalPage: number;
+  tableIndex: number;
+  rowIndex: number;
+  reason: string;
+  subject?: string;
+  topic?: string;
+  explicitYearCounts?: Partial<Record<OgmDistributionYear, number>>;
+  missingYears?: OgmDistributionYear[];
+  rowTotal?: number;
+};
+
+export type OgmTopicDistributionReport = {
+  tableCount: number;
+  rows: OgmTopicDistributionRow[];
+  failures: OgmTopicDistributionFailure[];
+};
+
 export type OgmQuestionEvidence = {
   sourceGroup: string;
   subject: string;
   localQuestionNumber: number;
   physicalPage: number;
   year: number;
-  session: 'TYT' | 'AYT';
+  session: 'TYT' | 'AYT' | 'YDT';
   yearSessionLabel: string;
 };
 
@@ -94,7 +113,16 @@ export function parsePdftotextBboxLayout(
   options: { firstPhysicalPage?: number } = {},
 ): BboxDocument {
   if (!xhtml.trim() || xhtml.length > 100 * 1024 * 1024) fail('unsafe XHTML input size');
-  if (/<!\s*(?:DOCTYPE|ENTITY)\b/iu.test(xhtml)) fail('DTD/entity declarations are forbidden');
+  if (/<!\s*ENTITY\b/iu.test(xhtml)) fail('DTD/entity declarations are forbidden');
+  const popplerDoctype =
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+  const doctypes = xhtml.match(/<!\s*DOCTYPE\b[^>]*>/giu) ?? [];
+  if (doctypes.some((doctype) => doctype !== popplerDoctype) || doctypes.length > 1) {
+    fail('DTD/entity declarations are forbidden');
+  }
+  if (doctypes.length === 1 && xhtml.trimStart().startsWith(popplerDoctype) === false) {
+    fail('DTD/entity declarations are forbidden');
+  }
   const firstPage = options.firstPhysicalPage ?? 1;
   if (!Number.isInteger(firstPage) || firstPage < 1) fail('invalid first physical page');
 
@@ -115,14 +143,36 @@ export function parsePdftotextBboxLayout(
     const open = /^<\s*([\w:-]+)/u.exec(token)?.[1]?.split(':').at(-1)?.toLowerCase();
     if (close === 'word') {
       if (!currentPage || !wordAttrs) fail('orphan closing word tag');
-      const xMin = finiteCoordinate(wordAttrs, 'xmin');
-      const yMin = finiteCoordinate(wordAttrs, 'ymin');
-      const xMax = finiteCoordinate(wordAttrs, 'xmax');
-      const yMax = finiteCoordinate(wordAttrs, 'ymax');
+      let xMin = finiteCoordinate(wordAttrs, 'xmin');
+      let yMin = finiteCoordinate(wordAttrs, 'ymin');
+      let xMax = finiteCoordinate(wordAttrs, 'xmax');
+      let yMax = finiteCoordinate(wordAttrs, 'ymax');
       const text = decodeXml(wordText).trim();
-      if (!text || xMin < 0 || yMin < 0 || xMax <= xMin || yMax <= yMin) fail('invalid bbox word');
-      if (xMax > currentPage.width + 2 || yMax > currentPage.height + 2) {
-        fail(`word outside physical page ${currentPage.page}`);
+      const bleedLimit = Math.min(32, Math.min(currentPage.width, currentPage.height) * 0.05);
+      if (
+        xMin < -bleedLimit ||
+        yMin < -bleedLimit ||
+        xMax > currentPage.width + bleedLimit ||
+        yMax > currentPage.height + bleedLimit ||
+        xMax <= 0 ||
+        yMax <= 0 ||
+        xMin >= currentPage.width ||
+        yMin >= currentPage.height ||
+        xMax <= xMin ||
+        yMax <= yMin
+      ) {
+        fail(
+          `invalid bbox word on physical page ${currentPage.page}: ${JSON.stringify({ text, xMin, yMin, xMax, yMax })}`,
+        );
+      }
+      xMin = Math.max(0, xMin);
+      yMin = Math.max(0, yMin);
+      xMax = Math.min(currentPage.width, xMax);
+      yMax = Math.min(currentPage.height, yMax);
+      if (!text) {
+        wordAttrs = undefined;
+        wordText = '';
+        continue;
       }
       currentPage.words.push({
         page: currentPage.page,
@@ -141,7 +191,6 @@ export function parsePdftotextBboxLayout(
     }
     if (close === 'page') {
       if (!currentPage) fail('orphan closing page tag');
-      if (!currentPage.words.length) fail(`physical page ${currentPage.page} has no bbox words`);
       pages.push(currentPage);
       currentPage = undefined;
       continue;
@@ -208,6 +257,23 @@ function visualLines(words: BboxWord[]): VisualLine[] {
 const HEADER_LABELS = [...OGM_DISTRIBUTION_YEARS.map(String), 'TOPLAM'];
 type Header = { page: BboxPage; y: number; words: BboxWord[]; centers: number[]; step: number };
 
+function rotatePageClockwise(page: BboxPage): BboxPage {
+  return {
+    page: page.page,
+    width: page.height,
+    height: page.width,
+    words: page.words.map((word) => ({
+      ...word,
+      pageWidth: page.height,
+      pageHeight: page.width,
+      xMin: page.height - word.yMax,
+      yMin: word.xMin,
+      xMax: page.height - word.yMin,
+      yMax: word.xMax,
+    })),
+  };
+}
+
 function headersOnPage(page: BboxPage): Header[] {
   const headers: Header[] = [];
   for (const line of visualLines(page.words)) {
@@ -224,6 +290,36 @@ function headersOnPage(page: BboxPage): Header[] {
       headers.push({ page, y: line.y, words: slice, centers, step });
       start += HEADER_LABELS.length - 1;
     }
+  }
+  if (headers.length) return headers;
+
+  for (const first of page.words.filter((word) => normalize(word.text) === HEADER_LABELS[0])) {
+    const words = [first];
+    const firstY = (first.yMin + first.yMax) / 2;
+    const yTolerance = Math.max(18, (first.yMax - first.yMin) * 1.5);
+    for (const label of HEADER_LABELS.slice(1)) {
+      const previousCenter = (words.at(-1)!.xMin + words.at(-1)!.xMax) / 2;
+      const candidate = page.words
+        .filter((word) => {
+          const center = (word.xMin + word.xMax) / 2;
+          const y = (word.yMin + word.yMax) / 2;
+          return (
+            normalize(word.text) === label &&
+            center > previousCenter &&
+            Math.abs(y - firstY) <= yTolerance
+          );
+        })
+        .sort((left, right) => left.xMin - right.xMin)[0];
+      if (!candidate) break;
+      words.push(candidate);
+    }
+    if (words.length !== HEADER_LABELS.length) continue;
+    const centers = words.map((word) => (word.xMin + word.xMax) / 2);
+    const gaps = centers.slice(1).map((center, index) => center - centers[index]!);
+    const step = [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)]!;
+    if (step <= 0 || gaps.some((gap) => gap < step * 0.55 || gap > step * 1.55)) continue;
+    const yCenters = words.map((word) => (word.yMin + word.yMax) / 2).sort((a, b) => a - b);
+    headers.push({ page, y: yCenters[Math.floor(yCenters.length / 2)]!, words, centers, step });
   }
   return headers;
 }
@@ -271,27 +367,60 @@ function cellValue(raw: string): number {
   return value;
 }
 
-export function extractOgmTopicDistributionRows(
+export function inspectOgmTopicDistributionRows(
   input: string | BboxDocument,
   options: { sourceGroup: string; firstPhysicalPage?: number; subjectByTable?: readonly string[] },
-): OgmTopicDistributionRow[] {
+): OgmTopicDistributionReport {
   const sourceGroup = options.sourceGroup.trim();
   if (!sourceGroup) fail('sourceGroup is required');
   const document =
     typeof input === 'string'
       ? parsePdftotextBboxLayout(input, { firstPhysicalPage: options.firstPhysicalPage })
       : input;
-  const allHeaders = document.pages.flatMap(headersOnPage);
+  const allHeaders = document.pages.flatMap((page) => {
+    const original = headersOnPage(page);
+    const clockwisePage = rotatePageClockwise(page);
+    const clockwise = headersOnPage(clockwisePage);
+    if (original.length && clockwise.length) {
+      fail(`ambiguous table orientation on physical page ${page.page}`);
+    }
+    return original.length ? original : clockwise;
+  });
   if (!allHeaders.length) fail('no exact 2018..2025 + TOPLAM header');
   if (options.subjectByTable && options.subjectByTable.length !== allHeaders.length) {
     fail('subjectByTable count does not match detected tables');
   }
 
   const rows: OgmTopicDistributionRow[] = [];
+  const failures: OgmTopicDistributionFailure[] = [];
   allHeaders.forEach((header, tableIndex) => {
     const samePageHeaders = allHeaders.filter((candidate) => candidate.page === header.page);
     const nextHeader = samePageHeaders.find((candidate) => candidate.y > header.y + 3);
-    const xLeft = header.centers[0]! - header.step * 7;
+    const structuralHeaderWords = header.page.words.filter((word) => {
+      const x = (word.xMin + word.xMax) / 2;
+      const y = (word.yMin + word.yMax) / 2;
+      return (
+        x < header.centers[0]! &&
+        Math.abs(y - header.y) <= header.step &&
+        /^(?:KONU|UNITE|SAYFA|NO|SORU|TIPI)$/u.test(normalize(word.text))
+      );
+    });
+    const xLeft = structuralHeaderWords.length
+      ? Math.max(0, Math.min(...structuralHeaderWords.map((word) => word.xMin)) - header.step)
+      : header.centers[0]! - header.step * 7;
+    const topicHeaderWords = structuralHeaderWords.filter(
+      (word) => normalize(word.text) === 'KONU' || normalize(word.text) === 'TIPI',
+    );
+    if (topicHeaderWords.length > 1) {
+      fail(`ambiguous KONU column on physical page ${header.page.page}`);
+    }
+    const topicXRight = header.centers[0]! - header.step * 0.48;
+    const topicXLeft = topicHeaderWords.length
+      ? Math.max(
+          xLeft,
+          (2 * (topicHeaderWords[0]!.xMin + topicHeaderWords[0]!.xMax)) / 2 - topicXRight,
+        )
+      : xLeft;
     const xRight = header.centers.at(-1)! + header.step * 0.6;
     const below = header.page.words.filter((word) => {
       const x = (word.xMin + word.xMax) / 2;
@@ -320,50 +449,98 @@ export function extractOgmTopicDistributionRows(
     if (!rowLines.length) fail(`table on physical page ${header.page.page} has no rows`);
 
     rowLines.forEach(({ line, assigned }, rowIndex) => {
-      if (assigned.size !== HEADER_LABELS.length) {
-        fail(`missing distribution cell on physical page ${header.page.page}`);
-      }
-      const previousY = rowLines[rowIndex - 1]?.line.y ?? header.y;
-      const nextY = rowLines[rowIndex + 1]?.line.y ?? line.y + Math.max(18, line.y - previousY);
-      const topicWords = below.filter((word) => {
-        const x = (word.xMin + word.xMax) / 2;
-        const y = (word.yMin + word.yMax) / 2;
-        return (
-          x < header.centers[0]! - header.step * 0.48 &&
-          y > (previousY + line.y) / 2 &&
-          y < (line.y + nextY) / 2
+      let failureSubject: string | undefined;
+      let failureTopic: string | undefined;
+      try {
+        const previousY = rowLines[rowIndex - 1]?.line.y ?? header.y;
+        const nextY = rowLines[rowIndex + 1]?.line.y ?? line.y + Math.max(18, line.y - previousY);
+        const topicWords = below.filter((word) => {
+          const x = (word.xMin + word.xMax) / 2;
+          const y = (word.yMin + word.yMax) / 2;
+          return (
+            x >= topicXLeft &&
+            x < topicXRight &&
+            y > (previousY + line.y) / 2 &&
+            y < (line.y + nextY) / 2
+          );
+        });
+        failureTopic = visualLines(topicWords)
+          .map((topicLine) => topicLine.text)
+          .join(' ')
+          .trim();
+        if (!failureTopic) {
+          fail(
+            `missing topic heading for row ${rowIndex + 1} on physical page ${header.page.page}`,
+          );
+        }
+        failureSubject = inferredSubject(header, tableIndex, options.subjectByTable);
+        if (assigned.size !== HEADER_LABELS.length) {
+          fail(
+            `missing distribution cell for row ${rowIndex + 1} on physical page ${header.page.page}: found columns ${[...assigned.keys()].join(',')}`,
+          );
+        }
+        const rawCells = Object.fromEntries(
+          HEADER_LABELS.map((label, index) => [label, assigned.get(index)!.text]),
         );
-      });
-      const topic = visualLines(topicWords)
-        .map((topicLine) => topicLine.text)
-        .join(' ')
-        .trim();
-      if (!topic) fail(`missing topic heading on physical page ${header.page.page}`);
-      const rawCells = Object.fromEntries(
-        HEADER_LABELS.map((label, index) => [label, assigned.get(index)!.text]),
-      );
-      const values = HEADER_LABELS.map((_, index) => cellValue(assigned.get(index)!.text));
-      const total = values.at(-1)!;
-      const sum = values.slice(0, -1).reduce((accumulator, value) => accumulator + value, 0);
-      if (sum !== total) {
-        fail(
-          `${inferredSubject(header, tableIndex, options.subjectByTable)} / ${topic}: year sum ${sum} does not equal TOPLAM ${total}`,
-        );
+        const values = HEADER_LABELS.map((_, index) => cellValue(assigned.get(index)!.text));
+        const total = values.at(-1)!;
+        const sum = values.slice(0, -1).reduce((accumulator, value) => accumulator + value, 0);
+        if (sum !== total) {
+          fail(
+            `${failureSubject} / ${failureTopic}: year sum ${sum} does not equal TOPLAM ${total}`,
+          );
+        }
+        rows.push({
+          sourceGroup,
+          subject: failureSubject,
+          topic: failureTopic,
+          physicalPage: header.page.page,
+          yearCounts: Object.fromEntries(
+            OGM_DISTRIBUTION_YEARS.map((year, index) => [year, values[index]!]),
+          ) as Record<OgmDistributionYear, number>,
+          total,
+          rawCells,
+        });
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.startsWith('OGM extraction failed closed:')
+        ) {
+          throw error;
+        }
+        failures.push({
+          sourceGroup,
+          physicalPage: header.page.page,
+          tableIndex: tableIndex + 1,
+          rowIndex: rowIndex + 1,
+          reason: error.message,
+          ...(failureSubject ? { subject: failureSubject } : {}),
+          ...(failureTopic ? { topic: failureTopic } : {}),
+          explicitYearCounts: Object.fromEntries(
+            OGM_DISTRIBUTION_YEARS.flatMap((year, index) => {
+              const word = assigned.get(index);
+              return word ? [[year, cellValue(word.text)]] : [];
+            }),
+          ),
+          missingYears: OGM_DISTRIBUTION_YEARS.filter((_, index) => !assigned.has(index)),
+          ...(assigned.has(HEADER_LABELS.length - 1)
+            ? { rowTotal: cellValue(assigned.get(HEADER_LABELS.length - 1)!.text) }
+            : {}),
+        });
       }
-      rows.push({
-        sourceGroup,
-        subject: inferredSubject(header, tableIndex, options.subjectByTable),
-        topic,
-        physicalPage: header.page.page,
-        yearCounts: Object.fromEntries(
-          OGM_DISTRIBUTION_YEARS.map((year, index) => [year, values[index]!]),
-        ) as Record<OgmDistributionYear, number>,
-        total,
-        rawCells,
-      });
     });
   });
-  return rows;
+  return { tableCount: allHeaders.length, rows, failures };
+}
+
+export function extractOgmTopicDistributionRows(
+  input: string | BboxDocument,
+  options: { sourceGroup: string; firstPhysicalPage?: number; subjectByTable?: readonly string[] },
+): OgmTopicDistributionRow[] {
+  const report = inspectOgmTopicDistributionRows(input, options);
+  if (report.failures.length)
+    fail(report.failures[0]!.reason.replace(/^OGM extraction failed closed: /u, ''));
+  return report.rows;
 }
 
 function matchSubject(line: string, subjects: readonly string[]): string | undefined {
@@ -414,11 +591,11 @@ export function extractOgmQuestionEvidence(
       text: joinWords(words),
     }));
     const labels = lines.flatMap(({ text }) => {
-      const matches = [...normalize(text).matchAll(/\b(20\d{2}) +(TYT|AYT)\b/gu)];
+      const matches = [...normalize(text).matchAll(/\b(20\d{2}) +(TYT|AYT|YDT)\b/gu)];
       if (matches.length > 1) fail(`multiple year/session labels on physical page ${page.page}`);
       return matches.map((match) => ({
         year: Number(match[1]),
-        session: match[2] as 'TYT' | 'AYT',
+        session: match[2] as 'TYT' | 'AYT' | 'YDT',
       }));
     });
     const uniqueLabels = new Map(labels.map((label) => [`${label.year}-${label.session}`, label]));

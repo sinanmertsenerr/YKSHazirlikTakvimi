@@ -11,6 +11,7 @@ import {
   type IncludedOgmTopicSource,
   type OgmTopicSourceRegistry,
 } from './lib/ogm-topic-registry.ts';
+import { auditOgmTopicApi } from './lib/ogm-topic-api.ts';
 
 export const DEFAULT_OGM_TOPIC_REGISTRY_PATH = resolve(
   process.cwd(),
@@ -261,7 +262,7 @@ export function compareOgmRegistryToObservations(
 
 type CliOptions = {
   concurrency: number;
-  mode: 'audit' | 'validate-only';
+  mode: 'api-deep' | 'api-only' | 'audit' | 'validate-only';
   registryPath: string;
 };
 
@@ -274,6 +275,8 @@ export function parseOgmTopicCliOptions(args: string[]): CliOptions {
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (argument === '--audit') options.mode = 'audit';
+    else if (argument === '--api-deep') options.mode = 'api-deep';
+    else if (argument === '--api-only') options.mode = 'api-only';
     else if (argument === '--validate-only') options.mode = 'validate-only';
     else if (argument === '--registry') {
       const value = args[index + 1];
@@ -303,17 +306,38 @@ async function main(): Promise<void> {
   );
   if (options.mode === 'validate-only') return;
 
-  const observations = await auditOgmTopicRegistry(registry, {
-    concurrency: options.concurrency,
-  });
-  for (const observation of observations) {
-    console.log(
-      `Verified ${observation.sourceId}: ${observation.bytes} bytes, SHA-256 ${observation.sha256}.`,
-    );
+  if (options.mode === 'audit') {
+    const observations = await auditOgmTopicRegistry(registry, {
+      concurrency: options.concurrency,
+    });
+    for (const observation of observations) {
+      console.log(
+        `Verified ${observation.sourceId}: ${observation.bytes} bytes, SHA-256 ${observation.sha256}.`,
+      );
+    }
+    const differences = compareOgmRegistryToObservations(registry, observations);
+    if (differences.length) throw new Error('official OGM source metadata drifted');
   }
-  const differences = compareOgmRegistryToObservations(registry, observations);
-  if (differences.length) throw new Error('official OGM source metadata drifted');
-  console.log('All included OGM source hashes and byte lengths match; no files were published.');
+  for (const source of included) {
+    try {
+      const observation = await auditOgmTopicApi(source, {
+        concurrency: options.concurrency,
+        deep: options.mode === 'api-deep',
+      });
+      const detail = observation.questionIdCount
+        ? `, ${observation.questionIdCount} question ID records`
+        : '';
+      console.log(
+        `Verified API ${source.key}: ${observation.testCount} tests, ${observation.questionCount} declared questions${detail}.`,
+      );
+    } catch (error) {
+      throw new Error(
+        `API audit failed for ${source.key}: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
+      );
+    }
+  }
+  console.log('All included OGM source metadata match; no files were published.');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

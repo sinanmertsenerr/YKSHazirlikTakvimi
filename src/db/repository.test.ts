@@ -5,6 +5,7 @@ jest.mock('expo-sqlite', () => ({
     const transaction = { runAsync: jest.fn() };
     return {
       execSync: jest.fn(),
+      getFirstSync: jest.fn(() => null),
       runAsync: jest.fn(),
       withExclusiveTransactionAsync: jest.fn(
         async (operation: (value: typeof transaction) => Promise<void>) => operation(transaction),
@@ -56,5 +57,42 @@ describe('user-data write atomicity', () => {
 
     expect(mockSqlite.runAsync).toHaveBeenCalledTimes(1);
     expect(mockSqlite.runAsync.mock.calls[0]?.[0]).toContain('COALESCE(MAX(sort_order), -1) + 1');
+  });
+});
+
+describe('migrateUserDatabase', () => {
+  function importWithDatabase(getFirstSync: jest.Mock) {
+    jest.resetModules();
+    const execSync = jest.fn();
+    const sqlite = require('expo-sqlite') as { openDatabaseSync: jest.Mock };
+    sqlite.openDatabaseSync.mockReturnValueOnce({
+      execSync,
+      getFirstSync,
+      runAsync: jest.fn(),
+      withExclusiveTransactionAsync: jest.fn(),
+      transaction: { runAsync: jest.fn() },
+    });
+    require('./repository');
+    return execSync;
+  }
+
+  it('rebuilds a legacy deneme table whose CHECK excludes ydt', () => {
+    const getFirstSync = jest
+      .fn()
+      .mockReturnValueOnce({ user_version: 0 })
+      .mockReturnValueOnce({
+        sql: "CREATE TABLE deneme (id TEXT PRIMARY KEY, exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt')))",
+      });
+    const execSync = importWithDatabase(getFirstSync);
+    const statements = execSync.mock.calls.map((call) => String(call[0]));
+    expect(statements.some((sql) => sql.includes('deneme_migrated'))).toBe(true);
+    expect(statements.some((sql) => sql.includes('PRAGMA user_version = 1'))).toBe(true);
+  });
+
+  it('is a no-op once user_version is current', () => {
+    const getFirstSync = jest.fn().mockReturnValueOnce({ user_version: 1 });
+    const execSync = importWithDatabase(getFirstSync);
+    const statements = execSync.mock.calls.map((call) => String(call[0]));
+    expect(statements.some((sql) => sql.includes('deneme_migrated'))).toBe(false);
   });
 });

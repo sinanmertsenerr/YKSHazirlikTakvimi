@@ -5,7 +5,7 @@ import { isDeepStrictEqual } from 'node:util';
 
 import { z } from 'zod';
 
-import { CURRENT_SCHEMA_VERSION, manifestSourceSchema } from './lib/content-schemas.ts';
+import { CURRENT_PACK_SCHEMA_VERSION, manifestSourceSchema } from './lib/content-schemas.ts';
 
 const MAX_MANIFEST_BYTES = 256 * 1024;
 const MAX_PACK_FILE_BYTES = 250 * 1024 * 1024;
@@ -24,7 +24,7 @@ const manifestFileSchema = z
 
 export const builtPackManifestSchema = z
   .object({
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
+    schemaVersion: z.literal(CURRENT_PACK_SCHEMA_VERSION),
     packVersion: manifestSourceSchema.shape.packVersion,
     minAppVersion: manifestSourceSchema.shape.minAppVersion,
     examYear: manifestSourceSchema.shape.examYear,
@@ -36,6 +36,8 @@ export const builtPackManifestSchema = z
         programs: manifestFileSchema,
         calendar: manifestFileSchema,
         news: manifestFileSchema,
+        topicGroupStatistics: manifestFileSchema,
+        topicGroupMappings: manifestFileSchema,
       })
       .strict(),
   })

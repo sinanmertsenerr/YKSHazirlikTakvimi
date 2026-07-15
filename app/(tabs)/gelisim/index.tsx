@@ -59,11 +59,12 @@ export default function ProgressScreen() {
     <Screen>
       <AppHeader title={t('progress.title')} subtitle={t('progress.subtitle')} />
       <SegmentedControl
-        accessibilityLabel="TYT AYT"
+        accessibilityLabel="TYT AYT YDT"
         onChange={setExamType}
         options={[
           { label: 'TYT', value: 'tyt' },
           { label: 'AYT', value: 'ayt' },
+          { label: 'YDT', value: 'ydt' },
         ]}
         value={examType}
       />
@@ -133,7 +134,7 @@ export default function ProgressScreen() {
                     {definition ? localized(definition.name, i18n.language) : item.sectionId}
                   </Text>
                   <ProgressBar
-                    color={weak ? colors.warning : colors.tyt}
+                    color={weak ? colors.warning : colors[examType]}
                     progress={Math.max(0, item.average / max)}
                   />
                   <Text

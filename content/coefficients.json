@@ -34,7 +34,10 @@
     },
     "eligibility": {
       "tyt": {
-        "anyOf": ["tyt-turkce", "tyt-matematik"],
+        "anyOf": [
+          "tyt-turkce",
+          "tyt-matematik"
+        ],
         "minimumRawScore": 0.5
       },
       "field": {
@@ -72,6 +75,10 @@
         "ayt-cografya-2": 8,
         "ayt-felsefe-grubu": 9,
         "ayt-din-kulturu": 5
+      },
+      "dil": {
+        "tyt": 40,
+        "ydt-yabanci-dil": 60
       }
     }
   }

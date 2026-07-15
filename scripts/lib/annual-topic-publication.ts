@@ -151,7 +151,7 @@ function uniqueMatch<T>(items: readonly T[], predicate: (item: T) => boolean, la
 function findBooklet(
   registry: OsymBookletRegistry,
   year: number,
-  exam: 'tyt' | 'ayt',
+  exam: string,
 ): OsymBookletRegistry['booklets'][number] {
   return uniqueMatch(
     registry.booklets,

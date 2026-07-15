@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { EXAM_IDS } from './content-schemas.ts';
 import { topicAnnotationBatchSchema } from './topic-annotations.ts';
 import { osymBookletRegistrySchema } from './osym-booklet-registry.ts';
 
@@ -28,7 +29,7 @@ export const blindTopicAdjudicationSchema = z
 const topicCatalogSchema = z.object({
   exams: z.array(
     z.object({
-      id: z.enum(['tyt', 'ayt']),
+      id: z.enum(EXAM_IDS),
       sections: z.array(
         z.object({
           id: slugSchema,

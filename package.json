@@ -107,6 +107,9 @@
     "discover:booklets": "tsx scripts/discover-osym-booklets.ts",
     "validate:ogm-topics": "tsx scripts/sync-ogm-topic-books.ts --validate-only",
     "audit:ogm-topics": "tsx scripts/sync-ogm-topic-books.ts --audit",
+    "check:ogm-new-editions": "tsx scripts/check-ogm-new-editions.ts",
+    "build:ogm-topic-groups": "tsx scripts/build-topic-group-statistics.ts",
+    "build:topics-official": "tsx scripts/build-topics-from-official.ts",
     "fetch:news": "tsx scripts/fetch-news.ts",
     "check": "npm run validate:pack && npm run validate:annual-publication && npm run validate:booklets && npm run validate:ogm-topics && npm run typecheck && npm run lint && npm test"
   },

@@ -10,10 +10,14 @@ import {
   CURRENT_SCHEMA_VERSION,
   manifestSourceSchema,
   newsSchema,
+  normalizeOfficialLabel,
   programsFixtureSchema,
   rankTablesSchema,
+  topicGroupMappingsSchema,
+  topicGroupStatisticsSchema,
   topicCoverageYears,
   topicsSchema,
+  type TopicGroupMappings,
   type CoefficientsDocument,
   type ManifestSource,
   type ProgramsFixture,
@@ -25,6 +29,11 @@ import {
   osymBookletRegistrySchema,
   type OsymBookletRegistry,
 } from './lib/osym-booklet-registry.ts';
+import {
+  includedOgmTopicSources,
+  ogmTopicSourceRegistrySchema,
+  type OgmTopicSourceRegistry,
+} from './lib/ogm-topic-registry.ts';
 
 export type ValidationReport = {
   errors: string[];
@@ -34,6 +43,8 @@ export type ValidationReport = {
     placeholderSectionYears: number;
     programs: number;
     programYears: number;
+    topicGroups: number;
+    mappedSubjects: number;
   };
 };
 
@@ -49,7 +60,14 @@ function emptyReport(): MutableReport {
   return {
     errors: [],
     warnings: [],
-    summary: { topics: 0, placeholderSectionYears: 0, programs: 0, programYears: 0 },
+    summary: {
+      topics: 0,
+      placeholderSectionYears: 0,
+      programs: 0,
+      programYears: 0,
+      topicGroups: 0,
+      mappedSubjects: 0,
+    },
   };
 }
 
@@ -110,8 +128,14 @@ function checkTopics(
   bookletRegistry?: OsymBookletRegistry,
 ): void {
   const examIds = topics.exams.map((exam) => exam.id);
-  if (new Set(examIds).size !== 2 || !examIds.includes('tyt') || !examIds.includes('ayt')) {
-    report.errors.push('topics.exams: exactly one TYT and one AYT exam are required');
+  if (
+    new Set(examIds).size !== examIds.length ||
+    !examIds.includes('tyt') ||
+    !examIds.includes('ayt')
+  ) {
+    report.errors.push(
+      'topics.exams: exactly one TYT and one AYT exam are required; other exams at most once each',
+    );
   }
 
   const sectionIds: string[] = [];
@@ -394,6 +418,200 @@ function checkManifest(manifest: ManifestSource, contentDir: string, report: Mut
   }
 }
 
+function checkTopicGroupStatistics(
+  statistics: z.infer<typeof topicGroupStatisticsSchema>,
+  report: MutableReport,
+  topics?: TopicsDocument,
+  registry?: OgmTopicSourceRegistry,
+): void {
+  if (statistics.availability === 'pending') return;
+  report.summary.topicGroups = statistics.groups.length;
+
+  const subjectExams = new Map<string, { exam: string }>();
+  for (const exam of topics?.exams ?? []) {
+    for (const section of exam.sections) {
+      for (const subject of section.subjects) {
+        subjectExams.set(subject.id, { exam: exam.id });
+      }
+    }
+  }
+  for (const group of statistics.groups) {
+    const subject = subjectExams.get(group.displaySubjectId);
+    if (topics && (!subject || subject.exam !== group.exam)) {
+      report.errors.push(
+        `topicGroupStatistics.${group.id}.displaySubjectId: unknown or mismatched subject ${group.displaySubjectId}`,
+      );
+    }
+  }
+
+  if (topics) {
+    for (const [subjectId] of subjectExams) {
+      const groups = statistics.groups.filter(
+        (group) =>
+          group.displaySubjectId === subjectId && group.countingPolicy !== 'cross-check-only',
+      );
+      if (!groups.length) continue;
+      const orders = groups.map((group) => group.displayOrder);
+      for (const duplicate of duplicateValues(orders.map(String))) {
+        report.errors.push(
+          `topicGroupStatistics.${subjectId}: duplicate displayOrder ${duplicate}`,
+        );
+      }
+    }
+  }
+
+  if (registry) {
+    if (
+      statistics.coverage.firstYear !== registry.coverage.firstYear ||
+      statistics.coverage.lastYear !== registry.coverage.lastYear ||
+      statistics.landingPageUrl !== registry.landingPageUrl
+    ) {
+      report.errors.push(
+        'topicGroupStatistics: coverage and landing page must match the pinned MEB OGM registry',
+      );
+    }
+    const registeredSources = new Map(
+      includedOgmTopicSources(registry).map((source) => [source.key, source] as const),
+    );
+    for (const source of statistics.sources) {
+      const registered = registeredSources.get(source.key);
+      if (
+        !registered ||
+        source.sourceId !== registered.sourceId ||
+        source.apiBookId !== registered.api.bookObjectId ||
+        source.titleTr !== registered.titleTr ||
+        source.resolverUrl !== registered.resolverUrl ||
+        source.bytes !== registered.expected.bytes ||
+        source.sha256 !== registered.expected.sha256
+      ) {
+        report.errors.push(
+          `topicGroupStatistics.sources.${source.key}: source metadata must exactly match the pinned MEB OGM registry`,
+        );
+      }
+    }
+  }
+}
+
+function checkTopicGroupMappings(
+  mappings: TopicGroupMappings,
+  report: MutableReport,
+  statistics?: z.infer<typeof topicGroupStatisticsSchema>,
+  topics?: TopicsDocument,
+): void {
+  if (!mappings.subjects.length) return;
+  if (!statistics || statistics.availability !== 'available') {
+    report.errors.push(
+      'topicGroupMappings: mappings cannot exist before official topic-group statistics are available',
+    );
+    return;
+  }
+
+  const groupsById = new Map(statistics.groups.map((group) => [group.id, group] as const));
+  const topicsBySubject = new Map<string, { exam: string; names: Map<string, string> }>();
+  for (const exam of topics?.exams ?? []) {
+    for (const section of exam.sections) {
+      for (const subject of section.subjects) {
+        topicsBySubject.set(subject.id, {
+          exam: exam.id,
+          names: new Map(subject.topics.map((topic) => [topic.id, topic.name.tr] as const)),
+        });
+      }
+    }
+  }
+
+  for (const subject of mappings.subjects) {
+    const label = `topicGroupMappings.${subject.displaySubjectId}`;
+    if (topics && !topicsBySubject.has(subject.displaySubjectId)) {
+      report.errors.push(`${label}: unknown study subject`);
+      continue;
+    }
+    const attributableGroupIds = new Set(
+      statistics.groups
+        .filter(
+          (group) =>
+            group.displaySubjectId === subject.displaySubjectId &&
+            group.countingPolicy !== 'cross-check-only',
+        )
+        .map((group) => group.id),
+    );
+    const mappedGroupIds = new Set<string>();
+    for (const entry of subject.entries) {
+      const group = groupsById.get(entry.groupId);
+      mappedGroupIds.add(entry.groupId);
+      if (!group || !attributableGroupIds.has(entry.groupId)) {
+        report.errors.push(
+          `${label}.${entry.groupId}: not an attributable official group of this subject`,
+        );
+        continue;
+      }
+      const targetSubjectId = entry.topicsSubjectId ?? subject.displaySubjectId;
+      const target = topicsBySubject.get(targetSubjectId);
+      if (topics && !target) {
+        report.errors.push(`${label}.${entry.groupId}: unknown target subject ${targetSubjectId}`);
+        continue;
+      }
+      if (target && target.exam !== group.exam) {
+        report.errors.push(
+          `${label}.${entry.groupId}: target subject ${targetSubjectId} belongs to another exam`,
+        );
+      }
+      if (target) {
+        for (const topicId of entry.topicIds) {
+          if (!target.names.has(topicId)) {
+            report.errors.push(`${label}.${entry.groupId}: unknown study topic ${topicId}`);
+          }
+        }
+      }
+      if (entry.status === 'auto-exact' && target) {
+        const topicName = target.names.get(entry.topicIds[0] ?? '');
+        if (
+          topicName === undefined ||
+          normalizeOfficialLabel(topicName) !== normalizeOfficialLabel(group.sourceLabelTr)
+        ) {
+          report.errors.push(
+            `${label}.${entry.groupId}: auto-exact requires normalized label equality with the official label`,
+          );
+        }
+      }
+    }
+    for (const groupId of attributableGroupIds) {
+      if (!mappedGroupIds.has(groupId)) {
+        report.errors.push(
+          `${label}: incomplete coverage — official group ${groupId} is not mapped; ` +
+            'a subject may only be published once every official group is attributed',
+        );
+      }
+    }
+    report.summary.mappedSubjects += 1;
+  }
+}
+
+export function validateTopicGroupMappingsData(
+  data: unknown,
+  statistics?: unknown,
+  topics?: unknown,
+): ValidationReport {
+  const report = emptyReport();
+  const parsed = topicGroupMappingsSchema.safeParse(data);
+  if (!parsed.success) appendZodErrors('topicGroupMappings', parsed.error, report);
+  else {
+    const parsedStatistics =
+      statistics === undefined ? undefined : topicGroupStatisticsSchema.safeParse(statistics);
+    const parsedTopics = topics === undefined ? undefined : topicsSchema.safeParse(topics);
+    if (parsedStatistics && !parsedStatistics.success) {
+      appendZodErrors('topicGroupStatistics', parsedStatistics.error, report);
+    }
+    if (parsedTopics && !parsedTopics.success) appendZodErrors('topics', parsedTopics.error, report);
+    checkTopicGroupMappings(
+      parsed.data,
+      report,
+      parsedStatistics?.success ? parsedStatistics.data : undefined,
+      parsedTopics?.success ? parsedTopics.data : undefined,
+    );
+  }
+  return report;
+}
+
 type SqliteRow = Record<string, string | number | bigint | null>;
 
 function tableColumns(database: DatabaseSync, table: string): Set<string> {
@@ -593,6 +811,33 @@ export function validateNewsData(data: unknown): ValidationReport {
   return report;
 }
 
+export function validateTopicGroupStatisticsData(
+  data: unknown,
+  topics?: unknown,
+  registry?: unknown,
+): ValidationReport {
+  const report = emptyReport();
+  const parsed = topicGroupStatisticsSchema.safeParse(data);
+  if (!parsed.success) appendZodErrors('topicGroupStatistics', parsed.error, report);
+  else {
+    const parsedTopics = topics === undefined ? undefined : topicsSchema.safeParse(topics);
+    const parsedRegistry =
+      registry === undefined ? undefined : ogmTopicSourceRegistrySchema.safeParse(registry);
+    if (parsedTopics && !parsedTopics.success)
+      appendZodErrors('topics', parsedTopics.error, report);
+    if (parsedRegistry && !parsedRegistry.success) {
+      appendZodErrors('ogmTopicSources', parsedRegistry.error, report);
+    }
+    checkTopicGroupStatistics(
+      parsed.data,
+      report,
+      parsedTopics?.success ? parsedTopics.data : undefined,
+      parsedRegistry?.success ? parsedRegistry.data : undefined,
+    );
+  }
+  return report;
+}
+
 export async function validateSourcePack(
   options: ValidatePackOptions = {},
 ): Promise<ValidationReport> {
@@ -620,6 +865,32 @@ export async function validateSourcePack(
     report,
   );
   if (topics) checkTopics(topics, report, bookletRegistry);
+
+  const ogmTopicSources = await parseJson(
+    resolve(contentDir, 'ogm-yks-topic-sources.json'),
+    'ogmTopicSources',
+    ogmTopicSourceRegistrySchema,
+    report,
+  );
+  const topicGroupStatistics = await parseJson(
+    resolve(contentDir, 'topic-group-statistics.json'),
+    'topicGroupStatistics',
+    topicGroupStatisticsSchema,
+    report,
+  );
+  if (topicGroupStatistics) {
+    checkTopicGroupStatistics(topicGroupStatistics, report, topics, ogmTopicSources);
+  }
+
+  const topicGroupMappings = await parseJson(
+    resolve(contentDir, 'topic-group-mappings.json'),
+    'topicGroupMappings',
+    topicGroupMappingsSchema,
+    report,
+  );
+  if (topicGroupMappings) {
+    checkTopicGroupMappings(topicGroupMappings, report, topicGroupStatistics, topics);
+  }
 
   const coefficients = await parseJson(
     resolve(contentDir, 'coefficients.json'),
@@ -699,7 +970,7 @@ function printReport(report: ValidationReport): void {
   for (const warning of report.warnings) console.warn(`WARN ${warning}`);
   for (const error of report.errors) console.error(`ERROR ${error}`);
   console.log(
-    `Validated ${report.summary.topics} topics, ${report.summary.placeholderSectionYears} placeholder section-years, ` +
+    `Validated ${report.summary.topics} topics, ${report.summary.topicGroups} official topic groups (${report.summary.mappedSubjects} fully mapped subjects), ${report.summary.placeholderSectionYears} placeholder section-years, ` +
       `${report.summary.programs} programs, and ${report.summary.programYears} program-year rows.`,
   );
   console.log(

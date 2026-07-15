@@ -130,6 +130,7 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
         options={[
           { label: 'TYT', value: 'tyt' },
           { label: 'AYT', value: 'ayt' },
+          { label: 'YDT', value: 'ydt' },
         ]}
         value={exam}
       />

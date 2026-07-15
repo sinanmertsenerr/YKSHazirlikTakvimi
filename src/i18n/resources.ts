@@ -80,6 +80,28 @@ export const resources = {
         editorialTaxonomy:
           'Konu taksonomisi editoryaldir; soru sayıları yalnız resmî kaynakla doğrulandığında gösterilir.',
         progressSaveFailed: 'Konu ilerlemesi kaydedilemedi. Lütfen yeniden dene.',
+        studyTopics: 'Çalışma konuları',
+        officialGroups: 'MEB resmî dağılımı',
+        officialGroupsSubtitle: 'MEB OGM geniş konu grupları',
+        officialGroupsNotice:
+          'Bunlar MEB OGM tarafından yayımlanan geniş konu gruplarıdır; çalışma konularıyla bire bir eşleştirilmez ve ilerleme hesabını değiştirmez.',
+        officialGroupsPending:
+          'MEB OGM tabloları doğrulanıp içerik paketine alınana kadar resmî grup sayıları gösterilmez.',
+        officialGroupsUnavailableForSubject:
+          'Bu ders için doğrulanmış MEB OGM konu grubu henüz yok.',
+        officialThroughYear: 'Resmî kapsam: {{first}}–{{last}}',
+        officialTotal: '{{count}} soru · {{first}}–{{last}}',
+        unpublishedYear: '{{year}} dağılımı MEB OGM tarafından henüz yayımlanmadı.',
+        officialGroupDetail: 'Resmî geniş konu grubu',
+        sourcePage: 'Kaynak sayfa {{page}}',
+        verifiedOn: '{{date}} tarihinde doğrulandı',
+        officialGroupSource: 'Kaynak: T.C. Millî Eğitim Bakanlığı OGM Materyal',
+        officialCountsSource: 'Kaynak: MEB OGM resmî dağılımı',
+        ydtEnglishOnlyNotice:
+          'YDT verileri MEB OGM İngilizce kitapçığından derlenmiştir. Almanca, Arapça, Fransızca ve Rusça oturumlarının resmî konu dağılımı henüz yayımlanmamıştır.',
+        sourceOnlyLabel: 'Konu grubu adı resmî Türkçe kaynaktan aynen korunur.',
+        alternativeIncludedNotice:
+          'Bu kaynak alternatif soru yolunu da içerir; sayı, standart aday kitapçığındaki kanonik ders toplamı olarak yorumlanmamalıdır.',
       },
       progress: {
         title: 'Gelişim',
@@ -291,6 +313,28 @@ export const resources = {
         editorialTaxonomy:
           'The topic taxonomy is editorial; question counts appear only after official-source verification.',
         progressSaveFailed: 'Topic progress could not be saved. Please try again.',
+        studyTopics: 'Study topics',
+        officialGroups: 'Official MEB distribution',
+        officialGroupsSubtitle: 'Broad topic groups from MEB OGM',
+        officialGroupsNotice:
+          'These are broad topic groups published by MEB OGM; they are not mapped one-to-one to study topics and do not change progress calculations.',
+        officialGroupsPending:
+          'Official group counts stay hidden until the MEB OGM tables are validated and included in the content pack.',
+        officialGroupsUnavailableForSubject:
+          'No validated MEB OGM topic groups are available for this subject yet.',
+        officialThroughYear: 'Official coverage: {{first}}–{{last}}',
+        officialTotal: '{{count}} questions · {{first}}–{{last}}',
+        unpublishedYear: 'MEB OGM has not published the {{year}} distribution yet.',
+        officialGroupDetail: 'Official broad topic group',
+        sourcePage: 'Source page {{page}}',
+        verifiedOn: 'Verified on {{date}}',
+        officialGroupSource: 'Source: Republic of Türkiye Ministry of Education, OGM Material',
+        officialCountsSource: 'Source: official MEB OGM distribution',
+        ydtEnglishOnlyNotice:
+          'YDT data is compiled from the official MEB OGM English booklet. Official topic distributions for the German, Arabic, French, and Russian sessions have not been published yet.',
+        sourceOnlyLabel: 'The official Turkish topic-group label is preserved as published.',
+        alternativeIncludedNotice:
+          'This source also includes the alternative question path; do not interpret the count as the canonical subject total in a standard candidate booklet.',
       },
       progress: {
         title: 'Progress',

@@ -17,7 +17,7 @@ const EXPECTED_SOURCE_LAYOUT = [
   { sourceId: 176297, key: 'ayt-say', status: 'included' },
   { sourceId: 176294, key: 'tyt-dkab', status: 'included' },
   { sourceId: 176293, key: 'ayt-dkab', status: 'included' },
-  { sourceId: 176298, key: 'ydt', status: 'excluded' },
+  { sourceId: 176298, key: 'ydt', status: 'included' },
 ] as const;
 
 const sha256Schema = z
@@ -64,6 +64,26 @@ const expectedObservationSchema = z
   })
   .strict();
 
+const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/);
+
+const ogmApiProvenanceSchema = z
+  .object({
+    contentId: z.int().positive(),
+    discoveryUrl: allowedOgmUrlSchema,
+    bookObjectId: objectIdSchema,
+    bookTitle: z
+      .string()
+      .trim()
+      .min(1)
+      .max(160)
+      .refine((title) => title.includes('2018-2025')),
+    expectedTestCount: z.int().positive(),
+    expectedQuestionCount: z.int().positive(),
+    pdfPublicUrl: allowedOgmUrlSchema.nullable(),
+    pdfAssociation: z.enum(['resolver-target-match', 'resolver-authoritative']),
+  })
+  .strict();
+
 const commonSourceFields = {
   sourceId: z.int().positive(),
   key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -76,6 +96,7 @@ const includedSourceSchema = z
     ...commonSourceFields,
     status: z.literal('included'),
     intendedUse: z.literal('topic-label-reference-audit'),
+    api: ogmApiProvenanceSchema,
     expected: expectedObservationSchema,
   })
   .strict();
@@ -84,10 +105,8 @@ const excludedSourceSchema = z
   .object({
     ...commonSourceFields,
     status: z.literal('excluded'),
-    reasonCode: z.literal('ydt-outside-current-topic-taxonomy'),
-    reasonTr: z.literal(
-      'YDT, uygulamanın mevcut TYT/AYT konu taksonomisinin dışındadır; kaynak bilinçli olarak içe aktarılmaz.',
-    ),
+    reasonCode: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    reasonTr: z.string().trim().min(1).max(300),
   })
   .strict();
 
@@ -181,6 +200,47 @@ export const ogmTopicSourceRegistrySchema = z
           path: ['sources', index, 'resolverUrl'],
           message: 'resolverUrl must exactly match the official OGM pdf-goster source ID',
         });
+      }
+      if (source.status === 'included') {
+        if (source.api.contentId !== source.sourceId) {
+          context.addIssue({
+            code: 'custom',
+            path: ['sources', index, 'api', 'contentId'],
+            message: 'API provenance contentId must equal sourceId',
+          });
+        }
+        const discovery = new URL(source.api.discoveryUrl);
+        if (
+          discovery.hostname !== 'ogmmateryal.eba.gov.tr' ||
+          discovery.pathname !== `/icerik-goster/${source.sourceId}` ||
+          discovery.search
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['sources', index, 'api', 'discoveryUrl'],
+            message: 'API discoveryUrl must exactly match the official content ID resolver',
+          });
+        }
+        if (
+          source.api.pdfAssociation === 'resolver-target-match' &&
+          source.api.pdfPublicUrl === null
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['sources', index, 'api', 'pdfPublicUrl'],
+            message: 'a resolver-target-match association requires a pinned API PDF URL',
+          });
+        }
+        if (
+          source.api.pdfAssociation === 'resolver-authoritative' &&
+          source.api.pdfPublicUrl !== null
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['sources', index, 'api', 'pdfPublicUrl'],
+            message: 'unreliable API PDF associations must not be pinned',
+          });
+        }
       }
     });
   });

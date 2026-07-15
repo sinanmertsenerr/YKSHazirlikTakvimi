@@ -25,7 +25,7 @@ export const settingsSnapshotSchema = z
     language: z.enum(['system', 'tr', 'en']),
     theme: z.enum(['system', 'light', 'dark']),
     examYear: z.number().int().min(2026).max(2100),
-    targetScoreType: z.enum(['say', 'ea', 'soz']),
+    targetScoreType: z.enum(['say', 'ea', 'soz', 'dil']),
     targetNet: z.number().finite().min(0).max(120),
     diplomaNote: z.number().finite().min(50).max(100),
     notificationPrefs: notificationPreferencesSchema,
@@ -54,7 +54,7 @@ const examSchema = z
   .object({
     id: z.string().trim().min(1).max(200),
     date: z.number().int().nonnegative(),
-    exam: z.enum(['tyt', 'ayt']),
+    exam: z.enum(['tyt', 'ayt', 'ydt']),
     publisher: z.string().max(MAX_BACKUP_BYTES),
     notes: z.string().max(MAX_BACKUP_BYTES),
     sections: z.array(examSectionSchema).max(100),

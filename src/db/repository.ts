@@ -16,8 +16,41 @@ import type { ExamRecord, TopicProgressRecord, TopicStatus, UserDataSnapshot } f
 export { istanbulDay } from './activity';
 
 const sqlite = openDatabaseSync('yks-user.db');
+sqlite.execSync('PRAGMA journal_mode = WAL;');
+
+/**
+ * SQLite cannot ALTER a CHECK constraint in place, and `CREATE TABLE IF NOT EXISTS` never
+ * re-runs on existing installs. Version 1 rebuilds `deneme` so its exam CHECK admits 'ydt'.
+ */
+const USER_DB_VERSION = 1;
+function migrateUserDatabase(): void {
+  const versionRow = sqlite.getFirstSync<{ user_version: number }>('PRAGMA user_version');
+  if ((versionRow?.user_version ?? 0) >= USER_DB_VERSION) return;
+  const existing = sqlite.getFirstSync<{ sql: string }>(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='deneme'",
+  );
+  if (existing && !existing.sql.includes("'ydt'")) {
+    sqlite.execSync(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN;
+      CREATE TABLE deneme_migrated (
+        id TEXT PRIMARY KEY,
+        date INTEGER NOT NULL,
+        exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt','ydt')),
+        publisher TEXT,
+        notes TEXT
+      );
+      INSERT INTO deneme_migrated SELECT id, date, exam, publisher, notes FROM deneme;
+      DROP TABLE deneme;
+      ALTER TABLE deneme_migrated RENAME TO deneme;
+      COMMIT;
+    `);
+  }
+  sqlite.execSync(`PRAGMA user_version = ${USER_DB_VERSION};`);
+}
+migrateUserDatabase();
+
 sqlite.execSync(`
-  PRAGMA journal_mode = WAL;
   PRAGMA foreign_keys = ON;
   CREATE TABLE IF NOT EXISTS topic_progress (
     topic_id TEXT PRIMARY KEY,
@@ -28,7 +61,7 @@ sqlite.execSync(`
   CREATE TABLE IF NOT EXISTS deneme (
     id TEXT PRIMARY KEY,
     date INTEGER NOT NULL,
-    exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt')),
+    exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt','ydt')),
     publisher TEXT,
     notes TEXT
   );

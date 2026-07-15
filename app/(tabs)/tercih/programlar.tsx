@@ -22,7 +22,7 @@ type TypeFilter = 'all' | Program['type'] | NonNullable<Program['scholarship']> 
 
 export default function ProgramsScreen() {
   const params = useLocalSearchParams<{
-    scoreType?: 'say' | 'ea' | 'soz';
+    scoreType?: 'say' | 'ea' | 'soz' | 'dil';
   }>();
   const { t, i18n } = useTranslation();
   const { colors, typography } = useTheme();
@@ -177,7 +177,7 @@ export default function ProgramsScreen() {
               subtitle={t('preference.officialProgramData')}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filters}>
-              {(['say', 'ea', 'soz'] as const).map((value) => (
+              {(['say', 'ea', 'soz', 'dil'] as const).map((value) => (
                 <Chip
                   backgroundColor={scoreType === value ? colors.brand : colors.surface}
                   color={scoreType === value ? colors.onBrand : colors.label}
@@ -188,7 +188,13 @@ export default function ProgramsScreen() {
                   }}
                   selected={scoreType === value}
                 >
-                  {value === 'soz' ? 'SÖZ' : value.toUpperCase()}
+                  {value === 'soz'
+                    ? 'SÖZ'
+                    : value === 'dil'
+                      ? language === 'en'
+                        ? 'LANG'
+                        : 'DİL'
+                      : value.toUpperCase()}
                 </Chip>
               ))}
             </ScrollView>

@@ -9,6 +9,12 @@ import {
 import { isAllowedRelatedSubject } from './topic-discipline-families.ts';
 
 export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_PACK_SCHEMA_VERSION = 3;
+export const TOPIC_GROUP_STATISTICS_SCHEMA_VERSION = 1;
+
+/** Single source of truth for every exam id in the platform (schemas, UI, pipeline). */
+export const EXAM_IDS = ['tyt', 'ayt', 'ydt'] as const;
+export type ExamId = (typeof EXAM_IDS)[number];
 
 export function topicCoverageYears(lastYear: number): number[] {
   if (!Number.isInteger(lastYear) || lastYear < BOOKLET_FIRST_YEAR || lastYear > BOOKLET_MAX_YEAR) {
@@ -28,6 +34,320 @@ export const localizedTextSchema = z
     en: z.string().trim().min(1),
   })
   .strict();
+
+const ogmHttpsUrlSchema = z.url().refine(
+  (value) => {
+    const url = new URL(value);
+    return (
+      url.protocol === 'https:' &&
+      (url.hostname === 'ogmmateryal.eba.gov.tr' || url.hostname === 'ogm-small-cdn.eba.gov.tr') &&
+      !url.port &&
+      !url.username &&
+      !url.password &&
+      !url.hash
+    );
+  },
+  { message: 'only clean HTTPS MEB OGM sources are allowed' },
+);
+
+const topicGroupCoverageSchema = z
+  .object({
+    firstYear: z.literal(2018),
+    lastYear: z.int().min(2025).max(2100),
+  })
+  .strict();
+
+const topicGroupSourceSchema = z
+  .object({
+    key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    sourceId: z.int().positive(),
+    apiBookId: z.string().regex(/^[0-9a-f]{24}$/),
+    titleTr: z.string().trim().min(1).max(180),
+    resolverUrl: ogmHttpsUrlSchema.refine(
+      (value) => /^\/pdf-goster\/\d+$/.test(new URL(value).pathname),
+      'MEB OGM source must use an official pdf-goster resolver path',
+    ),
+    bytes: z
+      .int()
+      .positive()
+      .max(64 * 1024 * 1024),
+    sha256: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .refine((value) => !/^0{64}$/.test(value), 'SHA-256 cannot be a placeholder'),
+  })
+  .strict()
+  .superRefine((source, context) => {
+    if (new URL(source.resolverUrl).pathname !== `/pdf-goster/${source.sourceId}`) {
+      context.addIssue({
+        code: 'custom',
+        path: ['resolverUrl'],
+        message: 'resolver path must contain the declared numeric sourceId',
+      });
+    }
+  });
+
+const topicGroupYearCountSchema = z
+  .object({
+    year: z.int().min(2018).max(2100),
+    count: z.int().nonnegative(),
+  })
+  .strict();
+
+const officialTopicGroupSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    exam: z.enum(EXAM_IDS),
+    displaySubjectId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    sourceKey: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    evidenceMethod: z.literal('official-pdf-table'),
+    apiTestIds: z.array(z.string().regex(/^[0-9a-f]{24}$/)).min(1).optional(),
+    questionSet: z.enum(['canonical', 'alternative-included', 'cross-check']),
+    countingPolicy: z.enum(['canonical', 'alternative-included', 'cross-check-only']),
+    sourceLabelTr: z.string().trim().min(1).max(180),
+    translationStatus: z.literal('source-only'),
+    physicalPage: z.int().positive(),
+    displayOrder: z.int().nonnegative(),
+    yearlyCounts: z.array(topicGroupYearCountSchema).min(1),
+    total: z.int().nonnegative(),
+  })
+  .strict()
+  .superRefine((group, context) => {
+    if (group.apiTestIds && new Set(group.apiTestIds).size !== group.apiTestIds.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['apiTestIds'],
+        message: 'optional API test ids must be unique when exact evidence exists',
+      });
+    }
+  });
+
+const topicGroupStatisticsBaseShape = {
+  schemaVersion: z.literal(TOPIC_GROUP_STATISTICS_SCHEMA_VERSION),
+  authority: z.literal('MEB OGM'),
+  granularity: z.literal('official-topic-group'),
+  coverage: topicGroupCoverageSchema,
+  landingPageUrl: ogmHttpsUrlSchema.refine(
+    (value) => value === 'https://ogmmateryal.eba.gov.tr/yks-cikmis-soru-kitaplari',
+    'landingPageUrl must be the official MEB OGM YKS collection',
+  ),
+  observedAt: z.iso.date(),
+  note: localizedTextSchema,
+};
+
+const pendingTopicGroupStatisticsSchema = z
+  .object({
+    ...topicGroupStatisticsBaseShape,
+    availability: z.literal('pending'),
+    verificationMethod: z.null(),
+    verifiedAt: z.null(),
+    sources: z.array(topicGroupSourceSchema).length(0),
+    groups: z.array(officialTopicGroupSchema).length(0),
+  })
+  .strict();
+
+const availableTopicGroupStatisticsSchema = z
+  .object({
+    ...topicGroupStatisticsBaseShape,
+    availability: z.literal('available'),
+    verificationMethod: z.literal('official-direct'),
+    verifiedAt: z.iso.datetime({ offset: true }),
+    sources: z.array(topicGroupSourceSchema).min(1),
+    groups: z.array(officialTopicGroupSchema).min(1),
+  })
+  .strict()
+  .superRefine((document, context) => {
+    const sourceKeys = document.sources.map((source) => source.key);
+    if (new Set(sourceKeys).size !== sourceKeys.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['sources'],
+        message: 'MEB OGM source keys must be unique',
+      });
+    }
+    const groupIds = document.groups.map((group) => group.id);
+    if (new Set(groupIds).size !== groupIds.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['groups'],
+        message: 'official topic-group ids must be unique',
+      });
+    }
+    const groupLabels = document.groups
+      .filter((group) => group.countingPolicy !== 'cross-check-only')
+      .map(
+        (group) => `${group.displaySubjectId}\0${group.sourceLabelTr.toLocaleLowerCase('tr-TR')}`,
+      );
+    if (new Set(groupLabels).size !== groupLabels.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['groups'],
+        message: 'a subject cannot contain duplicate official topic-group labels',
+      });
+    }
+
+    const expectedYears = Array.from(
+      { length: document.coverage.lastYear - document.coverage.firstYear + 1 },
+      (_, index) => document.coverage.firstYear + index,
+    );
+    const usedSources = new Set<string>();
+    document.groups.forEach((group, groupIndex) => {
+      usedSources.add(group.sourceKey);
+      if (!sourceKeys.includes(group.sourceKey)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['groups', groupIndex, 'sourceKey'],
+          message: 'official topic group must reference a declared MEB OGM source',
+        });
+      }
+      if (!group.displaySubjectId.startsWith(`${group.exam}-`)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['groups', groupIndex, 'displaySubjectId'],
+          message: 'display subject must belong to the declared exam',
+        });
+      }
+      const years = group.yearlyCounts.map((row) => row.year);
+      if (
+        years.length !== expectedYears.length ||
+        years.some((year, index) => year !== expectedYears[index])
+      ) {
+        context.addIssue({
+          code: 'custom',
+          path: ['groups', groupIndex, 'yearlyCounts'],
+          message: `yearly counts must contain every year from ${document.coverage.firstYear} through ${document.coverage.lastYear} exactly once and in order`,
+        });
+      }
+      const total = group.yearlyCounts.reduce((sum, row) => sum + row.count, 0);
+      if (total !== group.total) {
+        context.addIssue({
+          code: 'custom',
+          path: ['groups', groupIndex, 'total'],
+          message: `published total ${group.total} does not equal yearly sum ${total}`,
+        });
+      }
+    });
+    document.sources.forEach((source, sourceIndex) => {
+      if (!usedSources.has(source.key)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['sources', sourceIndex],
+          message: 'every published source must support at least one official topic group',
+        });
+      }
+    });
+  });
+
+/** MEB's broad labels stay separate from the app's fine study-topic taxonomy. */
+export const topicGroupStatisticsSchema = z.discriminatedUnion('availability', [
+  pendingTopicGroupStatisticsSchema,
+  availableTopicGroupStatisticsSchema,
+]);
+
+export const TOPIC_GROUP_MAPPINGS_SCHEMA_VERSION = 1;
+
+const mappingSlugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+/**
+ * Normalization used to prove an `auto-exact` mapping: an official MEB label and a study-topic
+ * name must be equal after Turkish-aware lowercasing, diacritic folding, and dash/space cleanup.
+ */
+export function normalizeOfficialLabel(value: string): string {
+  return value
+    .toLocaleLowerCase('tr-TR')
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/ı/g, 'i')
+    .replace(/[–—-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const topicGroupMappingEntrySchema = z
+  .object({
+    groupId: mappingSlugSchema,
+    relation: z.enum(['exact', 'aggregate-into-topic', 'group-spans-topics']),
+    /** Study subject holding topicIds when it differs from the group's display subject (e.g. geometry). */
+    topicsSubjectId: mappingSlugSchema.optional(),
+    topicIds: z.array(mappingSlugSchema).min(1),
+    status: z.enum(['auto-exact', 'editorial']),
+    noteTr: z.string().trim().min(1).max(300).optional(),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (new Set(entry.topicIds).size !== entry.topicIds.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['topicIds'],
+        message: 'mapped study-topic ids must be unique',
+      });
+    }
+    if (entry.relation === 'group-spans-topics' && entry.topicIds.length < 2) {
+      context.addIssue({
+        code: 'custom',
+        path: ['topicIds'],
+        message: 'a spanning group must list at least two study topics',
+      });
+    }
+    if (entry.relation !== 'group-spans-topics' && entry.topicIds.length !== 1) {
+      context.addIssue({
+        code: 'custom',
+        path: ['topicIds'],
+        message: 'a non-spanning mapping must attribute exactly one study topic',
+      });
+    }
+    if (entry.status === 'auto-exact' && entry.relation !== 'exact') {
+      context.addIssue({
+        code: 'custom',
+        path: ['status'],
+        message: 'auto-exact evidence only applies to exact one-to-one mappings',
+      });
+    }
+  });
+
+const topicGroupMappingSubjectSchema = z
+  .object({
+    displaySubjectId: mappingSlugSchema,
+    entries: z.array(topicGroupMappingEntrySchema).min(1),
+  })
+  .strict()
+  .superRefine((subject, context) => {
+    const groupIds = subject.entries.map((entry) => entry.groupId);
+    if (new Set(groupIds).size !== groupIds.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['entries'],
+        message: 'an official group can only be mapped once per subject',
+      });
+    }
+  });
+
+/**
+ * Bridges official MEB OGM topic groups onto the app's study topics. Counts always stay the
+ * official MEB numbers; only the group-to-topic assignment is editorial and is labelled as such.
+ * Per-topic numbers may only be shown for subjects whose group coverage is complete.
+ */
+export const topicGroupMappingsSchema = z
+  .object({
+    schemaVersion: z.literal(TOPIC_GROUP_MAPPINGS_SCHEMA_VERSION),
+    authority: z.literal('MEB OGM'),
+    method: z.literal('official-group-to-study-topic-mapping'),
+    noteTr: z.string().trim().min(1),
+    subjects: z.array(topicGroupMappingSubjectSchema),
+  })
+  .strict()
+  .superRefine((document, context) => {
+    const subjectIds = document.subjects.map((subject) => subject.displaySubjectId);
+    if (new Set(subjectIds).size !== subjectIds.length) {
+      context.addIssue({
+        code: 'custom',
+        path: ['subjects'],
+        message: 'each subject can only be mapped once',
+      });
+    }
+  });
+
+export type TopicGroupMappings = z.infer<typeof topicGroupMappingsSchema>;
 
 const nullableUrlSchema = z.union([z.url(), z.null()]);
 const nullableTimestampSchema = z.union([z.iso.datetime({ offset: true }), z.null()]);
@@ -383,7 +703,7 @@ const sectionSchema = z
 
 const examSchema = z
   .object({
-    id: z.enum(['tyt', 'ayt']),
+    id: z.enum(EXAM_IDS),
     name: localizedTextSchema,
     durationMin: z.int().positive(),
     totalQuestions: z.int().positive(),
@@ -417,16 +737,22 @@ export const topicsSchema = z
   .object({
     schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
     dataStatus: dataStatusSchema,
-    exams: z.array(examSchema).length(2),
+    // Expand-Contract: 2-exam packs stay valid so a bad third-exam dataset can be rolled
+    // back with a content-only publish even after 3-exam binaries ship.
+    exams: z.array(examSchema).min(2).max(EXAM_IDS.length),
   })
   .strict()
   .superRefine((pack, context) => {
     const examIds = pack.exams.map((exam) => exam.id);
-    if (new Set(examIds).size !== 2 || !examIds.includes('tyt') || !examIds.includes('ayt')) {
+    if (
+      new Set(examIds).size !== examIds.length ||
+      !examIds.includes('tyt') ||
+      !examIds.includes('ayt')
+    ) {
       context.addIssue({
         code: 'custom',
         path: ['exams'],
-        message: 'exactly one TYT and one AYT exam are required',
+        message: 'exactly one TYT and one AYT exam are required; other exams at most once each',
       });
     }
 
@@ -651,6 +977,14 @@ const sozWeightsSchema = z
   })
   .strict();
 
+/** Guide Tablo 1E: DİL score = TYT 40% + YDT (Yabancı Dil Testi) 60%. */
+const dilWeightsSchema = z
+  .object({
+    tyt: z.literal(40),
+    'ydt-yabanci-dil': z.literal(60),
+  })
+  .strict();
+
 export const coefficientsSchema = z
   .object({
     schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
@@ -711,6 +1045,7 @@ export const coefficientsSchema = z
             say: sayWeightsSchema,
             ea: eaWeightsSchema,
             soz: sozWeightsSchema,
+            dil: dilWeightsSchema,
           })
           .strict(),
       })
@@ -1033,7 +1368,7 @@ const programSchema = z
     name: localizedTextSchema,
     city: localizedTextSchema,
     type: z.enum(['devlet', 'vakif', 'kibris']),
-    scoreType: z.enum(['say', 'ea', 'soz', 'tyt']),
+    scoreType: z.enum(['say', 'ea', 'soz', 'tyt', 'dil']),
     scholarship: z.enum(['burslu', '%25', '%50', 'ucretli']).nullable(),
     language: localizedTextSchema.nullable(),
     ...programVerificationShape,
@@ -1079,7 +1414,7 @@ const manifestFileSchema = z
 
 export const manifestSourceSchema = z
   .object({
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
+    schemaVersion: z.literal(CURRENT_PACK_SCHEMA_VERSION),
     packVersion: z.string().regex(/^\d{4}\.\d{2}\.\d+$/),
     minAppVersion: z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/),
     examYear: z.int().min(2026).max(2100),
@@ -1091,6 +1426,8 @@ export const manifestSourceSchema = z
         programs: manifestFileSchema,
         calendar: manifestFileSchema,
         news: manifestFileSchema,
+        topicGroupStatistics: manifestFileSchema,
+        topicGroupMappings: manifestFileSchema,
       })
       .strict(),
   })

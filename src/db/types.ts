@@ -7,7 +7,7 @@ export type TopicProgressRecord = {
   updatedAt: number;
 };
 
-export type ExamType = 'tyt' | 'ayt';
+export type ExamType = 'tyt' | 'ayt' | 'ydt';
 
 export type ExamSectionRecord = {
   sectionId: string;

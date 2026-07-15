@@ -12,7 +12,7 @@ export const topicProgress = sqliteTable('topic_progress', {
 export const mockExam = sqliteTable('deneme', {
   id: text('id').primaryKey(),
   date: integer('date').notNull(),
-  exam: text('exam', { enum: ['tyt', 'ayt'] }).notNull(),
+  exam: text('exam', { enum: ['tyt', 'ayt', 'ydt'] }).notNull(),
   publisher: text('publisher'),
   notes: text('notes'),
 });
@@ -55,7 +55,7 @@ export const program = sqliteTable('program', {
   cityTr: text('city_tr').notNull(),
   cityEn: text('city_en').notNull(),
   type: text('type', { enum: ['devlet', 'vakif', 'kibris'] }).notNull(),
-  scoreType: text('score_type', { enum: ['say', 'ea', 'soz', 'tyt'] }).notNull(),
+  scoreType: text('score_type', { enum: ['say', 'ea', 'soz', 'tyt', 'dil'] }).notNull(),
   scholarship: text('scholarship'),
   language: text('language'),
   verified: integer('verified', { mode: 'boolean' }).notNull().default(false),

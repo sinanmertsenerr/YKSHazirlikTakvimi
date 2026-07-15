@@ -36,6 +36,17 @@ function fixtureSource(body: Uint8Array): IncludedOgmTopicSource {
     status: 'included',
     resolverUrl: 'https://ogmmateryal.eba.gov.tr/pdf-goster/176299',
     intendedUse: 'topic-label-reference-audit',
+    api: {
+      contentId: 176299,
+      discoveryUrl: 'https://ogmmateryal.eba.gov.tr/icerik-goster/176299',
+      bookObjectId: '68b4f30ceb079be0e77092c8',
+      bookTitle: 'YKS Çıkmış Sorular - 2018-2025 - TYT',
+      expectedTestCount: 69,
+      expectedQuestionCount: 956,
+      pdfPublicUrl:
+        'https://ogm-small-cdn.eba.gov.tr/ogm-test-images/6a0498c3e7146abee1a581cf/CIKMIS_SORULAR_2018_2025_TYT_1.pdf',
+      pdfAssociation: 'resolver-target-match',
+    },
     expected: {
       bytes: body.byteLength,
       sha256: createHash('sha256').update(body).digest('hex'),
@@ -43,7 +54,7 @@ function fixtureSource(body: Uint8Array): IncludedOgmTopicSource {
   };
 }
 
-test('registry pins the six approved OGM observations and explicitly excludes YDT', async () => {
+test('registry pins the seven approved OGM observations including YDT', async () => {
   const registry = await readRegistry();
   assert.equal(registry.observedAt, '2026-07-15');
   assert.deepEqual(
@@ -59,12 +70,29 @@ test('registry pins the six approved OGM observations and explicitly excludes YD
       [176297, 28708412, '6e6b2452e019f72e43a2bf9f2fd4ab018f918ed39d5444fd93d7c73d79b89598'],
       [176294, 15009809, 'a7cedd03371ee6324a84edf924069d466840a00d7c9aea1d330014299087928c'],
       [176293, 16372848, 'dd519d7e067332e29447b985e57a69cef551dcb2473dbba76740fc24d005a776'],
+      [176298, 14636803, 'a42d6955f2aecab4ad7d4df3be0b465dc3c99f30686a3838d8abb9aaacc2cf60'],
     ],
   );
-  const excluded = registry.sources.at(-1)!;
   assert.deepEqual(
-    { sourceId: excluded.sourceId, key: excluded.key, status: excluded.status },
-    { sourceId: 176298, key: 'ydt', status: 'excluded' },
+    includedOgmTopicSources(registry).map(({ sourceId, api }) => [
+      sourceId,
+      api.bookObjectId,
+      api.expectedQuestionCount,
+    ]),
+    [
+      [176299, '68b4f30ceb079be0e77092c8', 956],
+      [176295, '68b1f111eb079be0e76eac8a', 629],
+      [176296, '68b232a7eb079be0e76eea43', 639],
+      [176297, '68b4ebc4eb079be0e770922c', 625],
+      [176294, '68d3a8a1dbcaa9db10a16aa1', 37],
+      [176293, '68d39ef3dbcaa9db10a159b4', 48],
+      [176298, '68b4cc3beb079be0e7708108', 640],
+    ],
+  );
+  const ydt = registry.sources.at(-1)!;
+  assert.deepEqual(
+    { sourceId: ydt.sourceId, key: ydt.key, status: ydt.status },
+    { sourceId: 176298, key: 'ydt', status: 'included' },
   );
 });
 
@@ -189,7 +217,7 @@ test('audit rejects wrong content type, oversized declarations, and invalid PDF 
   );
 });
 
-test('excluded YDT is never fetched by registry audit', async () => {
+test('included YDT is audited exactly like every other source', async () => {
   const registry = await readRegistry();
   const tinyBody = new TextEncoder().encode('%PDF-x');
   const scoped = structuredClone(registry);
@@ -212,10 +240,10 @@ test('excluded YDT is never fetched by registry audit', async () => {
       });
     },
   });
-  assert.equal(observations.length, 6);
+  assert.equal(observations.length, 7);
   assert.equal(
     requested.some((url) => url.endsWith('/176298')),
-    false,
+    true,
   );
 });
 
@@ -242,6 +270,8 @@ test('comparison reports pinned metadata drift without mutating registry', async
 
 test('CLI is audit-only by default and rejects every write flag', () => {
   assert.equal(parseOgmTopicCliOptions([]).mode, 'audit');
+  assert.equal(parseOgmTopicCliOptions(['--api-only']).mode, 'api-only');
+  assert.equal(parseOgmTopicCliOptions(['--api-deep']).mode, 'api-deep');
   assert.throws(() => parseOgmTopicCliOptions(['--write']), /read-only/);
   assert.throws(() => parseOgmTopicCliOptions(['--accept-changes']), /read-only/);
 });

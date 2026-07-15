@@ -7,7 +7,7 @@ export type ExamSection = {
   exam: ExamType;
   name: LocalizedText;
   questionCount: number;
-  shortGroup: 'turkce' | 'sosyal' | 'matematik' | 'fen';
+  shortGroup: 'turkce' | 'sosyal' | 'matematik' | 'fen' | 'dil';
 };
 
 export const examSections: ExamSection[] = [
@@ -115,6 +115,13 @@ export const examSections: ExamSection[] = [
     name: { tr: 'Biyoloji', en: 'Biology' },
     questionCount: 13,
     shortGroup: 'fen',
+  },
+  {
+    id: 'ydt-yabanci-dil',
+    exam: 'ydt',
+    name: { tr: 'Yabancı Dil', en: 'Foreign Language' },
+    questionCount: 80,
+    shortGroup: 'dil',
   },
 ];
 

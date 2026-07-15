@@ -18,7 +18,7 @@ const descriptor = (path: string, hash = 'a'.repeat(64)) => ({
 
 function manifest(packVersion: string): BuiltPackManifest {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     packVersion,
     minAppVersion: '1.0.0',
     examYear: 2026,
@@ -29,6 +29,8 @@ function manifest(packVersion: string): BuiltPackManifest {
       programs: descriptor('programs.db'),
       calendar: descriptor('calendar.json'),
       news: descriptor('news.json'),
+      topicGroupStatistics: descriptor('topic-group-statistics.json'),
+      topicGroupMappings: descriptor('topic-group-mappings.json'),
     },
   };
 }

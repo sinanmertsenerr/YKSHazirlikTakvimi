@@ -20,6 +20,9 @@ test('pack-version override changes only the built manifest and preserves the so
     'programs.fixture.json',
     'calendar.json',
     'news.json',
+    'topic-group-statistics.json',
+    'topic-group-mappings.json',
+    'ogm-yks-topic-sources.json',
   ];
   const override = '2026.07.150102030000101';
 

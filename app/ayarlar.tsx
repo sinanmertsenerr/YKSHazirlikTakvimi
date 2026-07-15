@@ -557,6 +557,7 @@ export default function SettingsScreen() {
                 { label: 'SAY', value: 'say' },
                 { label: 'EA', value: 'ea' },
                 { label: language === 'en' ? 'VERBAL' : 'SÖZ', value: 'soz' },
+                { label: language === 'en' ? 'LANG' : 'DİL', value: 'dil' },
               ]}
               value={targetScoreType}
             />

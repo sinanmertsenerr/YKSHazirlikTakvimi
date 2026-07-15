@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "packVersion": "2026.07.3",
   "minAppVersion": "1.0.0",
   "examYear": 2026,
@@ -9,6 +9,8 @@
     "rankTables": { "path": "rank-tables.json" },
     "programs": { "path": "programs.db", "buildFrom": "programs.fixture.json" },
     "calendar": { "path": "calendar.json" },
-    "news": { "path": "news.json" }
+    "news": { "path": "news.json" },
+    "topicGroupStatistics": { "path": "topic-group-statistics.json" },
+    "topicGroupMappings": { "path": "topic-group-mappings.json" }
   }
 }

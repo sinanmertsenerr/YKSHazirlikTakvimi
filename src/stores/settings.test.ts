@@ -36,3 +36,17 @@ describe('settings exam year provenance', () => {
     });
   });
 });
+
+describe('persisted score-type hygiene', () => {
+  it('resets an unknown persisted targetScoreType to the default', () => {
+    expect(migratePersistedSettings({ targetScoreType: 'mf' }, 1)).toMatchObject({
+      targetScoreType: 'say',
+    });
+  });
+
+  it('preserves every valid persisted targetScoreType including dil', () => {
+    expect(migratePersistedSettings({ targetScoreType: 'dil' }, 1)).toMatchObject({
+      targetScoreType: 'dil',
+    });
+  });
+});

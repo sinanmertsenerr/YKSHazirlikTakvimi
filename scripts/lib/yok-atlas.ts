@@ -12,7 +12,7 @@ import {
 
 export const YOK_ATLAS_API_URL = 'https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search';
 export const YOK_ATLAS_DETAIL_BASE_URL = 'https://yokatlas.yok.gov.tr/detay';
-export const YOK_ATLAS_SCORE_TYPES = ['SAY', 'EA', 'SÖZ'] as const;
+export const YOK_ATLAS_SCORE_TYPES = ['SAY', 'EA', 'SÖZ', 'DİL'] as const;
 
 const numberLikeSchema = z.union([
   z.number().finite(),
@@ -172,6 +172,7 @@ function toProgramType(value: string): ProgramsFixture['programs'][number]['type
 function toScoreType(value: YokAtlasScoreType): ProgramsFixture['programs'][number]['scoreType'] {
   if (value === 'SAY') return 'say';
   if (value === 'EA') return 'ea';
+  if (value === 'DİL') return 'dil';
   return 'soz';
 }
 
