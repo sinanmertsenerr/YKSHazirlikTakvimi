@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 
 import {
+  MAX_LANDING_PAGE_ATTEMPTS,
   extractLandingPageContentIds,
   scanOgmEditions,
 } from '../check-ogm-new-editions.ts';
@@ -58,4 +59,96 @@ test('an id-less landing page fails closed instead of reporting a clean scan', a
     scanOgmEditions(REGISTRY_PATH, fetchReturning('<html><body>redesign</body></html>')),
     /layout drift/,
   );
+});
+
+test('a transient "fetch failed" connection error is retried until the scan succeeds', async () => {
+  let attempts = 0;
+  const delays: number[] = [];
+  const scan = await scanOgmEditions(
+    REGISTRY_PATH,
+    async () => {
+      attempts += 1;
+      if (attempts < 3) throw new TypeError('fetch failed');
+      return new Response(landingPage(PINNED_IDS), {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      });
+    },
+    {
+      retryDelayImpl: async (ms) => {
+        delays.push(ms);
+      },
+    },
+  );
+  assert.equal(attempts, 3);
+  assert.deepEqual(delays, [500, 1500]);
+  assert.deepEqual(scan.addedIds, []);
+  assert.deepEqual(scan.removedIds, []);
+});
+
+test('a transient request timeout is retried until the scan succeeds', async () => {
+  let attempts = 0;
+  const scan = await scanOgmEditions(
+    REGISTRY_PATH,
+    async () => {
+      attempts += 1;
+      if (attempts < 2) {
+        throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+      }
+      return new Response(landingPage(PINNED_IDS), {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      });
+    },
+    {
+      retryDelayImpl: async () => {
+        // Tests skip the real backoff wait.
+      },
+    },
+  );
+  assert.equal(attempts, 2);
+  assert.deepEqual(scan.addedIds, []);
+});
+
+test('a persistent connection failure gives up after the maximum attempts', async () => {
+  let attempts = 0;
+  await assert.rejects(
+    scanOgmEditions(
+      REGISTRY_PATH,
+      async () => {
+        attempts += 1;
+        throw new TypeError('fetch failed');
+      },
+      {
+        retryDelayImpl: async () => {
+          // Tests skip the real backoff wait.
+        },
+      },
+    ),
+    /fetch failed/,
+  );
+  assert.equal(attempts, MAX_LANDING_PAGE_ATTEMPTS);
+});
+
+test('a real layout drift is never retried and fails on the first attempt', async () => {
+  let attempts = 0;
+  await assert.rejects(
+    scanOgmEditions(
+      REGISTRY_PATH,
+      async () => {
+        attempts += 1;
+        return new Response('<html><body>redesign</body></html>', {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+        });
+      },
+      {
+        retryDelayImpl: async () => {
+          // Tests skip the real backoff wait.
+        },
+      },
+    ),
+    /layout drift/,
+  );
+  assert.equal(attempts, 1);
 });
