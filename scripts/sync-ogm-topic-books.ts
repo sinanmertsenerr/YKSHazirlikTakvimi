@@ -19,7 +19,9 @@ export const DEFAULT_OGM_TOPIC_REGISTRY_PATH = resolve(
 );
 export const MAX_OGM_PDF_BYTES = 64 * 1024 * 1024;
 export const MAX_OGM_REDIRECTS = 3;
-export const DEFAULT_OGM_TIMEOUT_MS = 45_000;
+export const DEFAULT_OGM_TIMEOUT_MS = 90_000;
+/** A transient download timeout is retried this many times total; a real drift never is. */
+export const MAX_OGM_PDF_TIMEOUT_ATTEMPTS = 3;
 
 const USER_AGENT = 'YKS-OGM-Topic-Source-Audit/1.0';
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
@@ -46,7 +48,16 @@ export type AuditOgmPdfOptions = {
   maxBytes?: number;
   tempRoot?: string;
   timeoutMs?: number;
+  retryDelayImpl?: (milliseconds: number) => Promise<void>;
 };
+
+function isTransientTimeout(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'TimeoutError';
+}
+
+async function defaultRetryDelay(milliseconds: number): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
 
 type AuditOgmRegistryOptions = AuditOgmPdfOptions & { concurrency?: number };
 
@@ -113,7 +124,28 @@ function declaredPdfBytes(response: Response, maxBytes: number): number {
   return bytes;
 }
 
+/**
+ * Downloads and verifies one official PDF, retrying ONLY a transient download timeout. Every
+ * §9.1 integrity failure (byte/sha256 drift, content-type, PDF magic) throws a plain Error and
+ * is never retried, so a real drift can never be masked by the retry loop.
+ */
 export async function auditOgmTopicPdf(
+  source: IncludedOgmTopicSource,
+  options: AuditOgmPdfOptions = {},
+): Promise<OgmPdfObservation> {
+  const retryDelay = options.retryDelayImpl ?? defaultRetryDelay;
+  for (let attempt = 1; attempt <= MAX_OGM_PDF_TIMEOUT_ATTEMPTS; attempt += 1) {
+    try {
+      return await auditOgmTopicPdfOnce(source, options);
+    } catch (error) {
+      if (!isTransientTimeout(error) || attempt === MAX_OGM_PDF_TIMEOUT_ATTEMPTS) throw error;
+      await retryDelay(attempt === 1 ? 250 : 750);
+    }
+  }
+  throw new Error('official OGM PDF audit retry loop ended unexpectedly');
+}
+
+async function auditOgmTopicPdfOnce(
   source: IncludedOgmTopicSource,
   options: AuditOgmPdfOptions = {},
 ): Promise<OgmPdfObservation> {

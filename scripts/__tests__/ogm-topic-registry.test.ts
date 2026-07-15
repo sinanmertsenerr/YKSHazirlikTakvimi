@@ -168,6 +168,59 @@ test('audit follows an allowlisted redirect, hashes the PDF, and removes its tem
   }
 });
 
+test('audit retries a transient PDF download timeout and still verifies the hash', async () => {
+  const body = new TextEncoder().encode('%PDF-1.7\nretry fixture');
+  const source = fixtureSource(body);
+  let attempts = 0;
+  const delays: number[] = [];
+  const observation = await auditOgmTopicPdf(source, {
+    fetchImpl: async () => {
+      attempts += 1;
+      if (attempts < 3) {
+        throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+      }
+      return new Response(body, {
+        headers: {
+          'content-length': String(body.byteLength),
+          'content-type': 'application/pdf',
+        },
+      });
+    },
+    retryDelayImpl: async (ms) => {
+      delays.push(ms);
+    },
+  });
+  assert.equal(attempts, 3);
+  assert.equal(observation.sha256, source.expected.sha256);
+  assert.deepEqual(delays, [250, 750]);
+});
+
+test('a genuine SHA-256 drift fails immediately and is never retried', async () => {
+  const original = new TextEncoder().encode('%PDF-1.7\noriginal-content');
+  const tampered = new TextEncoder().encode('%PDF-1.7\ntampered-content'); // same length, other bytes
+  assert.equal(tampered.byteLength, original.byteLength);
+  const source = fixtureSource(original);
+  let attempts = 0;
+  await assert.rejects(
+    auditOgmTopicPdf(source, {
+      fetchImpl: async () => {
+        attempts += 1;
+        return new Response(tampered, {
+          headers: {
+            'content-length': String(tampered.byteLength),
+            'content-type': 'application/pdf',
+          },
+        });
+      },
+      retryDelayImpl: async () => {
+        throw new Error('a real drift must never be retried');
+      },
+    }),
+    /SHA-256 drift/,
+  );
+  assert.equal(attempts, 1);
+});
+
 test('audit refuses redirects outside the exact host allowlist', async () => {
   const body = new TextEncoder().encode('%PDF-fixture');
   await assert.rejects(
