@@ -133,32 +133,32 @@ function approve(
 function topicDecisionFromPending(pending: ReturnType<typeof prepareAnnualTopicHumanReview>) {
   const blockId = pending.scope.questionBlockId;
   if (blockId.includes('turkce')) {
-    return { subjectId: 'tyt-turkce', topicId: 'sozcukte-anlam', countsTowardStats: true as const };
+    return { subjectId: 'tyt-turkce', topicId: 'tyt-turkce-sozcukte-anlam', countsTowardStats: true as const };
   }
   if (blockId.includes('tarih')) {
     return {
       subjectId: 'tyt-tarih',
-      topicId: 'tarih-ve-zaman',
+      topicId: 'tyt-tarih-boylardan-devlete',
       countsTowardStats: true as const,
     };
   }
   if (blockId.includes('cografya')) {
     return {
       subjectId: 'tyt-cografya',
-      topicId: 'doga-ve-insan',
+      topicId: 'tyt-cografya-doga-ve-insan-etkilesimi',
       countsTowardStats: true as const,
     };
   }
   if (blockId.includes('din')) {
     return {
       subjectId: 'tyt-din-kulturu',
-      topicId: 'bilgi-ve-inanc',
+      topicId: 'tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari',
       countsTowardStats: true as const,
     };
   }
   return {
     subjectId: 'tyt-felsefe',
-    topicId: 'felsefeyi-tanima',
+    topicId: 'tyt-felsefe-felsefenin-anlami',
     countsTowardStats: true as const,
   };
 }
@@ -246,7 +246,7 @@ test('an ID-only human approval applies exact question metadata and primary-only
 
   const correctedApproval = structuredClone(approval);
   for (const record of correctedApproval.records) {
-    record.primaryTopicRef.topicId = 'cumlede-anlam';
+    record.primaryTopicRef.topicId = 'tyt-turkce-cumlede-anlam';
   }
   let replacementError: unknown;
   try {
@@ -279,7 +279,7 @@ test('an ID-only human approval applies exact question metadata and primary-only
     .sections.find((section) => section.id === 'tyt-turkce')!;
   assert.equal(
     correctedSection.subjects[0]!.topics.find(
-      (topic) => topic.id === 'cumlede-anlam',
+      (topic) => topic.id === 'tyt-turkce-cumlede-anlam',
     )!.yearlyStats.find((stat) => stat.year === 2026)!.count,
     40,
   );

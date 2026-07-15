@@ -104,7 +104,7 @@ test('needs-review is explicit and cannot carry related discovery refs', async (
       exam: 'tyt',
       sectionId: 'tyt-turkce',
       subjectId: 'tyt-turkce',
-      topicId: 'sozcukte-anlam',
+      topicId: 'tyt-turkce-sozcukte-anlam',
       crossExam: false,
       countsTowardStats: false,
     },

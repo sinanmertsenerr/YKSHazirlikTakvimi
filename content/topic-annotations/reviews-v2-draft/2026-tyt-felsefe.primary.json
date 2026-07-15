@@ -8,11 +8,16 @@
   "sectionId": "tyt-sosyal",
   "bookletSectionId": "sosyal-bilimler",
   "questionBlockId": "tyt-sosyal-felsefe-default",
-  "allowedSubjectIds": ["tyt-felsefe"],
+  "allowedSubjectIds": [
+    "tyt-felsefe"
+  ],
   "answerSetId": "default",
   "alternativeForSubjectId": null,
   "countsTowardDefaultStats": true,
-  "questionRange": { "first": 11, "last": 15 },
+  "questionRange": {
+    "first": 11,
+    "last": 15
+  },
   "bookletRegistryId": "2026-tyt",
   "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
   "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
@@ -21,31 +26,46 @@
   "records": [
     {
       "officialQuestionNo": 11,
-      "primaryTopicRef": { "subjectId": "tyt-felsefe", "topicId": "felsefeyi-tanima" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-felsefenin-anlami"
+      },
       "relatedTopicRefs": [],
       "status": "mapped"
     },
     {
       "officialQuestionNo": 12,
-      "primaryTopicRef": { "subjectId": "tyt-felsefe", "topicId": "bilgi-felsefesi" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+      },
       "relatedTopicRefs": [],
       "status": "mapped"
     },
     {
       "officialQuestionNo": 13,
-      "primaryTopicRef": { "subjectId": "tyt-felsefe", "topicId": "ahlak-felsefesi" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-ahlak-felsefesinin-konusu-ve-temel-kavramlari"
+      },
       "relatedTopicRefs": [],
       "status": "mapped"
     },
     {
       "officialQuestionNo": 14,
-      "primaryTopicRef": { "subjectId": "tyt-felsefe", "topicId": "felsefeyi-tanima" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-felsefenin-anlami"
+      },
       "relatedTopicRefs": [],
       "status": "mapped"
     },
     {
       "officialQuestionNo": 15,
-      "primaryTopicRef": { "subjectId": "tyt-felsefe", "topicId": "varlik-felsefesi" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+      },
       "relatedTopicRefs": [],
       "status": "mapped"
     }

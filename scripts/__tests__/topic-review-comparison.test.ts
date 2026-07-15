@@ -78,10 +78,13 @@ test('neutral comparison preserves the checked-in 39/40 Turkish v2 consensus', a
   )!;
   assert.equal(disputed.consensusStatus, 'disputed');
   assert.equal(disputed.primaryTopicRef, null);
-  assert.equal(disputed.primaryClassification.primaryTopicRef?.topicId, 'paragraf-yapi');
+  assert.equal(
+    disputed.primaryClassification.primaryTopicRef?.topicId,
+    'tyt-turkce-paragrafin-yapisi',
+  );
   assert.equal(
     disputed.secondaryClassification.primaryTopicRef?.topicId,
-    'paragraf-anlatim-teknikleri',
+    'tyt-turkce-paragrafta-anlam',
   );
 });
 
@@ -241,7 +244,11 @@ test('null primary remains disputed and scope/hash/reviewer mismatches fail', as
   assert.throws(() => compareTopicReviews(sameReviewer), /reviewer identities must be independent/);
 });
 
-test('the blind third review remains valid without changing the disputed consensus', async () => {
+test('the blind third review resolves Q20 under the coarser official taxonomy', async () => {
+  // Pre-migration the three reviewers named three distinct fine-grained topics (no majority).
+  // Under the official MEB taxonomy the adjudicator's and the secondary reviewer's choices fold
+  // into the same official group, so the documented outcome (legacy-id-map.json, tyt-turkce
+  // note) is a legitimate 2/3 majority while the primary-vs-secondary comparison stays disputed.
   const input = await inputs();
   const adjudicationRaw = await readJson(
     'content/topic-annotations/reviews/2026-tyt-turkce.q20.adjudication.json',
@@ -256,8 +263,8 @@ test('the blind third review remains valid without changing the disputed consens
     annotationBatch: await readJson('content/topic-annotations/2026-tyt-turkce.json'),
     adjudication,
   });
-  assert.equal(result.hasMajority, false);
-  assert.equal(result.majorityTopicId, null);
+  assert.equal(result.hasMajority, true);
+  assert.equal(result.majorityTopicId, 'tyt-turkce-paragrafta-anlam');
   const forbidden = { ...(adjudicationRaw as JsonRecord), questionText: 'forbidden' };
   assert.equal(blindTopicAdjudicationSchema.safeParse(forbidden).success, false);
 });

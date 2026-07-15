@@ -121,7 +121,10 @@ The builder refuses an incomplete, duplicate, out-of-range, disputed, source/has
 taxonomy-invalid, or date-invalid wave. Any later integration into the shipped topic catalog is a
 separate reviewed change.
 
-The current 2026 TYT Turkish comparison remains 39/40 agreed (97.5%). A context-free third review
-of question 20 differed from both earlier classifications, so no two-of-three majority exists. Its
-strict metadata is stored under `reviews/`; the consensus wave deliberately fails closed and
-produces no patch. Neither the comparator nor the maintainer selects among the three choices.
+The current 2026 TYT Turkish comparison remains 39/40 agreed (97.5%); question 20 stays disputed
+between the primary (PARAGRAFIN YAPISI) and secondary (PARAGRAFTA ANLAM) reviews. Under the
+official MEB taxonomy adopted on 2026-07-15 (see `legacy-id-map.json`), the context-free third
+review's original choice folds into the same official group as the secondary review, so the
+three-reviewer evaluation now yields a documented 2/3 majority for `tyt-turkce-paragrafta-anlam`.
+The fold is an editorial consequence of the coarser official taxonomy, recorded in the reviewed
+mapping — neither the comparator nor the migration invented a new classification.

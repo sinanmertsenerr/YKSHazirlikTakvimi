@@ -4,39 +4,56 @@
   "examYear": 2026,
   "examId": "tyt",
   "sectionId": "sosyal-bilimler-din-kulturu",
-  "allowedSubjectIds": ["tyt-din-kulturu"],
+  "allowedSubjectIds": [
+    "tyt-din-kulturu"
+  ],
   "answerSet": "standard",
   "alternativeFor": null,
   "evidenceOnly": false,
   "officialSource": {
     "registryId": "2026-tyt",
     "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
-    "questionRange": { "first": 16, "last": 20 }
+    "questionRange": {
+      "first": 16,
+      "last": 20
+    }
   },
   "reviewer": "codex-secondary-g",
   "reviewedAt": "2026-07-14",
   "records": [
     {
       "officialQuestionNo": 16,
-      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "bilgi-ve-inanc" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-din-kulturu",
+        "topicId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 17,
-      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "bilgi-ve-inanc" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-din-kulturu",
+        "topicId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 18,
-      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "hz-muhammed" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-din-kulturu",
+        "topicId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 19,
-      "primaryTopicRef": { "subjectId": "tyt-din-kulturu", "topicId": "din-ve-hayat" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-din-kulturu",
+        "topicId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-degisim"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
@@ -44,7 +61,7 @@
       "officialQuestionNo": 20,
       "primaryTopicRef": {
         "subjectId": "tyt-din-kulturu",
-        "topicId": "islam-dusuncesinde-yorumlar"
+        "topicId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-yorum-farkliliklarinin-sebepleri"
       },
       "relatedTopicRefs": [],
       "status": "classified"

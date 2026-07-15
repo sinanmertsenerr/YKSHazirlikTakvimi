@@ -4,45 +4,65 @@
   "examYear": 2026,
   "examId": "tyt",
   "sectionId": "sosyal-bilimler-cografya",
-  "allowedSubjectIds": ["tyt-cografya"],
+  "allowedSubjectIds": [
+    "tyt-cografya"
+  ],
   "answerSet": "standard",
   "alternativeFor": null,
   "evidenceOnly": false,
   "officialSource": {
     "registryId": "2026-tyt",
     "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
-    "questionRange": { "first": 6, "last": 10 }
+    "questionRange": {
+      "first": 6,
+      "last": 10
+    }
   },
   "reviewer": "codex-secondary-g",
   "reviewedAt": "2026-07-14",
   "records": [
     {
       "officialQuestionNo": 6,
-      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "iklim-tipleri" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-cografya",
+        "topicId": "tyt-cografya-atmosfer-ve-iklim-bilgisi"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 7,
-      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "ic-ve-dis-kuvvetler" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-cografya",
+        "topicId": "tyt-cografya-dunya-nin-yapisi-ve-olusum-sureci"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 8,
-      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "nufus-ve-goc" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-cografya",
+        "topicId": "tyt-cografya-nufus-ve-goc"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 9,
-      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "bolgeler-ve-ulkeler" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-cografya",
+        "topicId": "tyt-cografya-bolgeler"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 10,
-      "primaryTopicRef": { "subjectId": "tyt-cografya", "topicId": "dogal-afetler" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-cografya",
+        "topicId": "tyt-cografya-afetler"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     }

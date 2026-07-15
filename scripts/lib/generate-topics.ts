@@ -1,4 +1,8 @@
 /**
+ * SUPERSEDED (2026-07-15): content/topics.json is now generated from the official MEB groups by
+ * scripts/build-topics-from-official.ts. The ids below are the PRE-MEB taxonomy, kept only as a
+ * historical reference for content/topic-annotations/legacy-id-map.json.
+ *
  * Deterministically materializes content/topics.json from PROMPT.md Appendix A.
  *
  * This is deliberately a catalog generator, not a source of question statistics.

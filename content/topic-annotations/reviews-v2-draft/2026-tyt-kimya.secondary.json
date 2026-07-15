@@ -4,14 +4,19 @@
   "examYear": 2026,
   "examId": "tyt",
   "sectionId": "fen-bilimleri-kimya",
-  "allowedSubjectIds": ["tyt-kimya"],
+  "allowedSubjectIds": [
+    "tyt-kimya"
+  ],
   "answerSet": "standard",
   "alternativeFor": null,
   "evidenceOnly": false,
   "officialSource": {
     "registryId": "2026-tyt",
     "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
-    "questionRange": { "first": 8, "last": 14 }
+    "questionRange": {
+      "first": 8,
+      "last": 14
+    }
   },
   "reviewer": "codex-secondary-g",
   "reviewedAt": "2026-07-14",
@@ -20,14 +25,17 @@
       "officialQuestionNo": 8,
       "primaryTopicRef": {
         "subjectId": "tyt-kimya",
-        "topicId": "kimyasal-turler-arasi-etkilesimler"
+        "topicId": "tyt-kimya-guclu-etkilesimler"
       },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 9,
-      "primaryTopicRef": { "subjectId": "tyt-kimya", "topicId": "atom-ve-periyodik-sistem" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-kimya",
+        "topicId": "tyt-kimya-periyodik-sistem"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
@@ -35,32 +43,44 @@
       "officialQuestionNo": 10,
       "primaryTopicRef": {
         "subjectId": "tyt-kimya",
-        "topicId": "kimyasal-turler-arasi-etkilesimler"
+        "topicId": "tyt-kimya-guclu-etkilesimler"
       },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 11,
-      "primaryTopicRef": { "subjectId": "tyt-kimya", "topicId": "maddenin-halleri" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-kimya",
+        "topicId": "tyt-kimya-sivilar"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 12,
-      "primaryTopicRef": { "subjectId": "tyt-kimya", "topicId": "kimyasal-hesaplamalar-mol" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-kimya",
+        "topicId": "tyt-kimya-mol-kavrami"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 13,
-      "primaryTopicRef": { "subjectId": "tyt-kimya", "topicId": "karisimlar" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-kimya",
+        "topicId": "tyt-kimya-homojen-ve-heterojen-karisimlar"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     },
     {
       "officialQuestionNo": 14,
-      "primaryTopicRef": { "subjectId": "tyt-kimya", "topicId": "asit-baz-tuz" },
+      "primaryTopicRef": {
+        "subjectId": "tyt-kimya",
+        "topicId": "tyt-kimya-asitler-ve-bazlar"
+      },
       "relatedTopicRefs": [],
       "status": "classified"
     }
