@@ -424,3 +424,16 @@ jobs:
       - name: Deploy persisted content pack
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+
+  notify-refresh-failure:
+    needs: refresh
+    if: ${{ always() && needs.refresh.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Resmî kaynak yenileme başarısız: içerik paketi haftalık güncellemesi'
+      body: >-
+        Haftalık içerik yenileme işi (YÖK Atlas programları / takvim / haberler) başarısız oldu.
+        İş günlüğünü inceleyin; kaynak tarafında yapısal değişiklik olabilir.

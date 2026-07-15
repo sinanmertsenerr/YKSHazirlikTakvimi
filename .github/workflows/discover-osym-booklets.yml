@@ -83,3 +83,20 @@ jobs:
           path: ${{ steps.scope.outputs.output }}
           if-no-files-found: error
           retention-days: 14
+    outputs:
+      produced: ${{ steps.scope.outputs.run }}
+      year: ${{ steps.scope.outputs.year }}
+
+  notify-candidate:
+    needs: candidate
+    if: ${{ needs.candidate.result == 'success' && needs.candidate.outputs.produced == 'true' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Yeni ÖSYM kitapçık adayı hazır (insan incelemesi bekliyor)'
+      body: >-
+        Keşif çalışması yeni yıl için şema-geçerli bir kitapçık registry adayı üretti ve
+        workflow artifact'i olarak yükledi (14 gün saklanır). Adayı indirin, kaynağı elle
+        doğrulayın ve incelemeli PR ile registry'ye alın; hiçbir şey otomatik yayımlanmaz.

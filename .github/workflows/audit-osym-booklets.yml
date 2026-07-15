@@ -27,3 +27,16 @@ jobs:
       - run: npm ci
       - name: Verify live PDFs against pinned SHA-256 metadata
         run: npm run check:booklets
+
+  notify-failure:
+    needs: audit
+    if: ${{ always() && needs.audit.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Resmî kaynak kayması: ÖSYM kitapçık denetimi başarısız'
+      body: >-
+        Haftalık ÖSYM kitapçık denetimi başarısız oldu: pinli PDF kanıtları canlı kaynakla
+        uyuşmuyor olabilir. Kaynağı elle inceleyin; registry değişikliği incelemeli PR ister.
