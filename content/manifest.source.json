@@ -1,16 +1,33 @@
 {
   "schemaVersion": 3,
-  "packVersion": "2026.07.16155050",
+  "packVersion": "2026.07.161819490000201",
   "minAppVersion": "1.0.0",
   "examYear": 2026,
   "files": {
-    "topics": { "path": "topics.json" },
-    "coefficients": { "path": "coefficients.json" },
-    "rankTables": { "path": "rank-tables.json" },
-    "programs": { "path": "programs.db", "buildFrom": "programs.fixture.json" },
-    "calendar": { "path": "calendar.json" },
-    "news": { "path": "news.json" },
-    "topicGroupStatistics": { "path": "topic-group-statistics.json" },
-    "topicGroupMappings": { "path": "topic-group-mappings.json" }
+    "topics": {
+      "path": "topics.json"
+    },
+    "coefficients": {
+      "path": "coefficients.json"
+    },
+    "rankTables": {
+      "path": "rank-tables.json"
+    },
+    "programs": {
+      "path": "programs.db",
+      "buildFrom": "programs.fixture.json"
+    },
+    "calendar": {
+      "path": "calendar.json"
+    },
+    "news": {
+      "path": "news.json"
+    },
+    "topicGroupStatistics": {
+      "path": "topic-group-statistics.json"
+    },
+    "topicGroupMappings": {
+      "path": "topic-group-mappings.json"
+    }
   }
 }
