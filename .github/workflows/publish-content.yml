@@ -166,6 +166,17 @@ jobs:
           fi
           npm run sync:pack-version -- "${args[@]}"
 
+      - name: Discard the CI-built candidate pack from the working tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The candidate pack above exists only for the content-identity comparison.
+          # SQLite output is not byte-reproducible across platforms, so the rebuilt
+          # assets/pack must never reach the tracked-mutation guard: the published
+          # artifact is built separately by the build-pages job from the persisted
+          # commit, and persist-state only ever commits the content/*.json allowlist.
+          git checkout -- assets/pack
+
       - name: Reject tracked mutations outside the generated-state allowlist
         shell: bash
         run: |
