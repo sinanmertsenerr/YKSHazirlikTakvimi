@@ -51,7 +51,14 @@ export default function ProgressScreen() {
   const confirmDelete = (id: string) => {
     Alert.alert(t('common.delete'), t('progress.confirmDelete'), [
       { text: t('common.cancel'), style: 'cancel' },
-      { text: t('common.delete'), style: 'destructive', onPress: () => void removeExam(id) },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: () =>
+          void removeExam(id).catch(() =>
+            Alert.alert(t('progress.title'), t('progress.deleteFailed')),
+          ),
+      },
     ]);
   };
 

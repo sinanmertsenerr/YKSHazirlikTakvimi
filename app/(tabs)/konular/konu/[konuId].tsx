@@ -1,8 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Redirect, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { YearBarChart } from '@/components/charts';
@@ -10,29 +10,98 @@ import {
   AppHeader,
   Card,
   Chip,
-  EmptyState,
   Footnote,
+  PercentSlider,
   Screen,
-  SegmentedControl,
   SectionTitle,
 } from '@/components/ui';
 import {
+  findOfficialTopicGroup,
+  findOfficialTopicGroupSource,
   findSubject,
   findTopic,
   officialStatsForSubject,
   topicGroupStatisticsPack,
   useContentRevisionStore,
 } from '@/data/content';
-import type { TopicStatus } from '@/db/types';
+import { percentToStatus } from '@/db/activity';
+import { PendingYearBadge } from '@/features/topics/PendingYearBadge';
 import { getVerifiedTopicStats } from '@/features/topics/statistics';
 import { useAppData } from '@/providers/AppDataProvider';
 import { useTheme } from '@/theme/useTheme';
-import { allowedOsymHttpsUrl } from '@/utils/officialUrls';
+import { formatInstantDate } from '@/utils/format';
+import { allowedOgmHttpsUrl } from '@/utils/officialUrls';
 
-async function openOfficialUrl(url: string) {
-  const officialUrl = allowedOsymHttpsUrl(url);
-  if (!officialUrl) throw new Error('Unsafe external URL');
-  await WebBrowser.openBrowserAsync(officialUrl);
+function TopicProgressEditor({
+  initialPercent,
+  progressKey,
+  save,
+}: {
+  initialPercent: number;
+  progressKey: string;
+  save: (topicId: string, percent: number) => Promise<void>;
+}) {
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+  const { colors, typography } = useTheme();
+  const [percent, setPercent] = useState(initialPercent);
+  // pending = latest slider value (visual only until commit); persisted = last value the DB
+  // is known to hold, used as the rollback target when a commit fails.
+  const pendingPercent = useRef(initialPercent);
+  const persistedPercent = useRef(initialPercent);
+  const derivedStatus = percentToStatus(percent);
+  const statusLabel =
+    derivedStatus === 'done'
+      ? t('topics.done')
+      : derivedStatus === 'working'
+        ? t('topics.working')
+        : t('topics.none');
+  const statusColor =
+    derivedStatus === 'done'
+      ? colors.success
+      : derivedStatus === 'working'
+        ? colors.warning
+        : colors.tertiaryLabel;
+
+  // Dragging only moves local state; the single DB write happens on gesture end. The
+  // skipped-commit guard keeps the rollback honest when a newer gesture is already pending.
+  const slide = (value: number) => {
+    pendingPercent.current = value;
+    setPercent(value);
+  };
+  const commit = async () => {
+    const next = pendingPercent.current;
+    if (next === persistedPercent.current) return;
+    try {
+      await save(progressKey, next);
+      persistedPercent.current = next;
+    } catch {
+      if (pendingPercent.current === next) {
+        pendingPercent.current = persistedPercent.current;
+        setPercent(persistedPercent.current);
+      }
+      Alert.alert(t('topics.statusTitle'), t('topics.progressSaveFailed'));
+    }
+  };
+
+  return (
+    <Card>
+      <SectionTitle>{t('topics.statusTitle')}</SectionTitle>
+      <View style={styles.statusHeader}>
+        <Text style={[typography.largeTitle, { color: colors.label }]}>%{percent}</Text>
+        <Text style={[typography.subhead, { color: statusColor }]}>{statusLabel}</Text>
+      </View>
+      <PercentSlider
+        onChange={slide}
+        onInteractEnd={() => {
+          navigation.setOptions({ gestureEnabled: true });
+          void commit();
+        }}
+        onInteractStart={() => navigation.setOptions({ gestureEnabled: false })}
+        value={percent}
+      />
+    </Card>
+  );
 }
 
 export default function TopicDetailScreen() {
@@ -40,43 +109,53 @@ export default function TopicDetailScreen() {
   useContentRevisionStore((state) => state.revision);
   const subject = findSubject(dersId);
   const topic = findTopic(dersId, konuId);
-  const { progress, setTopicProgress } = useAppData();
+  const { progress, ready, setTopicProgress } = useAppData();
   const { t, i18n } = useTranslation();
   const { colors, typography } = useTheme();
   const language = i18n.language === 'en' ? 'en' : 'tr';
   const progressKey = `${dersId}:${konuId}`;
   const current = progress.find((item) => item.topicId === progressKey);
-  const [status, setStatus] = useState<TopicStatus>(current?.status ?? 'none');
-  const [confidence, setConfidence] = useState(current?.confidence ?? 0);
+  // Root-memoized: both helpers build fresh arrays/maps per call, and this screen
+  // re-renders on every slider step — without these, YearBarChart's own memo never hits.
+  const verifiedStats = useMemo(() => getVerifiedTopicStats(topic?.yearlyStats ?? []), [topic]);
+  const officialStat = useMemo(
+    () =>
+      subject && topic ? officialStatsForSubject(subject.id)?.byTopic.get(topic.id) : undefined,
+    [subject, topic],
+  );
+  const verifiedChartData = useMemo(
+    () => verifiedStats.map((stat) => ({ year: stat.year, value: stat.count })),
+    [verifiedStats],
+  );
+  const officialChartData = useMemo(
+    () => officialStat?.yearly.map((stat) => ({ year: stat.year, value: stat.count })) ?? [],
+    [officialStat],
+  );
 
   if (!subject || !topic) {
-    return (
-      <Screen>
-        <EmptyState body={t('common.topicNotFound')} icon="search-off" title={t('topics.title')} />
-      </Screen>
-    );
+    return <Redirect href="/konular" />;
   }
 
-  const save = async (nextStatus: TopicStatus, nextConfidence = confidence) => {
-    const previousStatus = status;
-    const previousConfidence = confidence;
-    setStatus(nextStatus);
-    try {
-      await setTopicProgress(progressKey, nextStatus, nextConfidence || null);
-    } catch {
-      setStatus(previousStatus);
-      setConfidence(previousConfidence);
-      Alert.alert(t('topics.statusTitle'), t('topics.progressSaveFailed'));
-    }
-  };
-  const verifiedStats = getVerifiedTopicStats(topic.yearlyStats);
-  const officialStat = officialStatsForSubject(subject.id)?.byTopic.get(topic.id);
+  const officialStatistics =
+    topicGroupStatisticsPack.availability === 'available' ? topicGroupStatisticsPack : undefined;
+  const officialCoverage = officialStatistics?.coverage;
+  // The study topic and its official MEB OGM group share the same id by construction. This
+  // resolves both the reviewed source of the number the chart is drawn from and the link
+  // students follow to reach that topic's past questions on the official MEB OGM page —
+  // the app carries no per-question ÖSYM links of its own (topic.questions is empty pending
+  // the editorial-consensus pipeline), so the official page is the single entry point.
+  const officialGroup = findOfficialTopicGroup(topic.id);
+  const officialSourceUrl = officialGroup
+    ? allowedOgmHttpsUrl(findOfficialTopicGroupSource(officialGroup.sourceKey)?.resolverUrl)
+    : null;
   const expectedLastYear = topic.yearlyStats.at(-1)?.year;
-  const officialCoverage =
-    topicGroupStatisticsPack.availability === 'available'
-      ? topicGroupStatisticsPack.coverage
-      : undefined;
-
+  // Data-driven: shows only while the topic's expected latest exam year is ahead of the
+  // officially published coverage. Auto-clears when that year's data lands, and advances
+  // to the next year on its own — no hardcoded year.
+  const unpublishedYear =
+    officialCoverage && expectedLastYear && expectedLastYear > officialCoverage.lastYear
+      ? expectedLastYear
+      : null;
   return (
     <Screen>
       <AppHeader back title={topic.name[language]} subtitle={subject.name[language]} />
@@ -99,37 +178,43 @@ export default function TopicDetailScreen() {
         >
           {subject.id.startsWith('tyt') ? 'TYT' : subject.id.startsWith('ayt') ? 'AYT' : 'YDT'}
         </Chip>
+        {unpublishedYear ? (
+          <PendingYearBadge style={styles.pendingBadge} year={unpublishedYear} />
+        ) : null}
       </View>
 
       <Card>
         <SectionTitle>{t('topics.yearlyQuestions')}</SectionTitle>
         {verifiedStats.length ? (
-          <YearBarChart
-            data={verifiedStats.map((stat, index) => ({
-              index,
-              value: stat.count,
-              label: `'${String(stat.year).slice(-2)}`,
-            }))}
-          />
+          <YearBarChart data={verifiedChartData} />
         ) : officialStat && officialCoverage ? (
           <>
-            <YearBarChart
-              data={officialStat.yearly.map((stat, index) => ({
-                index,
-                value: stat.count,
-                label: `'${String(stat.year).slice(-2)}`,
-              }))}
-            />
-            <Footnote>
-              {t('topics.officialTotal', {
-                count: officialStat.total,
-                first: officialCoverage.firstYear,
-                last: officialCoverage.lastYear,
-              })}
-            </Footnote>
+            <YearBarChart data={officialChartData} />
             <Footnote>{t('topics.officialCountsSource')}</Footnote>
-            {expectedLastYear && expectedLastYear > officialCoverage.lastYear ? (
-              <Footnote>{t('topics.unpublishedYear', { year: expectedLastYear })}</Footnote>
+            {officialGroup && officialStatistics ? (
+              <Footnote>
+                {`${t('topics.verifiedOn', {
+                  date: formatInstantDate(officialStatistics.verifiedAt, i18n.language),
+                })} · ${t('topics.sourcePage', { page: officialGroup.physicalPage })}`}
+              </Footnote>
+            ) : null}
+            {officialSourceUrl ? (
+              <Pressable
+                accessibilityHint={t('common.officialSource')}
+                accessibilityLabel={t('topics.pastQuestions')}
+                accessibilityRole="link"
+                onPress={() =>
+                  void WebBrowser.openBrowserAsync(officialSourceUrl).catch(() =>
+                    Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
+                  )
+                }
+                style={styles.pastQuestionsLink}
+              >
+                <MaterialIcons color={colors.brand} name="open-in-new" size={20} />
+                <Text style={[typography.subhead, styles.linkText, { color: colors.brand }]}>
+                  {t('topics.pastQuestions')}
+                </Text>
+              </Pressable>
             ) : null}
             {officialStat.alternativeIncluded ? (
               <Footnote color={colors.warningText}>
@@ -142,125 +227,37 @@ export default function TopicDetailScreen() {
         )}
       </Card>
 
-      <Card>
-        <SectionTitle>{t('topics.statusTitle')}</SectionTitle>
-        <SegmentedControl
-          accessibilityLabel={t('topics.statusTitle')}
-          onChange={(value) => void save(value)}
-          options={[
-            { label: t('topics.none'), value: 'none' },
-            { label: t('topics.working'), value: 'working' },
-            { label: t('topics.done'), value: 'done' },
-          ]}
-          value={status}
+      {ready ? (
+        <TopicProgressEditor
+          initialPercent={current?.percent ?? 0}
+          key={`${progressKey}:${current?.updatedAt ?? 'new'}`}
+          progressKey={progressKey}
+          save={setTopicProgress}
         />
-        <Text style={[typography.footnote, { color: colors.secondaryLabel, marginBottom: 4 }]}>
-          {t('topics.confidence')}
-        </Text>
-        <View accessibilityRole="radiogroup" style={styles.stars}>
-          {[1, 2, 3, 4, 5].map((value) => (
-            <Pressable
-              accessibilityLabel={`${value} / 5`}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: confidence === value }}
-              key={value}
-              onPress={() => {
-                const previousConfidence = confidence;
-                setConfidence(value);
-                void setTopicProgress(progressKey, status, value).catch(() => {
-                  setConfidence(previousConfidence);
-                  Alert.alert(t('topics.statusTitle'), t('topics.progressSaveFailed'));
-                });
-              }}
-              style={styles.starButton}
-            >
-              <MaterialIcons
-                color={value <= confidence ? colors.warning : colors.tertiaryLabel}
-                name={value <= confidence ? 'star' : 'star-border'}
-                size={30}
-              />
-            </Pressable>
-          ))}
-        </View>
-      </Card>
-
-      <Card>
-        <SectionTitle>{t('topics.pastQuestions')}</SectionTitle>
-        {topic.questions.length ? (
-          topic.questions.map((question, index) => (
-            <Pressable
-              accessibilityHint={t('common.officialSource')}
-              accessibilityRole="link"
-              key={`${question.year}-${question.sourceExam}-${question.questionBlockId}-${question.officialQuestionNo}-${question.role}-${index}`}
-              onPress={() =>
-                void openOfficialUrl(question.sourceUrl).catch(() =>
-                  Alert.alert(t('common.externalLink'), t('common.retry')),
-                )
-              }
-              style={[styles.questionRow, { borderTopColor: colors.separator }]}
-            >
-              <Chip backgroundColor={colors.brandSoft} color={colors.brand}>
-                {question.role === 'related'
-                  ? '↔ '
-                  : question.role === 'alternative'
-                    ? `${t('topics.alternativeQuestion')} · `
-                    : ''}
-                {question.sourceExam.toUpperCase()} · {question.year} · S.
-                {question.officialQuestionNo}
-              </Chip>
-              {question.descriptor ? (
-                <Text
-                  numberOfLines={2}
-                  style={[typography.footnote, { color: colors.label, flex: 1, minWidth: 0 }]}
-                >
-                  {question.descriptor[language]}
-                </Text>
-              ) : null}
-              {question.difficulty ? (
-                <Text style={[typography.caption, { color: colors.secondaryLabel }]}>
-                  {question.difficulty}
-                </Text>
-              ) : null}
-              <MaterialIcons color={colors.tertiaryLabel} name="open-in-new" size={20} />
-            </Pressable>
-          ))
-        ) : (
-          <Footnote>{t('topics.unknownCount')}</Footnote>
-        )}
-        <Footnote>{t('topics.questionCopyright')}</Footnote>
-      </Card>
-
-      <Card>
-        <SectionTitle>{t('topics.outcomes')}</SectionTitle>
-        {topic.outcomes?.length ? (
-          topic.outcomes.map((outcome) => (
-            <View key={outcome.tr} style={styles.outcome}>
-              <MaterialIcons color={colors.brand} name="check-circle-outline" size={20} />
-              <Text style={[typography.footnote, { color: colors.label, flex: 1, minWidth: 0 }]}>
-                {outcome[language]}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Footnote>{t('common.unverified')}</Footnote>
-        )}
-      </Card>
+      ) : (
+        <Card>
+          <SectionTitle>{t('topics.statusTitle')}</SectionTitle>
+          <ActivityIndicator
+            accessibilityLabel={t('common.loading')}
+            accessibilityRole="progressbar"
+            color={colors.brand}
+          />
+        </Card>
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  stars: { flexDirection: 'row', flexWrap: 'wrap' },
-  starButton: { width: 48, height: 44, alignItems: 'center', justifyContent: 'center' },
-  questionRow: {
-    minHeight: 54,
+  chips: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 },
+  pendingBadge: { flex: 1 },
+  statusHeader: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginBottom: 14 },
+  pastQuestionsLink: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 8,
+    minHeight: 44,
+    paddingTop: 6,
   },
-  outcome: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 },
+  linkText: { fontWeight: '700' },
 });

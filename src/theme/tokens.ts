@@ -14,6 +14,7 @@ export const lightColors = {
   successText: '#0B7131',
   warning: '#D97706',
   warningText: '#985005',
+  warningSoft: '#FCEFD6',
   danger: '#DC2626',
   background: '#F2F2F7',
   surface: '#FFFFFF',
@@ -44,6 +45,7 @@ export const darkColors = {
   successText: '#86EFAC',
   warning: '#FBBF24',
   warningText: '#FCD34D',
+  warningSoft: '#33280F',
   danger: '#F87171',
   background: '#000000',
   surface: '#1C1C1E',
@@ -65,7 +67,7 @@ export type ThemeColors = {
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 export const radii = { small: 8, button: 12, card: 16, hero: 20, sheet: 24, pill: 999 } as const;
 export const typography = {
-  largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '800' as const },
+  largeTitle: { fontSize: 28, lineHeight: 34, fontWeight: '800' as const },
   title2: { fontSize: 22, lineHeight: 28, fontWeight: '700' as const },
   headline: { fontSize: 17, lineHeight: 22, fontWeight: '600' as const },
   body: { fontSize: 17, lineHeight: 24, fontWeight: '400' as const },

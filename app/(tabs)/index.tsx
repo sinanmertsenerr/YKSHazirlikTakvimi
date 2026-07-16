@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -25,6 +26,10 @@ export default function HomeScreen() {
   const examYear = useSettingsStore((state) => state.examYear);
   const language = i18n.language === 'en' ? 'en' : 'tr';
   const today = istanbulDay();
+  const progressByTopicId = useMemo(
+    () => new Map(progress.map((item) => [item.topicId, item] as const)),
+    [progress],
+  );
   const streak = calculateStreak(
     activities.map((item) => item.day),
     today,
@@ -55,9 +60,7 @@ export default function HomeScreen() {
     const topicKeys = subjects.flatMap((subject) =>
       subject.topics.map((topic) => `${subject.id}:${topic.id}`),
     );
-    const done = topicKeys.filter(
-      (key) => progress.find((item) => item.topicId === key)?.status === 'done',
-    ).length;
+    const done = topicKeys.filter((key) => progressByTopicId.get(key)?.status === 'done').length;
     return topicKeys.length ? done / topicKeys.length : 0;
   };
   const tytProgress = progressFor('tyt');
@@ -230,7 +233,7 @@ export default function HomeScreen() {
           accessibilityRole="link"
           onPress={() =>
             void WebBrowser.openBrowserAsync(upcomingSource).catch(() =>
-              Alert.alert(t('common.externalLink'), t('common.retry')),
+              Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
             )
           }
         >

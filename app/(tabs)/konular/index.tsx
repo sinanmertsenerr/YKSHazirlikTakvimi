@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +19,10 @@ export default function TopicsScreen() {
   const [examId, setExamId] = useState<ExamId>('tyt');
   useContentRevisionStore((state) => state.revision);
   const subjects = allSubjects(examId);
+  const progressByTopicId = useMemo(
+    () => new Map(progress.map((item) => [item.topicId, item] as const)),
+    [progress],
+  );
 
   return (
     <Screen>
@@ -40,9 +44,7 @@ export default function TopicsScreen() {
       />
       {subjects.map((subject) => {
         const done = subject.topics.filter(
-          (topic) =>
-            progress.find((item) => item.topicId === `${subject.id}:${topic.id}`)?.status ===
-            'done',
+          (topic) => progressByTopicId.get(`${subject.id}:${topic.id}`)?.status === 'done',
         ).length;
         const ratio = subject.topics.length ? done / subject.topics.length : 0;
         const semanticColor =

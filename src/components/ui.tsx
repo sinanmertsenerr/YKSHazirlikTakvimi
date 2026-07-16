@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 import {
   AccessibilityRole,
+  GestureResponderEvent,
   Pressable,
   ScrollView,
   ScrollViewProps,
@@ -237,7 +238,9 @@ export function SegmentedControl<T extends string>({
             accessibilityState={{ selected }}
             key={option.value}
             onPress={() => {
-              void Haptics.selectionAsync();
+              // Haptics are optional feedback; unsupported devices must never surface a
+              // technical promise rejection or block the actual selection.
+              void Haptics.selectionAsync().catch(() => undefined);
               onChange(option.value);
             }}
             style={[
@@ -365,7 +368,8 @@ export function Button({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={() => {
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        // The button action remains authoritative when haptics are unavailable.
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
         onPress();
       }}
       style={({ pressed }) => [
@@ -442,23 +446,29 @@ export function EmptyState({
 
 export function Field({
   label,
+  labelHidden,
   error,
   containerStyle,
   style,
   ...props
 }: TextInputProps & {
   label: string;
+  // Hide the visible label (it stays as accessibilityLabel and placeholder fallback).
+  labelHidden?: boolean;
   error?: string;
   containerStyle?: StyleProp<ViewStyle>;
 }) {
   const { colors, radii, typography } = useTheme();
   return (
     <View style={[styles.fieldWrap, containerStyle]}>
-      <Text style={[typography.footnote, styles.fieldLabel, { color: colors.secondaryLabel }]}>
-        {label}
-      </Text>
+      {labelHidden ? null : (
+        <Text style={[typography.footnote, styles.fieldLabel, { color: colors.secondaryLabel }]}>
+          {label}
+        </Text>
+      )}
       <TextInput
         accessibilityLabel={label}
+        placeholder={labelHidden ? label : undefined}
         placeholderTextColor={colors.secondaryLabel}
         {...props}
         style={[
@@ -528,8 +538,94 @@ export function RowButton({
   );
 }
 
+// Draggable 0–100 progress bar snapped to 5% steps (20 segments). Drag or tap to set; the
+// derived status (0 = not started, 1–99 = working, 100 = done) lives with the caller.
+export function PercentSlider({
+  value,
+  onChange,
+  onInteractStart,
+  onInteractEnd,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  // Fired on touch-down / release so the caller can e.g. suspend the screen's swipe-back
+  // gesture only while the bar is being dragged, instead of disabling it screen-wide.
+  // onInteractEnd also fires after each accessibility increment/decrement (without a
+  // matching onInteractStart) — it is the "value settled, safe to persist" signal.
+  onInteractStart?: () => void;
+  onInteractEnd?: () => void;
+}) {
+  const { colors } = useTheme();
+  const widthRef = useRef(0);
+  // widthRef is read only here, inside the touch handler — never during render.
+  const handleTouch = (event: GestureResponderEvent) => {
+    const trackWidth = widthRef.current;
+    if (trackWidth <= 0) return;
+    const ratio = Math.max(0, Math.min(1, event.nativeEvent.locationX / trackWidth));
+    const next = Math.round((ratio * 100) / 5) * 5;
+    if (next !== value) onChange(next);
+  };
+  const handleGrant = (event: GestureResponderEvent) => {
+    onInteractStart?.();
+    handleTouch(event);
+  };
+
+  return (
+    <View
+      accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+      accessibilityRole="adjustable"
+      accessibilityValue={{ max: 100, min: 0, now: value }}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'increment') onChange(Math.min(100, value + 5));
+        else if (event.nativeEvent.actionName === 'decrement') onChange(Math.max(0, value - 5));
+        else return;
+        onInteractEnd?.();
+      }}
+      onLayout={(event) => {
+        widthRef.current = event.nativeEvent.layout.width;
+      }}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={handleGrant}
+      onResponderMove={handleTouch}
+      onResponderRelease={() => onInteractEnd?.()}
+      onResponderTerminate={() => onInteractEnd?.()}
+      // Keep the drag once it starts so a JS parent can't hijack the gesture mid-drag.
+      onResponderTerminationRequest={() => false}
+      onStartShouldSetResponder={() => true}
+      style={styles.sliderTouch}
+    >
+      <View
+        pointerEvents="none"
+        style={[styles.sliderTrack, { backgroundColor: colors.surfaceSecondary }]}
+      >
+        <View style={[styles.sliderFill, { width: `${value}%`, backgroundColor: colors.brand }]} />
+      </View>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.sliderThumb,
+          { left: `${value}%`, backgroundColor: colors.brand, borderColor: colors.surface },
+        ]}
+      />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  sliderTouch: { height: 40, justifyContent: 'center' },
+  sliderTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  sliderFill: { height: 8, borderRadius: 4 },
+  sliderThumb: {
+    position: 'absolute',
+    top: '50%',
+    width: 26,
+    height: 26,
+    marginLeft: -13,
+    marginTop: -13,
+    borderRadius: 13,
+    borderWidth: 3,
+  },
   // NativeTabs floats above the scene on iOS and can minimize while scrolling. Keep the final
   // action/content fully reachable instead of letting it settle underneath the tab bar.
   screenContent: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 132 },

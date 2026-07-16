@@ -8,6 +8,13 @@ export function formatNumber(value: number, language = 'tr', maximumFractionDigi
 type DateParts = { year: number; month: number; day: number };
 
 const DISPLAY_TIME_ZONE = 'Europe/Istanbul';
+const istanbulDatePartsFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: DISPLAY_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+const relativeTimeFormatters = new Map<'tr' | 'en', Intl.RelativeTimeFormat>();
 
 function displayLanguage(language: string): 'tr' | 'en' {
   return language.toLocaleLowerCase('en-US').startsWith('en') ? 'en' : 'tr';
@@ -60,12 +67,7 @@ export function formatInstantDate(value: number | string | Date, language = 'tr'
   const instant = value instanceof Date ? value : new Date(value);
   if (!Number.isFinite(instant.valueOf())) throw new RangeError('Invalid date instant');
 
-  const formattedParts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: DISPLAY_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(instant);
+  const formattedParts = istanbulDatePartsFormatter.formatToParts(instant);
   const part = (type: Intl.DateTimeFormatPartTypes) =>
     Number(formattedParts.find((item) => item.type === type)?.value ?? Number.NaN);
   const parts = { year: part('year'), month: part('month'), day: part('day') };
@@ -106,12 +108,7 @@ export function localizeEmbeddedDateTokens(value: string, language = 'tr'): stri
 export function daysUntil(date: string, now = new Date()) {
   const target = parseDateOnly(date);
   if (!target) throw new RangeError(`Invalid YYYY-MM-DD calendar date: ${date}`);
-  const todayParts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: DISPLAY_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(now);
+  const todayParts = istanbulDatePartsFormatter.formatToParts(now);
   const part = (type: Intl.DateTimeFormatPartTypes) =>
     Number(todayParts.find((item) => item.type === type)?.value ?? 0);
   const todayUtc = Date.UTC(part('year'), part('month') - 1, part('day'));
@@ -133,9 +130,13 @@ export function relativeTime(timestamp: number, language = 'tr') {
   // Some Hermes builds do not ship Intl.RelativeTimeFormat even though NumberFormat and
   // DateTimeFormat are available. Keep the news screen usable without an Intl polyfill.
   if (typeof Intl.RelativeTimeFormat === 'function') {
-    return new Intl.RelativeTimeFormat(language === 'en' ? 'en' : 'tr', {
-      numeric: 'auto',
-    }).format(value, unit);
+    const locale = language === 'en' ? 'en' : 'tr';
+    let formatter = relativeTimeFormatters.get(locale);
+    if (!formatter) {
+      formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+      relativeTimeFormatters.set(locale, formatter);
+    }
+    return formatter.format(value, unit);
   }
 
   if (value === 0) return language === 'en' ? 'now' : 'şimdi';

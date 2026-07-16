@@ -16,7 +16,9 @@ export function GlassSurface({ children, style, interactive, accessibilityLabel 
   const [reduceTransparency, setReduceTransparency] = useState(false);
 
   useEffect(() => {
-    void AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparency);
+    void AccessibilityInfo.isReduceTransparencyEnabled()
+      .then(setReduceTransparency)
+      .catch(() => undefined);
     const subscription = AccessibilityInfo.addEventListener(
       'reduceTransparencyChanged',
       setReduceTransparency,

@@ -113,7 +113,7 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
     } catch {
       saveInFlight.current = false;
       setSaving(false);
-      Alert.alert(t('progress.saveFailed'), t('common.retry'));
+      Alert.alert(t('progress.title'), t('progress.saveFailed'));
     }
   };
 

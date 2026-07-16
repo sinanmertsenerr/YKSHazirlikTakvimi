@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -32,8 +32,24 @@ import {
   useSettingsStore,
 } from '@/stores/settings';
 import { useTheme } from '@/theme/useTheme';
+import { getContentUpdateIssue } from '@/utils/contentUpdateError';
 
 type LocalLanguage = 'tr' | 'en';
+
+function formatPackCheckTime(value: number, language: LocalLanguage): string {
+  try {
+    return new Intl.DateTimeFormat(language === 'en' ? 'en-GB' : 'tr-TR', {
+      timeZone: 'Europe/Istanbul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(value);
+  } catch {
+    return new Date(value).toISOString();
+  }
+}
 
 async function calendarEventsForNotifications(examYear: number) {
   let events = calendarPack.events;
@@ -253,7 +269,7 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { colors, typography } = useTheme();
   const language: LocalLanguage = i18n.resolvedLanguage === 'en' ? 'en' : 'tr';
-  const local = (tr: string, en: string) => (language === 'en' ? en : tr);
+  const local = useCallback((tr: string, en: string) => (language === 'en' ? en : tr), [language]);
 
   const languagePreference = useSettingsStore((state) => state.language);
   const themePreference = useSettingsStore((state) => state.theme);
@@ -264,6 +280,9 @@ export default function SettingsScreen() {
   const diplomaNote = useSettingsStore((state) => state.diplomaNote);
   const notificationPrefs = useSettingsStore((state) => state.notificationPrefs);
   const activePackVersion = useSettingsStore((state) => state.activePackVersion);
+  const lastPackSuccessTs = useSettingsStore((state) => state.lastPackSuccessTs);
+  const lastPackFailureTs = useSettingsStore((state) => state.lastPackFailureTs);
+  const lastPackError = useSettingsStore((state) => state.lastPackError);
   const setLanguage = useSettingsStore((state) => state.setLanguage);
   const setTheme = useSettingsStore((state) => state.setTheme);
   const setExamYear = useSettingsStore((state) => state.setExamYear);
@@ -279,6 +298,28 @@ export default function SettingsScreen() {
   const [restoreBusy, setRestoreBusy] = useState(false);
   const [notificationBusy, setNotificationBusy] = useState(false);
   const [packBusy, setPackBusy] = useState(false);
+  const packStatusDetail = useMemo(() => {
+    const details = [`${t('settings.packVersion')}: ${activePackVersion}`];
+    details.push(
+      lastPackSuccessTs === null
+        ? local('Son başarılı kontrol: henüz yok', 'Last successful check: not yet')
+        : `${local('Son başarılı kontrol', 'Last successful check')}: ${formatPackCheckTime(
+            lastPackSuccessTs,
+            language,
+          )}`,
+    );
+    if (lastPackError && lastPackFailureTs !== null) {
+      const issue = getContentUpdateIssue(lastPackError);
+      details.push(
+        `${local('Son güncelleme kontrolü', 'Latest update check')} (${formatPackCheckTime(
+          lastPackFailureTs,
+          language,
+        )}): ${t(issue.titleKey)}`,
+      );
+      details.push(t(issue.messageKey));
+    }
+    return details.join('\n');
+  }, [activePackVersion, language, lastPackError, lastPackFailureTs, lastPackSuccessTs, local, t]);
 
   const yearOptions = useMemo(() => {
     const current = currentIstanbulYear();
@@ -354,6 +395,9 @@ export default function SettingsScreen() {
           examYearMode: 'manual',
           activePackVersion: previousSettings.activePackVersion,
           lastPackCheckTs: previousSettings.lastPackCheckTs,
+          lastPackSuccessTs: previousSettings.lastPackSuccessTs,
+          lastPackFailureTs: previousSettings.lastPackFailureTs,
+          lastPackError: previousSettings.lastPackError,
         });
       } catch (mutationError) {
         if (userDataApplied) {
@@ -464,7 +508,8 @@ export default function SettingsScreen() {
           : t('settings.updateDone'),
       );
     } catch (error) {
-      showError(error);
+      const issue = getContentUpdateIssue(error);
+      Alert.alert(t(issue.titleKey), t(issue.messageKey));
     } finally {
       setPackBusy(false);
     }
@@ -669,7 +714,7 @@ export default function SettingsScreen() {
         <SectionLabel>{t('settings.content')}</SectionLabel>
         <SettingsGroup>
           <SettingRow
-            detail={`${t('settings.packVersion')}: ${activePackVersion}`}
+            detail={packStatusDetail}
             disabled={busy}
             icon="cloud-download"
             label={t('settings.updateNow')}
@@ -704,12 +749,20 @@ export default function SettingsScreen() {
             </Text>
             <View style={styles.sourceButtons}>
               <Button
-                onPress={() => void Linking.openURL('https://www.osym.gov.tr')}
+                onPress={() =>
+                  void Linking.openURL('https://www.osym.gov.tr').catch(() =>
+                    Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
+                  )
+                }
                 title="ÖSYM"
                 variant="secondary"
               />
               <Button
-                onPress={() => void Linking.openURL('https://yokatlas.yok.gov.tr')}
+                onPress={() =>
+                  void Linking.openURL('https://yokatlas.yok.gov.tr').catch(() =>
+                    Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
+                  )
+                }
                 title="YÖK Atlas"
                 variant="secondary"
               />
