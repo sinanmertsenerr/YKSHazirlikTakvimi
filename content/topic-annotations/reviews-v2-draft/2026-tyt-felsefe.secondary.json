@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "examYear": 2026,
+  "examId": "tyt",
+  "sectionId": "sosyal-bilimler-felsefe",
+  "allowedSubjectIds": [
+    "tyt-felsefe"
+  ],
+  "answerSet": "standard",
+  "alternativeFor": null,
+  "evidenceOnly": false,
+  "officialSource": {
+    "registryId": "2026-tyt",
+    "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+    "questionRange": {
+      "first": 11,
+      "last": 15
+    }
+  },
+  "reviewer": "codex-secondary-g",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 11,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-felsefenin-anlami"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 12,
+      "primaryTopicRef": null,
+      "relatedTopicRefs": [],
+      "status": "needs-review"
+    },
+    {
+      "officialQuestionNo": 13,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-ahlak-felsefesinin-konusu-ve-temel-kavramlari"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 14,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-felsefe",
+          "topicId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+        }
+      ],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 15,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    }
+  ]
+}

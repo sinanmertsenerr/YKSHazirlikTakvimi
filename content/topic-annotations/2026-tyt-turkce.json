@@ -1,0 +1,1701 @@
+{
+  "schemaVersion": 2,
+  "waveId": "2026-tyt-turkce",
+  "verificationMethod": "editorial-consensus",
+  "relatedConsensusPolicy": "intersection",
+  "scope": {
+    "year": 2026,
+    "exam": "tyt",
+    "sectionId": "tyt-turkce",
+    "bookletSectionId": "turkce",
+    "questionBlockId": "tyt-turkce-default",
+    "subjectIds": [
+      "tyt-turkce"
+    ],
+    "questionRange": {
+      "first": 1,
+      "last": 40
+    },
+    "answerSetId": "default",
+    "alternativeForSubjectId": null,
+    "countsTowardDefaultStats": true
+  },
+  "annotations": [
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 1,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 1
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-sozcukte-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 2,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 1
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-sozcukte-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 3,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 1
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-sozcukte-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 4,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 1
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-sozcukte-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 5,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 2
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-cumlede-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 6,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 2
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-cumlede-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 7,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlede-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-cumlede-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 8,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-bicim-bilgisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-bicim-bilgisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-bicim-bilgisi",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 9,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-filler",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 3
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-filler",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-filler",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 10,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlenin-ogeleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-cumlenin-ogeleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-cumlenin-ogeleri",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 11,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-yazim-kurallari",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-yazim-kurallari",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-yazim-kurallari",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 12,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-yazim-kurallari",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-yazim-kurallari",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-yazim-kurallari",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 13,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-noktalama-isaretleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 4
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-noktalama-isaretleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-noktalama-isaretleri",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 14,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-noktalama-isaretleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-noktalama-isaretleri",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-noktalama-isaretleri",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 15,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 16,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafin-yapisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafin-yapisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafin-yapisi",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 17,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafin-yapisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 5
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafin-yapisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafin-yapisi",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 18,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 8
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 19,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 6
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 8
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 20,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafin-yapisi",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 9
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": null,
+      "consensusStatus": "disputed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 21,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 7
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 9
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 22,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 8
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 23,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 8
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 24,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 9
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 25,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 9
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 26,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 27,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 28,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 29,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 10
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 30,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 31,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 32,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 33,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 11
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 34,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 14
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 35,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 14
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 36,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 12
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-sozcukte-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 14
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-sozcukte-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 37,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 15
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 38,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 13
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 15
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 39,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 14
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 16
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    },
+    {
+      "year": 2026,
+      "exam": "tyt",
+      "sectionId": "tyt-turkce",
+      "bookletSectionId": "turkce",
+      "questionBlockId": "tyt-turkce-default",
+      "answerSetId": "default",
+      "officialQuestionNo": 40,
+      "bookletRegistryId": "2026-tyt",
+      "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+      "primaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-primary-a",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 14
+      },
+      "secondaryClassification": {
+        "primaryTopicRef": {
+          "subjectId": "tyt-turkce",
+          "topicId": "tyt-turkce-paragrafta-anlam",
+          "countsTowardStats": true
+        },
+        "relatedTopicRefs": [],
+        "reviewer": "codex-secondary-b",
+        "reviewedAt": "2026-07-14",
+        "bookletPage": 16
+      },
+      "relatedTopicRefs": [],
+      "reviewedAt": "2026-07-14",
+      "primaryTopicRef": {
+        "subjectId": "tyt-turkce",
+        "topicId": "tyt-turkce-paragrafta-anlam",
+        "countsTowardStats": true
+      },
+      "consensusStatus": "agreed"
+    }
+  ]
+}

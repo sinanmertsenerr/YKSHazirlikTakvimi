@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "reviewRole": "primary",
+  "waveId": "2026-tyt-biyoloji",
+  "year": 2026,
+  "exam": "tyt",
+  "sectionId": "tyt-fen",
+  "bookletSectionId": "fen-bilimleri",
+  "questionBlockId": "tyt-fen-biyoloji-default",
+  "allowedSubjectIds": [
+    "tyt-biyoloji"
+  ],
+  "answerSetId": "default",
+  "alternativeForSubjectId": null,
+  "countsTowardDefaultStats": true,
+  "questionRange": {
+    "first": 15,
+    "last": 20
+  },
+  "bookletRegistryId": "2026-tyt",
+  "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+  "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+  "reviewer": "codex-primary-f",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 15,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-hucre"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 16,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-canlilarin-yapisinda-bulunan-temel-bilesikler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 17,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-hucre"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 18,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-mitoz-ve-eseysiz-ureme"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 19,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-kalitim-ve-biyolojik-cesitlilik"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 20,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-ekosistem-ekolojisi"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    }
+  ]
+}

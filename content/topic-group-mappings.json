@@ -1,0 +1,4855 @@
+{
+  "schemaVersion": 1,
+  "authority": "MEB OGM",
+  "method": "official-group-to-study-topic-mapping",
+  "noteTr": "Çalışma konuları doğrudan resmî MEB OGM konu gruplarından üretilir; her konu tam olarak bir resmî gruptur. Tek editoryal karar, Matematik tablolarındaki geometri satırlarının ayrı geometri dersinde gösterilmesidir.",
+  "subjects": [
+    {
+      "displaySubjectId": "ayt-din-kulturu",
+      "entries": [
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-isim-ve-sifatlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-isim-ve-sifatlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-varligi-ve-birligi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-varligi-ve-birligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-bazi-genc-sahabiler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-bazi-genc-sahabiler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-budizm",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-budizm"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-ekonomi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-ekonomi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-din-kultur-ve-sanat",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-din-kultur-ve-sanat"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-meselelerin-cozumunde-temel-ilke-ve-yontemler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-meselelerin-cozumunde-temel-ilke-ve-yontemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-dosdogru-yol-siratimustakim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-dosdogru-yol-siratimustakim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hinduizm",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hinduizm"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hristiyanlik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hristiyanlik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-e-baglilik-ve-itaat",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-e-baglilik-ve-itaat"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-peygamberlik-yonu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-peygamberlik-yonu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-iktisadi-hayatla-ilgili-meseleler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-iktisadi-hayatla-ilgili-meseleler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-inancla-ilgili-felsefi-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-inancla-ilgili-felsefi-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-insanin-allah-ile-irtibati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-insanin-allah-ile-irtibati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinda-yerilen-bazi-davranislar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinda-yerilen-bazi-davranislar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-dusuncesindeki-fikhi-yorumlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-dusuncesindeki-fikhi-yorumlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinde-bilim-ve-dusuncenin-gelisimi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinde-bilim-ve-dusuncenin-gelisimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinde-one-cikan-egitim-kurumlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinde-one-cikan-egitim-kurumlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadet-yukumlulugu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadet-yukumlulugu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetin-amaci-ve-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetin-amaci-ve-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetlerin-temel-ilkeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetlerin-temel-ilkeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-al-i-imran-suresi-159-ayet",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-al-i-imran-suresi-159-ayet"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-andan-mesajlar-hucurat-suresi-13-ayet",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-andan-mesajlar-hucurat-suresi-13-ayet"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kulturumuzde-etkin-olan-tasavvufi-yorumlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-kulturumuzde-etkin-olan-tasavvufi-yorumlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-muslumanlarin-bilim-alaninda-yaptigi-oncu-ve-ozgun-calismalar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-muslumanlarin-bilim-alaninda-yaptigi-oncu-ve-ozgun-calismalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-tasavvufi-dusuncenin-olusumu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-tasavvufi-dusuncenin-olusumu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-tutum-ve-davranislarda-olculu-olmak",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-tutum-ve-davranislarda-olculu-olmak"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-turklerin-musluman-olmalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-turklerin-musluman-olmalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-varolusun-ve-hayatin-anlami",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-varolusun-ve-hayatin-anlami"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-yahudilik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-yahudilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-yeni-dini-hareketler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-dkab-din-kulturu-ve-ahlak-bilgisi-yeni-dini-hareketler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-edebiyat",
+      "entries": [
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-cumhuriyet-donemi-turk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-cumhuriyet-donemi-turk-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-cumlede-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-cumlede-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-divan-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-divan-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-edebi-akimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-edebi-akimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-geleneksel-turk-tiyatrosu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-geleneksel-turk-tiyatrosu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-halk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-halk-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-islamiyet-oncesi-turk-edebiyati-gecis-donemi-turk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-islamiyet-oncesi-turk-edebiyati-gecis-donemi-turk-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-masal-fabl-destan-halk-hikayesi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-masal-fabl-destan-halk-hikayesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-milli-edebiyat-donemi-turk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-milli-edebiyat-donemi-turk-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-nesir-bilgisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-nesir-bilgisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-paragrafta-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-paragrafta-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-servetifunun-donemi-turk-edebiyati-fecriati-donemi-turk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-servetifunun-donemi-turk-edebiyati-fecriati-donemi-turk-edebiyati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-soz-sanatlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-soz-sanatlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-sozcukte-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-sozcukte-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-siir-bilgisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-siir-bilgisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-turk-dili-ve-edebiyati-tanzimat-donemi-turk-edebiyati",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-turk-dili-ve-edebiyati-tanzimat-donemi-turk-edebiyati"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-tarih-1",
+      "entries": [
+        {
+          "groupId": "ayt-ea-tarih-1-abbasi-devleti-ve-turkler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-abbasi-devleti-ve-turkler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-anadolu-nun-ilk-turk-siyasi-tesekkulleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-anadolu-nun-ilk-turk-siyasi-tesekkulleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-boylardan-devlete",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-boylardan-devlete"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-buyuk-selcuklu-devleti-1040-1157",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-buyuk-selcuklu-devleti-1040-1157"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-buyuk-selcuklu-devleti-nde-yonetim-ve-toplum-yapisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-buyuk-selcuklu-devleti-nde-yonetim-ve-toplum-yapisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-cografya-ile-olusan-yasam-tarzi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-cografya-ile-olusan-yasam-tarzi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-devletlesme-surecinde-osmanli-bizans-iliskileri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-devletlesme-surecinde-osmanli-bizans-iliskileri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-devsirme-sistemi-ve-yeniceri-ocagi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-devsirme-sistemi-ve-yeniceri-ocagi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-hilal-ve-hac-mucadelesi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-hilal-ve-hac-mucadelesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-ilk-cag-da-baslica-medeniyet-havzalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-ilk-cag-da-baslica-medeniyet-havzalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-insanligin-hafizasi-tarih",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-insanligin-hafizasi-tarih"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-islamiyet-yayiliyor",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-islamiyet-yayiliyor"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-istanbul-un-fethi-ve-fethin-sonuclari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-istanbul-un-fethi-ve-fethin-sonuclari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-kanunlar-doguyor",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-kanunlar-doguyor"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nde-isyanlar-ve-duzeni-koruma-cabalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nde-isyanlar-ve-duzeni-koruma-cabalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nde-timar-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nde-timar-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-tek-hanedan-anlayisi-ve-gelenekler-isiginda-devlet-idarecisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-tek-hanedan-anlayisi-ve-gelenekler-isiginda-devlet-idarecisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-ataturk-donemi-turk-dis-politikasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-ataturk-donemi-turk-dis-politikasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-ataturk-ilkeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-ataturk-ilkeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-dogu-ve-guney-cepheleri-ile-bu-cephelerde-one-cikan-sahsiyetler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-dogu-ve-guney-cepheleri-ile-bu-cephelerde-one-cikan-sahsiyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-i-dunya-savasi-surecinde-osmanli-devleti",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-i-dunya-savasi-surecinde-osmanli-devleti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-i-dunya-savasi-nin-sonuclari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-i-dunya-savasi-nin-sonuclari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-ii-dunya-savasi-surecinde-turkiye",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-ii-dunya-savasi-surecinde-turkiye"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-milli-mucadele-nin-sona-ermesi-ve-lozan-baris-antlasmasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-milli-mucadele-nin-sona-ermesi-ve-lozan-baris-antlasmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-milli-mucadele-ye-hazirlik-donemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-milli-mucadele-ye-hazirlik-donemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-mustafa-kemal-in-lider-olarak-yetismesinde-etkili-kosullar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-mustafa-kemal-in-lider-olarak-yetismesinde-etkili-kosullar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nde-demokratiklesme-hareketleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nde-demokratiklesme-hareketleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nde-modern-orduya-gecis",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nde-modern-orduya-gecis"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-nde-sanayilesme-cabalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-nde-sanayilesme-cabalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-osmanli-devleti-ne-yonelik-tehditler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-osmanli-devleti-ne-yonelik-tehditler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-siyasi-alandaki-gelismeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-siyasi-alandaki-gelismeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-tarih-1-toplumsal-alandaki-inkilaplar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-tarih-1-toplumsal-alandaki-inkilaplar"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-cografya-1",
+      "entries": [
+        {
+          "groupId": "ayt-ea-cografya-1-cevre-sorunlari-ve-geri-donusum",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-cevre-sorunlari-ve-geri-donusum"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-cevre-sorunlarinin-cozumune-yonelik-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-cevre-sorunlarinin-cozumune-yonelik-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-dunyada-dogal-kaynak-ve-ekonomi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-dunyada-dogal-kaynak-ve-ekonomi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-ekonomi-sehirlesme-ve-goc",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-ekonomi-sehirlesme-ve-goc"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-ekosistemlerin-ozellikleri-ve-isleyisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-ekosistemlerin-ozellikleri-ve-isleyisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-ekstrem-doga-olaylari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-ekstrem-doga-olaylari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-hizmet-sektoru-ve-ulasim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-hizmet-sektoru-ve-ulasim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-islevsel-bolge-ve-kalkinma-projeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-islevsel-bolge-ve-kalkinma-projeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-jeopolitik-konum-ve-ulkeler-arasi-etkilesim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-jeopolitik-konum-ve-ulkeler-arasi-etkilesim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-kultur-bolgeleri-ve-turk-kulturu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-kultur-bolgeleri-ve-turk-kulturu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-kuresel-iklim-degisikligi-ve-doga-olaylarinin-gelecegi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-kuresel-iklim-degisikligi-ve-doga-olaylarinin-gelecegi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-kuresellesen-dunya",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-kuresellesen-dunya"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-nufus-politikalari-ve-projeksiyonlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-nufus-politikalari-ve-projeksiyonlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-sehirler-ve-kirsal-yerlesmeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-sehirler-ve-kirsal-yerlesmeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-turkiye-de-tarim-sanayi-maden-ve-enerji-kaynaklari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-turkiye-de-tarim-sanayi-maden-ve-enerji-kaynaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-turkiye-de-turizm",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-turkiye-de-turizm"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-turkiye-de-ve-dunyada-ticaret",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-turkiye-de-ve-dunyada-ticaret"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-ea-cografya-1-uluslararasi-orgutler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-ea-cografya-1-uluslararasi-orgutler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-matematik",
+      "entries": [
+        {
+          "groupId": "ayt-say-matematik-anlik-degisim-orani-ve-turev-turevin-uygulamalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-anlik-degisim-orani-ve-turev-turevin-uygulamalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-binom",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-binom"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-fonksiyonlar-ile-ilgili-uygulamalar-fonksiyon-donusumleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-fonksiyonlar-ile-ilgili-uygulamalar-fonksiyon-donusumleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-gercek-sayi-dizileri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-gercek-sayi-dizileri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-ikinci-dereceden-denklemler-karmasik-sayilar-denklem-ve-esitsizlik-sistemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-ikinci-dereceden-denklemler-karmasik-sayilar-denklem-ve-esitsizlik-sistemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-ikinci-dereceden-fonksiyon-ve-grafikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-ikinci-dereceden-fonksiyon-ve-grafikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-kosinus-teoremi-sinus-teoremi-ters-trigonometrik-fonksiyonlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-kosinus-teoremi-sinus-teoremi-ters-trigonometrik-fonksiyonlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-kumelerde-temel-kavramlar-kumelerde-islemler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-kumelerde-temel-kavramlar-kumelerde-islemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-limit-ve-sureklilik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-limit-ve-sureklilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-olasilik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-olasilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-permutasyon-kombinasyon",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-permutasyon-kombinasyon"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-polinom-kavrami-ve-polinomlarda-islemler-polinomlarin-capanlara-ayrilmasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-polinom-kavrami-ve-polinomlarda-islemler-polinomlarin-capanlara-ayrilmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-temel-kavramlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-temel-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-toplam-fark-ve-iki-kat-aci-formulleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-toplam-fark-ve-iki-kat-aci-formulleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-trigonometrik-denklemler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-trigonometrik-denklemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-ustel-fonksiyon-logaritma-fonksiyonu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-ustel-fonksiyon-logaritma-fonksiyonu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-yonlu-acilar-trigonometrik-fonksiyonlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-yonlu-acilar-trigonometrik-fonksiyonlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-belirsiz-integral-belirli-integral-ve-uygulamalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-matematik-belirsiz-integral-belirli-integral-ve-uygulamalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-cember-ve-daire",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-cember-ve-daire"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-cemberin-analitik-incelenmesi",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-cemberin-analitik-incelenmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-dogrunun-analitik-incelenmesi",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-dogrunun-analitik-incelenmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-donusumler",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-donusumler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-kati-cisimler",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-kati-cisimler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-matematik-ucgen-cokgen-dortgen-ozel-dortgenler",
+          "relation": "exact",
+          "topicsSubjectId": "ayt-geometri",
+          "topicIds": [
+            "ayt-say-matematik-ucgen-cokgen-dortgen-ozel-dortgenler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-fizik",
+      "entries": [
+        {
+          "groupId": "ayt-say-fizik-acisal-momentum",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-acisal-momentum"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-alternatif-akim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-alternatif-akim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-bagil-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-bagil-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-basit-makineler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-basit-makineler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-bir-boyutta-sabit-ivmeli-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-bir-boyutta-sabit-ivmeli-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-denge-ve-denge-sartlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-denge-ve-denge-sartlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-donerek-oteleme-hareketi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-donerek-oteleme-hareketi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-duzgun-cembersel-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-duzgun-cembersel-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-duzgun-elektrik-alan-ve-siga",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-duzgun-elektrik-alan-ve-siga"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-elektriksel-kuvvet-ve-elektrik-alan",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-elektriksel-kuvvet-ve-elektrik-alan"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-elektriksel-potansiyel",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-elektriksel-potansiyel"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-enerji-ve-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-enerji-ve-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-iki-boyutta-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-iki-boyutta-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-itme-ve-cizgisel-momentum",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-itme-ve-cizgisel-momentum"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-kepler-kanunlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-kepler-kanunlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-kutle-cekim-kuvveti",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-kutle-cekim-kuvveti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-manyetizma-ve-elektromanyetik-induklenme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-manyetizma-ve-elektromanyetik-induklenme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-newton-in-hareket-yasalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-newton-in-hareket-yasalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-tork",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-tork"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-transformatorler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-transformatorler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-vektorler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-vektorler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-atom-kavraminin-tarihsel-gelisimi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-atom-kavraminin-tarihsel-gelisimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-basit-harmonik-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-basit-harmonik-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-buyuk-patlama-ve-evrenin-olusumu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-buyuk-patlama-ve-evrenin-olusumu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-compton-sacilmasi-ve-de-broglie-dalga-boyu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-compton-sacilmasi-ve-de-broglie-dalga-boyu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-dalgalarda-kirinim-girisim-ve-doppler-olayi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-dalgalarda-kirinim-girisim-ve-doppler-olayi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-elektromanyetik-dalgalar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-elektromanyetik-dalgalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-fotoelektrik-olayi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-fotoelektrik-olayi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-goruntuleme-teknolojileri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-goruntuleme-teknolojileri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-kuantum-fizigine-giris",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-kuantum-fizigine-giris"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-laser-isinlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-laser-isinlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-nanoteknoloji",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-nanoteknoloji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-ozel-gorelilik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-ozel-gorelilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-radyoaktivite",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-radyoaktivite"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-super-iletkenler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-super-iletkenler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-fizik-yari-iletken-teknolojisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-fizik-yari-iletken-teknolojisi"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-kimya",
+      "entries": [
+        {
+          "groupId": "ayt-say-kimya-atomun-kuantum-modeli",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-atomun-kuantum-modeli"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-cozunurluk",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-cozunurluk"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-dengeyi-etkileyen-faktorler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-dengeyi-etkileyen-faktorler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-derisim-birimleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-derisim-birimleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-gaz-karisimlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-gaz-karisimlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-gazlarda-kinetik-teori",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-gazlarda-kinetik-teori"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-gazlarin-ozellikleri-ve-gaz-yasalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-gazlarin-ozellikleri-ve-gaz-yasalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-ideal-gaz-yasasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-ideal-gaz-yasasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-kimyasal-denge",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-kimyasal-denge"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-koligatif-ozellikler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-koligatif-ozellikler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-olusum-entalpisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-olusum-entalpisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-periyodik-ozellikler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-periyodik-ozellikler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-sulu-cozelti-dengeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-sulu-cozelti-dengeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-tepkime-hizini-etkileyen-faktorler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-tepkime-hizini-etkileyen-faktorler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-tepkime-hizlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-tepkime-hizlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-tepkime-isilarinin-toplanabilirligi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-tepkime-isilarinin-toplanabilirligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-tepkimelerde-isi-degisimi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-tepkimelerde-isi-degisimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-yukseltgenme-basamaklari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-yukseltgenme-basamaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-alkoller-eterler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-alkoller-eterler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-basit-formul-ve-molekul-formulu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-basit-formul-ve-molekul-formulu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-dogada-karbon",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-dogada-karbon"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-elektroliz",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-elektroliz"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-elektrot-potansiyelleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-elektrot-potansiyelleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-elektrotlar-ve-elektrokimyasal-hucreler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-elektrotlar-ve-elektrokimyasal-hucreler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-esterler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-esterler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-fonksiyonel-gruplar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-fonksiyonel-gruplar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-hibritlesme-molekul-geometrisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-hibritlesme-molekul-geometrisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-hidrokarbonlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-hidrokarbonlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-indirgenme-yukseltgenme-tepkimelerinde-elektrik-akimi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-indirgenme-yukseltgenme-tepkimelerinde-elektrik-akimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-karboksilik-asitler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-karboksilik-asitler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-karbonil-bilesikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-karbonil-bilesikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-kimya-korozyon",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-kimya-korozyon"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-biyoloji",
+      "entries": [
+        {
+          "groupId": "ayt-say-biyoloji-bitkilerde-eseyli-ureme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-bitkilerde-eseyli-ureme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-bitkilerde-madde-tasinmasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-bitkilerde-madde-tasinmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-bitkilerin-yapisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-bitkilerin-yapisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-canlilar-ve-cevre",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-canlilar-ve-cevre"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-canlilik-ve-enerji",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-canlilik-ve-enerji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-denetleyici-ve-duzenleyici-sistem-duyu-organlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-denetleyici-ve-duzenleyici-sistem-duyu-organlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-destek-ve-hareket-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-destek-ve-hareket-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-dolasim-sistemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-dolasim-sistemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-fotosentez",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-fotosentez"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-genetik-sifre-ve-protein-sentezi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-genetik-sifre-ve-protein-sentezi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-hucresel-solunum",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-hucresel-solunum"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-kemosentez",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-kemosentez"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-komunite-ekolojisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-komunite-ekolojisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-nukleik-asitlerin-kesfi-ve-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-nukleik-asitlerin-kesfi-ve-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-populasyon-ekolojisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-populasyon-ekolojisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-sindirim-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-sindirim-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-solunum-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-solunum-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-ureme-sistemi-ve-embriyonik-gelisim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-ureme-sistemi-ve-embriyonik-gelisim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-say-biyoloji-uriner-sistem",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-say-biyoloji-uriner-sistem"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-tarih-2",
+      "entries": [
+        {
+          "groupId": "ayt-soz-tarih-2-anadolu-da-turk-siyasi-birligini-saglama-cabalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-anadolu-da-turk-siyasi-birligini-saglama-cabalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-anadolu-nun-ilk-turk-siyasi-tesekkulleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-anadolu-nun-ilk-turk-siyasi-tesekkulleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-boylardan-devlete",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-boylardan-devlete"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-buyuk-selcuklu-devleti-1040-1157",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-buyuk-selcuklu-devleti-1040-1157"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-buyuk-selcuklu-devleti-nde-yonetim-ve-toplum-yapisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-buyuk-selcuklu-devleti-nde-yonetim-ve-toplum-yapisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-cografya-ile-olusan-yasam-tarzi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-cografya-ile-olusan-yasam-tarzi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-devsirme-sistemi-ve-yeniceri-ocagi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-devsirme-sistemi-ve-yeniceri-ocagi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-dunyanin-muhtesem-gucu-osmanli",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-dunyanin-muhtesem-gucu-osmanli"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-insanligin-hafizasi-tarih",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-insanligin-hafizasi-tarih"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-insanligin-ilk-izleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-insanligin-ilk-izleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-istanbul-un-fethi-ve-fethin-sonuclari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-istanbul-un-fethi-ve-fethin-sonuclari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-kavimler-gocu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-kavimler-gocu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nde-millet-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nde-millet-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nde-timar-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nde-timar-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nde-yonetici-sinif-askeri-sinif",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nde-yonetici-sinif-askeri-sinif"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-da-devletin-toprak-uzerindeki-mulkiyeti-ve-cifthane-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-da-devletin-toprak-uzerindeki-mulkiyeti-ve-cifthane-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-saray-ve-sehir-kulturu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-saray-ve-sehir-kulturu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-turk-islam-dunyasinda-birligi-saglama-cabalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-turk-islam-dunyasinda-birligi-saglama-cabalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-zamanin-taksimi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-zamanin-taksimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-20-yuzyil-baslarinda-osmanli-devleti",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-20-yuzyil-baslarinda-osmanli-devleti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ataturk-ilkeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ataturk-ilkeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-avrupa-da-degisim-cagi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-avrupa-da-degisim-cagi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-buyuk-millet-meclisinin-acilmasi-23-nisan-1920",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-buyuk-millet-meclisinin-acilmasi-23-nisan-1920"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ekonomi-alanindaki-gelismeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ekonomi-alanindaki-gelismeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-hukuk-alanindaki-gelismeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-hukuk-alanindaki-gelismeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-i-dunya-savasi-surecinde-osmanli-devleti",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-i-dunya-savasi-surecinde-osmanli-devleti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-i-dunya-savasi-nin-sonuclari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-i-dunya-savasi-nin-sonuclari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ihtilaller-cagi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ihtilaller-cagi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-milli-mucadele-ye-hazirlik-donemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-milli-mucadele-ye-hazirlik-donemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-mustafa-kemal-in-lider-olarak-yetismesinde-etkili-kosullar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-mustafa-kemal-in-lider-olarak-yetismesinde-etkili-kosullar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nde-demokratiklesme-hareketleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nde-demokratiklesme-hareketleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-nde-modern-orduya-gecis",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-nde-modern-orduya-gecis"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-osmanli-devleti-ne-yonelik-tehditler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-osmanli-devleti-ne-yonelik-tehditler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-saglik-alanindaki-gelismeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-saglik-alanindaki-gelismeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-siyasi-alandaki-gelismeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-siyasi-alandaki-gelismeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-toplumsal-alandaki-inkilaplar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-toplumsal-alandaki-inkilaplar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-uzun-savaslardan-diplomasiye",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-uzun-savaslardan-diplomasiye"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-1960-sonrasinda-turk-dis-politikasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-1960-sonrasinda-turk-dis-politikasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-1990-sonrasinda-turkiye",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-1990-sonrasinda-turkiye"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ii-dunya-savasi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ii-dunya-savasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ii-dunya-savasi-sonrasi-olusan-guc-dengeleri-ve-turkiye",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ii-dunya-savasi-sonrasi-olusan-guc-dengeleri-ve-turkiye"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-tarih-2-ii-dunya-savasi-surecinde-turkiye",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-tarih-2-ii-dunya-savasi-surecinde-turkiye"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-cografya-2",
+      "entries": [
+        {
+          "groupId": "ayt-soz-cografya-2-cevre-sorunlari-ve-geri-donusum",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-cevre-sorunlari-ve-geri-donusum"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-cevre-sorunlarinin-cozumune-yonelik-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-cevre-sorunlarinin-cozumune-yonelik-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-dunyada-dogal-kaynak-ve-ekonomi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-dunyada-dogal-kaynak-ve-ekonomi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-ekonomi-sehirlesme-ve-goc",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-ekonomi-sehirlesme-ve-goc"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-ekosistemlerin-ozellikleri-ve-isleyisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-ekosistemlerin-ozellikleri-ve-isleyisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-ekstrem-doga-olaylari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-ekstrem-doga-olaylari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-hizmet-sektoru-ve-ulasim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-hizmet-sektoru-ve-ulasim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-islevsel-bolge-ve-kalkinma-projeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-islevsel-bolge-ve-kalkinma-projeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-jeopolitik-konum-ve-ulkeler-arasi-etkilesim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-jeopolitik-konum-ve-ulkeler-arasi-etkilesim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-kultur-bolgeleri-ve-turk-kulturu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-kultur-bolgeleri-ve-turk-kulturu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-kuresel-iklim-degisikligi-ve-doga-olaylarinin-gelecegi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-kuresel-iklim-degisikligi-ve-doga-olaylarinin-gelecegi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-kuresellesen-dunya",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-kuresellesen-dunya"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-nufus-politikalari-ve-projeksiyonlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-nufus-politikalari-ve-projeksiyonlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-sehirler-ve-kirsal-yerlesmeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-sehirler-ve-kirsal-yerlesmeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-turkiye-de-tarim-sanayi-maden-ve-enerji-kaynaklari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-turkiye-de-tarim-sanayi-maden-ve-enerji-kaynaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-turkiye-de-turizm",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-turkiye-de-turizm"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-turkiye-de-ve-dunyada-ticaret",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-turkiye-de-ve-dunyada-ticaret"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-cografya-2-uluslararasi-orgutler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-cografya-2-uluslararasi-orgutler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ayt-felsefe-grubu",
+      "entries": [
+        {
+          "groupId": "ayt-soz-felsefe-ahlak-felsefesinde-iyilik-ve-mutluluk-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-ahlak-felsefesinde-iyilik-ve-mutluluk-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-ahlak-felsefesinde-ozgurluk-ve-sorumluluk",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-ahlak-felsefesinde-ozgurluk-ve-sorumluluk"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-bilginin-sinirlari-olcutu-dogruluk-ve-gerceklik-bilginin-degeri-ve-guvenirligi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-bilginin-sinirlari-olcutu-dogruluk-ve-gerceklik-bilginin-degeri-ve-guvenirligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-bilim-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-bilim-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-bilimin-degeri-bilim-felsefe-iliskisi-bilim-ve-hayat-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-bilimin-degeri-bilim-felsefe-iliskisi-bilim-ve-hayat-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-din-felsefesinin-konusu-ve-sorulari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-din-felsefesinin-konusu-ve-sorulari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-dusunme-ve-akil-yurutmeye-iliskin-kavramlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-dusunme-ve-akil-yurutmeye-iliskin-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-dusunme-ve-dil-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-dusunme-ve-dil-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-evrende-amaclilik-ve-duzenlilik-varlik-turlerinin-siniflandirilmasi-bir-konunun-varlik-felsefesi-acisindan-degerlendirilmesi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-evrende-amaclilik-ve-duzenlilik-varlik-turlerinin-siniflandirilmasi-bir-konunun-varlik-felsefesi-acisindan-degerlendirilmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-felsefenin-anlami",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-felsefenin-anlami"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-felsefenin-insan-ve-toplum-hayati-uzerindeki-rolu",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-felsefenin-insan-ve-toplum-hayati-uzerindeki-rolu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-felsefi-dusuncenin-ortaya-cikisi-ve-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-felsefi-dusuncenin-ortaya-cikisi-ve-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-felsefi-metin-analizi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-felsefi-metin-analizi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-sanat-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-sanat-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-siyaset-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-siyaset-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-varlik-felsefesi-alanindaki-cagdas-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-varlik-felsefesi-alanindaki-cagdas-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-varlik-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-15-17-yuzyil-felsefesinde-one-cikan-gorusler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-15-17-yuzyil-felsefesinde-one-cikan-gorusler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-18-19-yuzyil-felsefesinde-one-cikan-problemler-ve-gorusler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-18-19-yuzyil-felsefesinde-one-cikan-problemler-ve-gorusler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-20-yuzyil-felsefesinde-bazi-ana-akimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-20-yuzyil-felsefesinde-bazi-ana-akimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-20-yuzyil-filozoflarinin-gorusleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-20-yuzyil-filozoflarinin-gorusleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-ilk-medeniyetlerin-felsefenin-dogusuna-etkisi-anadolu-da-yasamis-filozoflar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-ilk-medeniyetlerin-felsefenin-dogusuna-etkisi-anadolu-da-yasamis-filozoflar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-islam-felsefesinin-ozellikleri-inanc-akil-iliskisi-ve-filozoflarin-gorusleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-islam-felsefesinin-ozellikleri-inanc-akil-iliskisi-ve-filozoflarin-gorusleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-platon-ve-aristoteles-in-varlik-bilgi-ve-deger-anlayisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-platon-ve-aristoteles-in-varlik-bilgi-ve-deger-anlayisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-felsefe-sofistler-ile-sokrates-in-bilgi-ve-deger-anlayislari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-felsefe-sofistler-ile-sokrates-in-bilgi-ve-deger-anlayislari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-algi-ve-algi-yanilmalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-algi-ve-algi-yanilmalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-algiyi-etkileyen-faktorler-duyum-ve-algi-arasindaki-farklar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-algiyi-etkileyen-faktorler-duyum-ve-algi-arasindaki-farklar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-bellek-ve-bellek-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-bellek-ve-bellek-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-bilinc-ve-bilinclilik-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-bilinc-ve-bilinclilik-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-bilissel-ogrenme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-bilissel-ogrenme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-bireysel-farkliliklar-kisiligin-olculmesi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-bireysel-farkliliklar-kisiligin-olculmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-davranisin-olusumu-kalitim-ve-cevrenin-davranisa-etkisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-davranisin-olusumu-kalitim-ve-cevrenin-davranisa-etkisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-dikkat-ve-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-dikkat-ve-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-duygu-ve-duygu-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-duygu-ve-duygu-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-duyum-ve-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-duyum-ve-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-dusunmenin-yapi-taslari-dil-dogru-dusunme-ve-irdeleme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-dusunmenin-yapi-taslari-dil-dogru-dusunme-ve-irdeleme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-gelisim-ve-gelisim-kuramlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-gelisim-ve-gelisim-kuramlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-gudulenmeyi-ortaya-cikaran-faktorler-gudulenmis-davranisin-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-gudulenmeyi-ortaya-cikaran-faktorler-gudulenmis-davranisin-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-kisilik-bozukluklari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-kisilik-bozukluklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-kisilik-ve-kisilik-kuramlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-kisilik-ve-kisilik-kuramlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-ogrenme-ve-ogrenme-turleri-kosullanma-yoluyla-ogrenme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-ogrenme-ve-ogrenme-turleri-kosullanma-yoluyla-ogrenme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-ogrenmeyi-etkileyen-faktorler-ve-ogrenme-stratejileri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-ogrenmeyi-etkileyen-faktorler-ve-ogrenme-stratejileri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-psikoloji-arastirmalarinda-uygulanan-yontem-ve-teknikler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-psikoloji-arastirmalarinda-uygulanan-yontem-ve-teknikler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-psikolojideki-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-psikolojideki-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-psikolojinin-alt-dallari-is-alanlari-diger-bilim-dallariyla-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-psikolojinin-alt-dallari-is-alanlari-diger-bilim-dallariyla-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-psikolojinin-bilim-dali-olarak-olcutleri-amaclari-arastirmalarda-uyulmasi-gereken-etik-kurallar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-psikolojinin-bilim-dali-olarak-olcutleri-amaclari-arastirmalarda-uyulmasi-gereken-etik-kurallar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-psikolojinin-konusu-bir-bilim-dali-olma-sureci",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-psikolojinin-konusu-bir-bilim-dali-olma-sureci"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-ruh-sagligi-ve-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-ruh-sagligi-ve-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-sosyal-psikoloji",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-sosyal-psikoloji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-stres-ve-savunma-mekanizmalari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-stres-ve-savunma-mekanizmalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-uyarilmanin-davranislara-etkisi-alisma-ve-duyarlilasma",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-uyarilmanin-davranislara-etkisi-alisma-ve-duyarlilasma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-psikoloji-zeka-ve-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-psikoloji-zeka-ve-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-aile-kurumu-ve-evlilik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-aile-kurumu-ve-evlilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-din-kurumu-onemi-ve-islevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-din-kurumu-onemi-ve-islevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-egitim-kurumu-onemi-ve-islevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-egitim-kurumu-onemi-ve-islevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-ekonomi-kurumu-onemi-ve-islevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-ekonomi-kurumu-onemi-ve-islevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-kurum-kavrami-ve-islevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-kurum-kavrami-ve-islevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-kulture-iliskin-kavramlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-kulture-iliskin-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-kulturel-tutumlar-ve-kulturler-arasi-etkilesim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-kulturel-tutumlar-ve-kulturler-arasi-etkilesim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-kulturun-anlami-ve-islevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-kulturun-anlami-ve-islevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-modernlesme-ve-kuresellesme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-modernlesme-ve-kuresellesme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-siyasal-yonetim-bicimleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-siyasal-yonetim-bicimleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-sosyallesme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-sosyallesme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-sosyallesmenin-asamalari-ve-sosyallesmenin-toplumsal-iliskiler-uzerindeki-etkisi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-sosyallesmenin-asamalari-ve-sosyallesmenin-toplumsal-iliskiler-uzerindeki-etkisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-sosyolojide-kullanilan-baslica-yontemler-ve-teknikleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-sosyolojide-kullanilan-baslica-yontemler-ve-teknikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-sosyolojinin-kuruculari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-sosyolojinin-kuruculari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-sosyolojiyi-taniyalim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-sosyolojiyi-taniyalim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplum-ve-toplumu-olusturan-ogeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplum-ve-toplumu-olusturan-ogeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-deger-toplumsal-norm-toplumsal-kontrol",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-deger-toplumsal-norm-toplumsal-kontrol"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-degisme-ve-kultur",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-degisme-ve-kultur"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-degisme-ve-toplumsal-degismeyi-etkileyen-faktorler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-degisme-ve-toplumsal-degismeyi-etkileyen-faktorler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-etkilesim-tipleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-etkilesim-tipleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-gelisme-toplumsal-butunlesme-toplumsal-cozulme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-gelisme-toplumsal-butunlesme-toplumsal-cozulme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-kulturun-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-kulturun-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-sapma",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-sapma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-statu-rol-sayginlik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-statu-rol-sayginlik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-tabakalasma",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-tabakalasma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-toplumsal-yapi-ve-unsurlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-toplumsal-yapi-ve-unsurlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-sosyoloji-turkiye-de-sosyoloji",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-sosyoloji-turkiye-de-sosyoloji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-akil-ilkeleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-akil-ilkeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-akil-yurutme-yontemleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-akil-yurutme-yontemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-bes-tumel",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-bes-tumel"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-bilgi-aktarma-ve-dil-anlama-ve-tanimlama",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-bilgi-aktarma-ve-dil-anlama-ve-tanimlama"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-cikarim-klasik-mantik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-cikarim-klasik-mantik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-cikarim-sembolik-mantik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-cikarim-sembolik-mantik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-cok-degerli-mantik",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-cok-degerli-mantik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-cozumleyici-cizelge",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-cozumleyici-cizelge"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-dilin-gorevleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-dilin-gorevleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-dogru-dusunme-temel-kavramlar",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-dogru-dusunme-temel-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-esdegerlik-cikarimlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-esdegerlik-cikarimlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-kavram-cesitleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-kavram-cesitleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-kavram-ve-terim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-kavram-ve-terim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-kiyas",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-kiyas"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-mantigin-uygulama-alanlari",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-mantigin-uygulama-alanlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-nelik-gerceklik-kimlik-iclem-ve-kaplam",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-nelik-gerceklik-kimlik-iclem-ve-kaplam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-niceleme-mantigi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-niceleme-mantigi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-onerme-ve-cesitleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-onerme-ve-cesitleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-onerme-ve-yapisi-basit-ve-bilesik-onermeler",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-onerme-ve-yapisi-basit-ve-bilesik-onermeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-onermelerin-dogruluk-degerleri",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-onermelerin-dogruluk-degerleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-sembollestirme",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-sembollestirme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-tanim",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-tanim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ayt-soz-mantik-tutarlilik-gecerlilik-esdegerlik-denetlemesi",
+          "relation": "exact",
+          "topicIds": [
+            "ayt-soz-mantik-tutarlilik-gecerlilik-esdegerlik-denetlemesi"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-turkce",
+      "entries": [
+        {
+          "groupId": "tyt-turkce-anlatim-bozuklugu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-anlatim-bozuklugu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-bicim-bilgisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-bicim-bilgisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-cumle-turleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-cumle-turleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-cumlede-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-cumlede-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-cumlenin-ogeleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-cumlenin-ogeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-filler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-filler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-isim-soylu-sozcukler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-isim-soylu-sozcukler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-noktalama-isaretleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-noktalama-isaretleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-paragrafin-yapisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-paragrafin-yapisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-paragrafta-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-paragrafta-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-ses-bilgisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-ses-bilgisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-sozcukte-anlam",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-sozcukte-anlam"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-turkce-yazim-kurallari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-turkce-yazim-kurallari"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-tarih",
+      "entries": [
+        {
+          "groupId": "tyt-tarih-anadolu-nun-ilk-turk-siyasi-tesekkulleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-anadolu-nun-ilk-turk-siyasi-tesekkulleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-boylardan-devlete",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-boylardan-devlete"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-buyuk-selcuklu-devleti-1040-1157",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-buyuk-selcuklu-devleti-1040-1157"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-cografya-ile-olusan-yasam-tarzi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-cografya-ile-olusan-yasam-tarzi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-devletlesme-surecinde-osmanli-bizans-iliskileri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-devletlesme-surecinde-osmanli-bizans-iliskileri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-islamiyet-in-turk-devlet-ve-toplum-yapisina-etkisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-kavimler-gocu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-kavimler-gocu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-osmanli-devleti-nde-demokratiklesme-hareketleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-osmanli-devleti-nde-demokratiklesme-hareketleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-osmanli-devleti-nde-sanayilesme-cabalari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-osmanli-devleti-nde-sanayilesme-cabalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-saray-ve-sehir-kulturu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-saray-ve-sehir-kulturu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-tek-hanedan-anlayisi-ve-gelenekler-isiginda-devlet-idarecisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-tek-hanedan-anlayisi-ve-gelenekler-isiginda-devlet-idarecisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-turklerin-islamiyet-i-kabulu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-turklerin-islamiyet-i-kabulu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-uzun-savaslardan-diplomasiye",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-uzun-savaslardan-diplomasiye"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-ataturk-ilkeleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-ataturk-ilkeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-bati-cephesi-ve-bu-cephede-one-cikan-sahsiyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-buyuk-millet-meclisinin-acilmasi-23-nisan-1920",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-buyuk-millet-meclisinin-acilmasi-23-nisan-1920"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-egitim-ve-kultur-alanindaki-inkilaplar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-egitim-ve-kultur-alanindaki-inkilaplar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-milli-mucadele-nin-sona-ermesi-ve-lozan-baris-antlasmasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-milli-mucadele-nin-sona-ermesi-ve-lozan-baris-antlasmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-tarih-milli-mucadele-ye-hazirlik-donemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-tarih-milli-mucadele-ye-hazirlik-donemi"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-cografya",
+      "entries": [
+        {
+          "groupId": "tyt-cografya-afetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-afetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-atmosfer-ve-iklim-bilgisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-atmosfer-ve-iklim-bilgisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-bitkiler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-bitkiler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-bolgeler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-bolgeler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-cografi-koordinat-sistemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-cografi-koordinat-sistemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-cografya-bilimi-ve-bolumlenmesi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-cografya-bilimi-ve-bolumlenmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-doga-ve-insan-etkilesimi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-doga-ve-insan-etkilesimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-dunya-nin-sekli-ve-hareketleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-dunya-nin-sekli-ve-hareketleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-dunya-nin-yapisi-ve-olusum-sureci",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-dunya-nin-yapisi-ve-olusum-sureci"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-ekonomik-faaliyetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-ekonomik-faaliyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-harita-okuryazarligi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-harita-okuryazarligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-nufus-ve-goc",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-nufus-ve-goc"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-su-kaynaklari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-su-kaynaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-topraklar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-topraklar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-uluslararasi-ulasim-hatlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-uluslararasi-ulasim-hatlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-cografya-yerlesmeler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-cografya-yerlesmeler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-felsefe",
+      "entries": [
+        {
+          "groupId": "tyt-felsefe-ahlak-felsefesinde-iyilik-ve-mutluluk-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ahlak-felsefesinde-iyilik-ve-mutluluk-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-ahlak-felsefesinde-ozgurluk-ve-sorumluluk",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ahlak-felsefesinde-ozgurluk-ve-sorumluluk"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-ahlak-felsefesinin-konusu-ve-temel-kavramlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ahlak-felsefesinin-konusu-ve-temel-kavramlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-bilginin-kaynagi-ile-ilgili-gorusler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-bilginin-kaynagi-ile-ilgili-gorusler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-bilginin-sinirlari-olcutu-dogruluk-ve-gerceklik-bilginin-degeri-ve-guvenirligi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-bilginin-sinirlari-olcutu-dogruluk-ve-gerceklik-bilginin-degeri-ve-guvenirligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-bilimin-degeri-bilim-felsefe-iliskisi-bilim-ve-hayat-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-bilimin-degeri-bilim-felsefe-iliskisi-bilim-ve-hayat-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-din-felsefesinin-konusu-ve-sorulari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-din-felsefesinin-konusu-ve-sorulari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-dusunme-ve-akil-yurutmeye-iliskin-kavramlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-dusunme-ve-akil-yurutmeye-iliskin-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-dusunme-ve-dil-iliskisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-dusunme-ve-dil-iliskisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-evrende-amaclilik-ve-duzenlilik-varlik-turlerinin-siniflandirilmasi-bir-konunun-varlik-felsefesi-acisindan-degerlendirilmesi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-evrende-amaclilik-ve-duzenlilik-varlik-turlerinin-siniflandirilmasi-bir-konunun-varlik-felsefesi-acisindan-degerlendirilmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-evrensel-ahlak-yasasini-reddeden-gorusler-ve-filozoflar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-evrensel-ahlak-yasasini-reddeden-gorusler-ve-filozoflar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-felsefenin-anlami",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-felsefenin-anlami"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-felsefenin-insan-ve-toplum-hayati-uzerindeki-rolu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-felsefenin-insan-ve-toplum-hayati-uzerindeki-rolu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-felsefi-bir-gorusu-veya-argumani-sorgulama",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-felsefi-bir-gorusu-veya-argumani-sorgulama"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-felsefi-dusuncenin-ortaya-cikisi-ve-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-felsefi-dusuncenin-ortaya-cikisi-ve-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-sanat-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-sanat-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-siyaset-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-siyaset-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-varlik-felsefesi-alanindaki-cagdas-yaklasimlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-varlik-felsefesi-alanindaki-cagdas-yaklasimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-15-17-yuzyil-felsefesinde-one-cikan-gorusler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-15-17-yuzyil-felsefesinde-one-cikan-gorusler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-18-19-yuzyil-felsefesinde-one-cikan-problemler-ve-gorusler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-18-19-yuzyil-felsefesinde-one-cikan-problemler-ve-gorusler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-20-yuzyil-felsefesinde-bazi-ana-akimlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-20-yuzyil-felsefesinde-bazi-ana-akimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-20-yuzyil-filozoflarinin-gorusleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-20-yuzyil-filozoflarinin-gorusleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-ilk-medeniyetlerin-felsefenin-dogusuna-etkisi-anadolu-da-yasamis-filozoflar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ilk-medeniyetlerin-felsefenin-dogusuna-etkisi-anadolu-da-yasamis-filozoflar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-ilk-neden-arkhe-ve-degisim-problemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ilk-neden-arkhe-ve-degisim-problemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-islam-felsefesinin-ozellikleri-inanc-akil-iliskisi-ve-filozoflarin-gorusleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-islam-felsefesinin-ozellikleri-inanc-akil-iliskisi-ve-filozoflarin-gorusleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-ms-2-yuzyil-ms-15-yuzyil-felsefesinin-ortaya-cikisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-ms-2-yuzyil-ms-15-yuzyil-felsefesinin-ortaya-cikisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-platon-ve-aristoteles-in-varlik-bilgi-ve-deger-anlayisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-platon-ve-aristoteles-in-varlik-bilgi-ve-deger-anlayisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-felsefe-sofistler-ile-sokrates-in-bilgi-ve-deger-anlayislari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-felsefe-sofistler-ile-sokrates-in-bilgi-ve-deger-anlayislari"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-matematik",
+      "entries": [
+        {
+          "groupId": "tyt-matematik-basit-olaylarin-olasiliklari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-basit-olaylarin-olasiliklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-bolunebilme-kurallari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-bolunebilme-kurallari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-cokgenler-dortgenler-ve-ozellikleri",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-cokgenler-dortgenler-ve-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-dik-ucgen-ve-trigonometri",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-dik-ucgen-ve-trigonometri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ikinci-dereceden-bir-bilinmeyenli-denklemler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-ikinci-dereceden-bir-bilinmeyenli-denklemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-kati-cisimler",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-kati-cisimler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-kumelerde-temel-kavramlar-kumelerde-islemler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-kumelerde-temel-kavramlar-kumelerde-islemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-merkezi-egilim-ve-yayilim-olculeri-verilerin-grafikle-gosterilmesi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-merkezi-egilim-ve-yayilim-olculeri-verilerin-grafikle-gosterilmesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ozel-dortgenler",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-ozel-dortgenler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-polinom-kavrami-ve-polinomlarda-islemler-polinomlarin-carpanlara-ayrilmasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-polinom-kavrami-ve-polinomlarda-islemler-polinomlarin-carpanlara-ayrilmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-sayi-kumeleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-sayi-kumeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-siralama-ve-secme",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-siralama-ve-secme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ucgenin-alani-ucgenin-alani-ile-ilgili-uygulamalar",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-ucgenin-alani-ucgenin-alani-ile-ilgili-uygulamalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ucgenin-yardimci-elemanlari",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-ucgenin-yardimci-elemanlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ucgenlerde-eslik-ve-benzerlik",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-ucgenlerde-eslik-ve-benzerlik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-ucgenlerde-temel-kavramlar",
+          "relation": "exact",
+          "topicsSubjectId": "tyt-geometri",
+          "topicIds": [
+            "tyt-matematik-ucgenlerde-temel-kavramlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-matematik-uslu-ifadeler-ve-denklemler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-matematik-uslu-ifadeler-ve-denklemler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-fizik",
+      "entries": [
+        {
+          "groupId": "tyt-fizik-bilim-arastirma-merkezleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-bilim-arastirma-merkezleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-dayaniklilik",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-dayaniklilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-elektrik-yukleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-elektrik-yukleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-enerji-iletim-yollari-ve-enerji-iletim-hizi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-enerji-iletim-yollari-ve-enerji-iletim-hizi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-enerji-kaynaklari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-enerji-kaynaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-enerjinin-korunumu-ve-enerji-donusumleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-enerjinin-korunumu-ve-enerji-donusumleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-fizigin-uygulama-alanlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-fizigin-uygulama-alanlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-fizik-biliminin-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-fizik-biliminin-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-fiziksel-niceliklerin-siniflandirilmasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-fiziksel-niceliklerin-siniflandirilmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-genlesme",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-genlesme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-hal-degisimi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-hal-degisimi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-hareket",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-hareket"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-isi-ve-sicaklik",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-isi-ve-sicaklik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-isil-denge",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-isil-denge"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-is-guc-ve-enerji",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-is-guc-ve-enerji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-kuvvet",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-kuvvet"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-madde-ve-ozkutle",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-madde-ve-ozkutle"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-mekanik-enerji",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-mekanik-enerji"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-newton-in-hareket-yasalari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-newton-in-hareket-yasalari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-surtunme-kuvveti",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-surtunme-kuvveti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-verim",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-verim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-yapisma-ve-birbirini-tutma",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-yapisma-ve-birbirini-tutma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-akim-ve-manyetik-alan",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-akim-ve-manyetik-alan"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-aydinlanma",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-aydinlanma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-basinc",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-basinc"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-dalgalar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-dalgalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-deprem-dalgasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-deprem-dalgasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-duzlem-ayna",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-duzlem-ayna"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-elektrik-akimi-potansiyel-farki-ve-direnc",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-elektrik-akimi-potansiyel-farki-ve-direnc"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-elektrik-devreleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-elektrik-devreleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-golge",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-golge"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-kaldirma-kuvveti",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-kaldirma-kuvveti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-kirilma",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-kirilma"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-kuresel-aynalar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-kuresel-aynalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-mercekler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-mercekler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-miknatis-ve-manyetik-alan",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-miknatis-ve-manyetik-alan"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-prizmalar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-prizmalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-renk",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-renk"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-ses-dalgasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-ses-dalgasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-su-dalgasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-su-dalgasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-yansima",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-yansima"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-fizik-yay-dalgasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-fizik-yay-dalgasi"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-kimya",
+      "entries": [
+        {
+          "groupId": "tyt-kimya-asitler-ve-bazlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-asitler-ve-bazlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-asitlerin-ve-bazlarin-tepkimeleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-asitlerin-ve-bazlarin-tepkimeleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-atom-modelleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-atom-modelleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-atomun-yapisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-atomun-yapisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-ayirma-ve-saflastirma-teknikleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-ayirma-ve-saflastirma-teknikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-fiziksel-ve-kimyasal-degisimler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-fiziksel-ve-kimyasal-degisimler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-gazlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-gazlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-guclu-etkilesimler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-guclu-etkilesimler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-homojen-ve-heterojen-karisimlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-homojen-ve-heterojen-karisimlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-kimya-disiplinleri-ve-kimyacilarin-calisma-alanlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-kimya-disiplinleri-ve-kimyacilarin-calisma-alanlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-kimya-uygulamalarinda-is-sagligi-ve-guvenligi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-kimya-uygulamalarinda-is-sagligi-ve-guvenligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-kimyanin-sembolik-dili",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-kimyanin-sembolik-dili"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-kimyanin-temel-kanunlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-kimyanin-temel-kanunlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-kimyasal-tepkimelerde-hesaplamalar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-kimyasal-tepkimelerde-hesaplamalar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-mol-kavrami",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-mol-kavrami"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-periyodik-sistem",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-periyodik-sistem"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-sivilar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-sivilar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-yaygin-gunluk-hayat-kimyasallari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-yaygin-gunluk-hayat-kimyasallari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-kimya-zayif-etkilesimler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-kimya-zayif-etkilesimler"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-biyoloji",
+      "entries": [
+        {
+          "groupId": "tyt-biyoloji-biyoloji-ve-canlilarin-ortak-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-biyoloji-ve-canlilarin-ortak-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-canli-alemleri-ve-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-canli-alemleri-ve-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-canlilarin-cesitliligi-ve-siniflandirilmasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-canlilarin-cesitliligi-ve-siniflandirilmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-canlilarin-yapisinda-bulunan-temel-bilesikler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-canlilarin-yapisinda-bulunan-temel-bilesikler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-dogal-kaynaklar-ve-biyolojik-cesitliligin-korunmasi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-dogal-kaynaklar-ve-biyolojik-cesitliligin-korunmasi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-ekosistem-ekolojisi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-ekosistem-ekolojisi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-guncel-cevre-sorunlari-ve-insan",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-guncel-cevre-sorunlari-ve-insan"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-hucre",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-hucre"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-kalitim-ve-biyolojik-cesitlilik",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-kalitim-ve-biyolojik-cesitlilik"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-mayoz-ve-eseyli-ureme",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-mayoz-ve-eseyli-ureme"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-biyoloji-mitoz-ve-eseysiz-ureme",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-biyoloji-mitoz-ve-eseysiz-ureme"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "tyt-din-kulturu",
+      "entries": [
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-isim-ve-sifatlari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-isim-ve-sifatlari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-varligi-ve-birligi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-allah-in-varligi-ve-birligi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-bir-genc-olarak-hz-muhammed",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-bir-genc-olarak-hz-muhammed"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-adalet",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-adalet"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-degisim",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-degisim"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-meselelerin-cozumunde-temel-ilke-ve-yontemler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-meselelerin-cozumunde-temel-ilke-ve-yontemler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-yorum-farkliliklarinin-sebepleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-yorum-farkliliklarinin-sebepleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-ve-gencler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-ve-gencler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-peygamberlik-yonu",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-peygamberlik-yonu"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-insan-dogasi-ve-din",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-insan-dogasi-ve-din"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-insanin-allah-ile-irtibati",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-insanin-allah-ile-irtibati"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinda-yerilen-bazi-davranislar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinda-yerilen-bazi-davranislar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinin-konusu-ve-gayesi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-ahlakinin-konusu-ve-gayesi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-inancinda-imanin-mahiyeti",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-inancinda-imanin-mahiyeti"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-inanc-esaslarinin-ozellikleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-inanc-esaslarinin-ozellikleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinin-farkli-cografyalardaki-izleri",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-medeniyetinin-farkli-cografyalardaki-izleri"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadet-ve-kapsami",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadet-ve-kapsami"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetin-amaci-ve-onemi",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-ibadetin-amaci-ve-onemi"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-hucurat-suresi-11-12-ayetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-hucurat-suresi-11-12-ayetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-rum-suresi-18-27-ayetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kur-an-dan-mesajlar-rum-suresi-18-27-ayetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kulturumuzde-etkin-olan-tasavvufi-yorumlar",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-kulturumuzde-etkin-olan-tasavvufi-yorumlar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-milletimizin-islam-anlayisinin-olusmasinda-etkili-olan-bazi-sahsiyetler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-milletimizin-islam-anlayisinin-olusmasinda-etkili-olan-bazi-sahsiyetler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-temel-degerler",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-temel-degerler"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-varolusun-ve-hayatin-anlami",
+          "relation": "exact",
+          "topicIds": [
+            "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-varolusun-ve-hayatin-anlami"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    },
+    {
+      "displaySubjectId": "ydt-ingilizce",
+      "entries": [
+        {
+          "groupId": "ydt-ingilizce-cloze-test",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-cloze-test"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-dialogue-completion",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-dialogue-completion"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-grammar",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-grammar"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-irrelevant-sentence",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-irrelevant-sentence"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-paragraph-completion",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-paragraph-completion"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-paragraph-comprehension",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-paragraph-comprehension"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-restatement",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-restatement"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-sentence-completion",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-sentence-completion"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-situation",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-situation"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-translation-eng-tur",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-translation-eng-tur"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-translation-tur-eng",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-translation-tur-eng"
+          ],
+          "status": "auto-exact"
+        },
+        {
+          "groupId": "ydt-ingilizce-vocabulary",
+          "relation": "exact",
+          "topicIds": [
+            "ydt-ingilizce-vocabulary"
+          ],
+          "status": "auto-exact"
+        }
+      ]
+    }
+  ]
+}

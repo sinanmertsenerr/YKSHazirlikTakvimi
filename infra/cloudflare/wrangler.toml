@@ -1,0 +1,13 @@
+name = "yks-annual-classifier"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[observability]
+enabled = false
+
+[ai]
+binding = "AI"
+
+# Set the only secret out-of-band; never add it here:
+#   npm run secret:cloudflare

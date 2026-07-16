@@ -1,0 +1,52 @@
+name: Audit official MEB OGM topic books
+
+on:
+  schedule:
+    - cron: '41 5 * * 0'
+  workflow_dispatch:
+  # §9.1: a registry change must prove its provenance against the live official source
+  # before merge — schema-shape validation alone would accept fabricated hashes.
+  pull_request:
+    paths:
+      - 'content/ogm-yks-topic-sources.json'
+      - 'scripts/lib/ogm-topic-registry.ts'
+      - 'scripts/lib/ogm-topic-api.ts'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-ogm-topic-books
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Verify live OGM PDFs against pinned SHA-256 metadata
+        run: npm run audit:ogm-topics
+      - name: Scan the official landing page for new or removed editions
+        run: npm run check:ogm-new-editions
+
+  notify-failure:
+    needs: audit
+    if: ${{ always() && needs.audit.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Resmî kaynak kayması: MEB OGM kitap denetimi başarısız'
+      body: >-
+        Haftalık MEB OGM denetimi başarısız oldu: pinli PDF sha256/bayt kanıtı, API kitap
+        meta verisi veya resmî sayfadaki baskı listesi kaymış olabilir (yeni 2018-2026 baskısı
+        dahil). Kaynağı elle inceleyin; registry değişikliği §9.1 gereği incelemeli PR ister.

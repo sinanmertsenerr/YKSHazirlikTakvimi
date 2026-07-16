@@ -1,0 +1,419 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "reviewRole": "primary",
+  "waveId": "2026-tyt-temel-matematik",
+  "year": 2026,
+  "exam": "tyt",
+  "sectionId": "tyt-matematik",
+  "bookletSectionId": "temel-matematik",
+  "questionBlockId": "tyt-temel-matematik-default",
+  "allowedSubjectIds": [
+    "tyt-matematik",
+    "tyt-geometri"
+  ],
+  "answerSetId": "default",
+  "alternativeForSubjectId": null,
+  "countsTowardDefaultStats": true,
+  "questionRange": {
+    "first": 1,
+    "last": 40
+  },
+  "bookletRegistryId": "2026-tyt",
+  "bookletSource": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+  "bookletSha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+  "reviewer": "codex-primary-f",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 1,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-sayi-kumeleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 2,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-uslu-ifadeler-ve-denklemler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 3,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-uslu-ifadeler-ve-denklemler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 4,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-sayi-kumeleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 5,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 6,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-bolunebilme-kurallari"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 7,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 8,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-sayi-kumeleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 9,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-geometri",
+          "topicId": "tyt-matematik-ozel-dortgenler"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 10,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-kumelerde-temel-kavramlar-kumelerde-islemler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 11,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 12,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 13,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-bolunebilme-kurallari"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 14,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-cokgenler-dortgenler-ve-ozellikleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 15,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-sayi-kumeleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 16,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-merkezi-egilim-ve-yayilim-olculeri-verilerin-grafikle-gosterilmesi"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 17,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 18,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 19,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 20,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 21,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 22,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 23,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 24,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 25,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 26,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-bolunebilme-kurallari"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 27,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 28,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-siralama-ve-secme"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 29,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-siralama-ve-secme"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 30,
+      "primaryTopicRef": {
+        "subjectId": "tyt-matematik",
+        "topicId": "tyt-matematik-basit-olaylarin-olasiliklari"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 31,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ucgenlerde-temel-kavramlar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 32,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ucgenlerde-temel-kavramlar"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 33,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ucgenin-alani-ucgenin-alani-ile-ilgili-uygulamalar"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-geometri",
+          "topicId": "tyt-matematik-dik-ucgen-ve-trigonometri"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 34,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-dik-ucgen-ve-trigonometri"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 35,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ucgenlerde-eslik-ve-benzerlik"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-geometri",
+          "topicId": "tyt-matematik-ucgenin-alani-ucgenin-alani-ile-ilgili-uygulamalar"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 36,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ozel-dortgenler"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-geometri",
+          "topicId": "tyt-matematik-dik-ucgen-ve-trigonometri"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 37,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ozel-dortgenler"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-matematik",
+          "topicId": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 38,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-ozel-dortgenler"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-geometri",
+          "topicId": "tyt-matematik-cokgenler-dortgenler-ve-ozellikleri"
+        }
+      ],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 39,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-kati-cisimler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    },
+    {
+      "officialQuestionNo": 40,
+      "primaryTopicRef": {
+        "subjectId": "tyt-geometri",
+        "topicId": "tyt-matematik-kati-cisimler"
+      },
+      "relatedTopicRefs": [],
+      "status": "mapped"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "examYear": 2026,
+  "examId": "tyt",
+  "sectionId": "sosyal-bilimler-felsefe-alt",
+  "allowedSubjectIds": [
+    "tyt-felsefe"
+  ],
+  "answerSet": "no-dkab",
+  "alternativeFor": "tyt-din-kulturu",
+  "evidenceOnly": true,
+  "officialSource": {
+    "registryId": "2026-tyt",
+    "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+    "questionRange": {
+      "first": 21,
+      "last": 25
+    }
+  },
+  "reviewer": "codex-secondary-g",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 21,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 22,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-din-felsefesinin-konusu-ve-sorulari"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-felsefe",
+          "topicId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+        }
+      ],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 23,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 24,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-siyaset-felsefesinin-konusu-ve-problemleri"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 25,
+      "primaryTopicRef": {
+        "subjectId": "tyt-felsefe",
+        "topicId": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-felsefe",
+          "topicId": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+        }
+      ],
+      "status": "classified"
+    }
+  ]
+}

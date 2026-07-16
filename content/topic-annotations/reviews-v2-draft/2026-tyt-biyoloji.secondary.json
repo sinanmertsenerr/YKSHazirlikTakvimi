@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 2,
+  "kind": "topic-review-v2-draft",
+  "examYear": 2026,
+  "examId": "tyt",
+  "sectionId": "fen-bilimleri-biyoloji",
+  "allowedSubjectIds": [
+    "tyt-biyoloji"
+  ],
+  "answerSet": "standard",
+  "alternativeFor": null,
+  "evidenceOnly": false,
+  "officialSource": {
+    "registryId": "2026-tyt",
+    "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347",
+    "questionRange": {
+      "first": 15,
+      "last": 20
+    }
+  },
+  "reviewer": "codex-secondary-g",
+  "reviewedAt": "2026-07-14",
+  "records": [
+    {
+      "officialQuestionNo": 15,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-hucre"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 16,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-canlilarin-yapisinda-bulunan-temel-bilesikler"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 17,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-hucre"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 18,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-mitoz-ve-eseysiz-ureme"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 19,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-kalitim-ve-biyolojik-cesitlilik"
+      },
+      "relatedTopicRefs": [],
+      "status": "classified"
+    },
+    {
+      "officialQuestionNo": 20,
+      "primaryTopicRef": {
+        "subjectId": "tyt-biyoloji",
+        "topicId": "tyt-biyoloji-ekosistem-ekolojisi"
+      },
+      "relatedTopicRefs": [
+        {
+          "subjectId": "tyt-biyoloji",
+          "topicId": "tyt-biyoloji-guncel-cevre-sorunlari-ve-insan"
+        }
+      ],
+      "status": "classified"
+    }
+  ]
+}

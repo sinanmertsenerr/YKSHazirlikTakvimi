@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "authority": "MEB OGM",
+  "observedAt": "2026-07-15",
+  "coverage": {
+    "firstYear": 2018,
+    "lastYear": 2025
+  },
+  "landingPageUrl": "https://ogmmateryal.eba.gov.tr/yks-cikmis-soru-kitaplari",
+  "contentPolicy": {
+    "auditOnly": true,
+    "rawPdfStored": false,
+    "questionTextStored": false,
+    "topicMappingsPublished": false
+  },
+  "sources": [
+    {
+      "sourceId": 176299,
+      "key": "tyt",
+      "titleTr": "TYT Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176299",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176299,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176299",
+        "bookObjectId": "68b4f30ceb079be0e77092c8",
+        "bookTitle": "YKS Çıkmış Sorular - 2018-2025 - TYT",
+        "expectedTestCount": 69,
+        "expectedQuestionCount": 956,
+        "pdfPublicUrl": "https://ogm-small-cdn.eba.gov.tr/ogm-test-images/6a0498c3e7146abee1a581cf/CIKMIS_SORULAR_2018_2025_TYT_1.pdf",
+        "pdfAssociation": "resolver-target-match"
+      },
+      "expected": {
+        "bytes": 35975026,
+        "sha256": "c97dfa21186bcf5dd309cd3fe319d8d2bca6f2110c9652dfedcfb00f511c2545"
+      }
+    },
+    {
+      "sourceId": 176295,
+      "key": "ayt-ea",
+      "titleTr": "AYT Eşit Ağırlık Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176295",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176295,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176295",
+        "bookObjectId": "68b1f111eb079be0e76eac8a",
+        "bookTitle": "YKS Çıkmış Sorular - 2018-2025 - AYT-EA",
+        "expectedTestCount": 56,
+        "expectedQuestionCount": 629,
+        "pdfPublicUrl": "https://ogm-small-cdn.eba.gov.tr/ogm-test-images/6a0a2c63e7146abee1bdbf11/CIKMIS_SORULAR_2018_2025_AYT_EA_1.pdf",
+        "pdfAssociation": "resolver-target-match"
+      },
+      "expected": {
+        "bytes": 23726448,
+        "sha256": "87208a748fcf19a4f5cf33540ef54e6a6e92e6eebe908a8939a3639296181df7"
+      }
+    },
+    {
+      "sourceId": 176296,
+      "key": "ayt-soz",
+      "titleTr": "AYT Sözel Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176296",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176296,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176296",
+        "bookObjectId": "68b232a7eb079be0e76eea43",
+        "bookTitle": "YKS Çıkmış Sorular - 2018-2025 - AYT-SOZ",
+        "expectedTestCount": 88,
+        "expectedQuestionCount": 639,
+        "pdfPublicUrl": "https://ogm-small-cdn.eba.gov.tr/ogm-test-images/6a0a2ddae7146abee1bdc499/CIKMIS_SORULAR_2018_2025_AYT_SOZ_1.pdf",
+        "pdfAssociation": "resolver-target-match"
+      },
+      "expected": {
+        "bytes": 28348993,
+        "sha256": "cd9a46189b3a36b319d1d84d2227db9f95820f631ff643da60e849c1097ef599"
+      }
+    },
+    {
+      "sourceId": 176297,
+      "key": "ayt-say",
+      "titleTr": "AYT Sayısal Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176297",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176297,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176297",
+        "bookObjectId": "68b4ebc4eb079be0e770922c",
+        "bookTitle": "YKS Çıkmış Sorular - 2018-2025 - AYT-SAY",
+        "expectedTestCount": 40,
+        "expectedQuestionCount": 625,
+        "pdfPublicUrl": null,
+        "pdfAssociation": "resolver-authoritative"
+      },
+      "expected": {
+        "bytes": 28708412,
+        "sha256": "6e6b2452e019f72e43a2bf9f2fd4ab018f918ed39d5444fd93d7c73d79b89598"
+      }
+    },
+    {
+      "sourceId": 176294,
+      "key": "tyt-dkab",
+      "titleTr": "TYT Din Kültürü ve Ahlak Bilgisi Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176294",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176294,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176294",
+        "bookObjectId": "68d3a8a1dbcaa9db10a16aa1",
+        "bookTitle": "Din Kültürü ve Ahlâk Bilgisi - Çıkmış Sorular - 2018-2025 - TYT",
+        "expectedTestCount": 15,
+        "expectedQuestionCount": 37,
+        "pdfPublicUrl": null,
+        "pdfAssociation": "resolver-authoritative"
+      },
+      "expected": {
+        "bytes": 15009809,
+        "sha256": "a7cedd03371ee6324a84edf924069d466840a00d7c9aea1d330014299087928c"
+      }
+    },
+    {
+      "sourceId": 176293,
+      "key": "ayt-dkab",
+      "titleTr": "AYT Din Kültürü ve Ahlak Bilgisi Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176293",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176293,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176293",
+        "bookObjectId": "68d39ef3dbcaa9db10a159b4",
+        "bookTitle": "Din Kültürü ve Ahlâk Bilgisi - Çıkmış Sorular - 2018-2025 - AYT-SOZ",
+        "expectedTestCount": 17,
+        "expectedQuestionCount": 48,
+        "pdfPublicUrl": null,
+        "pdfAssociation": "resolver-authoritative"
+      },
+      "expected": {
+        "bytes": 16372848,
+        "sha256": "dd519d7e067332e29447b985e57a69cef551dcb2473dbba76740fc24d005a776"
+      }
+    },
+    {
+      "sourceId": 176298,
+      "key": "ydt",
+      "titleTr": "YDT Çıkmış Sorular (2018-2025)",
+      "status": "included",
+      "resolverUrl": "https://ogmmateryal.eba.gov.tr/pdf-goster/176298",
+      "intendedUse": "topic-label-reference-audit",
+      "api": {
+        "contentId": 176298,
+        "discoveryUrl": "https://ogmmateryal.eba.gov.tr/icerik-goster/176298",
+        "bookObjectId": "68b4cc3beb079be0e7708108",
+        "bookTitle": "YKS Çıkmış Sorular - 2018-2025 - YDT",
+        "expectedTestCount": 12,
+        "expectedQuestionCount": 640,
+        "pdfPublicUrl": "https://ogm-small-cdn.eba.gov.tr/ogm-test-images/68b4cbcdeb079be0e77080c9/CIKMIS_SORULAR_2018_2025_YDT.pdf",
+        "pdfAssociation": "resolver-target-match"
+      },
+      "expected": {
+        "bytes": 14636803,
+        "sha256": "a42d6955f2aecab4ad7d4df3be0b465dc3c99f30686a3838d8abb9aaacc2cf60"
+      }
+    }
+  ]
+}

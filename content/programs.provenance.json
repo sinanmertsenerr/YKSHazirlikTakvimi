@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "authority": "Yükseköğretim Kurulu (YÖK)",
+  "product": "YÖK Atlas",
+  "verifiedAt": "2026-07-16T14:53:45.825Z",
+  "source": {
+    "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
+    "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
+    "detailBaseUrl": "https://yokatlas.yok.gov.tr/detay",
+    "snapshotSource": "snapshot",
+    "snapshotYear": 2025,
+    "spaBundle": {
+      "url": "https://yokatlas.yok.gov.tr/static/js/main.c2960988.js",
+      "sha256": "8790166556afe546f29189069aa04805be5068d05fcb4ef8a6cb2c27c85b8914"
+    }
+  },
+  "selection": {
+    "levels": [
+      {
+        "level": "lisans",
+        "birimTuruId": 46,
+        "scoreTypes": [
+          "SAY",
+          "EA",
+          "SÖZ",
+          "DİL"
+        ]
+      },
+      {
+        "level": "onlisans",
+        "birimTuruId": 47,
+        "scoreTypes": [
+          "TYT"
+        ]
+      }
+    ],
+    "supportedUniversityTypes": [
+      "DEVLET",
+      "VAKIF",
+      "KKTC"
+    ],
+    "localePolicy": "source-only"
+  },
+  "pagination": {
+    "pageSize": 500,
+    "delayMs": 250,
+    "requestCount": 45,
+    "totalsByScoreType": {
+      "SAY": 5653,
+      "EA": 3987,
+      "SÖZ": 1948,
+      "DİL": 677,
+      "TYT": 9337
+    }
+  },
+  "fieldMappings": {
+    "currentYear": {
+      "year": "yil",
+      "quota": "kontenjan",
+      "minScore": "minPuan",
+      "minRank": "basariSirasi"
+    },
+    "historicalYears": [
+      {
+        "offset": -1,
+        "quota": "gk1",
+        "minScore": "minPuan1",
+        "minRank": "basariSirasi1"
+      },
+      {
+        "offset": -2,
+        "quota": "gk2",
+        "minScore": "minPuan2",
+        "minRank": "basariSirasi2"
+      },
+      {
+        "offset": -3,
+        "quota": "gk3",
+        "minScore": "minPuan3",
+        "minRank": "basariSirasi3"
+      }
+    ],
+    "placed": "null — no proven year-by-year placed-count field is imported; values are never inferred",
+    "unsupportedScholarship": "null — source label remains visible in birimAdi and is counted below; no lossy category mapping"
+  },
+  "result": {
+    "receivedRows": 21602,
+    "importedPrograms": 21263,
+    "programYears": 76318,
+    "skippedPrograms": 339,
+    "skippedByUniversityType": {
+      "YURTDISI VAKIF": 41,
+      "YURTDISI KAMU": 117,
+      "VAKIF MYO": 181
+    },
+    "omittedScholarshipLabels": {},
+    "fixtureSha256": "bdf36a2a9f37f48fc7194f18773b4f8eea522a73298307289e1833fd62117a26"
+  }
+}

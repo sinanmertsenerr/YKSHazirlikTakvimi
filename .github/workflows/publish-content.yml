@@ -1,0 +1,513 @@
+name: Publish static content pack
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'scripts/**'
+      - '.github/workflows/publish-content.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+    - cron: '47 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      refresh_programs:
+        description: Refresh the official YÖK Atlas program snapshot
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: content-publish
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Require the default branch
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          [[ "$DEFAULT_BRANCH" == "main" ]] || {
+            echo "This workflow persists generated state only to the main default branch." >&2
+            exit 1
+          }
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || {
+            echo "Refusing to publish or persist state from $GITHUB_REF." >&2
+            exit 1
+          }
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Refresh official YKS calendar
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run sync:calendar
+      - name: Refresh official announcements
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run fetch:news
+      - name: Refresh official YÖK Atlas programs
+        if: github.event.schedule == '47 4 * * 1' || inputs.refresh_programs == true
+        run: npm run import:programs
+
+      - name: Keep program fixture and provenance atomic
+        id: program-state
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_changed=false
+          provenance_only=false
+
+          if ! git diff --quiet -- content/programs.fixture.json; then
+            fixture_changed=true
+            if git diff --quiet -- content/programs.provenance.json; then
+              echo "Program fixture changed without matching provenance." >&2
+              exit 1
+            fi
+          elif ! git diff --quiet -- content/programs.provenance.json; then
+            provenance_only=true
+            mkdir -p tmp/program-provenance-audit
+            cp content/programs.provenance.json tmp/program-provenance-audit/programs.provenance.json
+            git restore --source=HEAD --worktree -- content/programs.provenance.json
+            {
+              echo "### YÖK Atlas provenance-only audit"
+              echo
+              echo "The verified fixture was unchanged; volatile audit provenance was not committed."
+              echo "Artifact SHA-256: $(sha256sum tmp/program-provenance-audit/programs.provenance.json | cut -d' ' -f1)"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "fixture_changed=$fixture_changed" >> "$GITHUB_OUTPUT"
+          echo "provenance_only=$provenance_only" >> "$GITHUB_OUTPUT"
+
+      - name: Upload provenance-only audit evidence
+        if: steps.program-state.outputs.provenance_only == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: programs-provenance-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/program-provenance-audit/programs.provenance.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 14
+
+      - name: Detect generated source mutations
+        id: source-change
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed=false
+          git diff --quiet -- \
+            content/calendar.json \
+            content/news.json \
+            content/manifest.source.json \
+            content/programs.fixture.json \
+            content/programs.provenance.json || changed=true
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - run: npm run validate:pack
+      - name: Require durable human approvals for every published question mapping
+        run: npm run validate:annual-publication
+      - name: Build candidate pack
+        run: npm run build:pack
+      - name: Compare candidate with published content identity
+        id: content-change
+        run: npm run check:pack-change -- --github-output "$GITHUB_OUTPUT"
+
+      - name: Compute candidate UTC pack revision
+        if: steps.content-change.outputs.changed == 'true'
+        id: pack-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          timestamp="$(date -u +'%Y.%m.%d%H%M%S')"
+          printf -v run_suffix '%05d%02d' "$((GITHUB_RUN_NUMBER % 100000))" "$((GITHUB_RUN_ATTEMPT % 100))"
+          echo "value=${timestamp}${run_suffix}" >> "$GITHUB_OUTPUT"
+
+      - name: Persist the content revision in the source manifest
+        shell: bash
+        env:
+          CANDIDATE_VERSION: ${{ steps.pack-version.outputs.value }}
+          CONTENT_CHANGED: ${{ steps.content-change.outputs.changed }}
+          EVENT_NAME: ${{ github.event_name }}
+          REMOTE_VERSION: ${{ steps.content-change.outputs.remote_pack_version }}
+          SOURCE_CHANGED: ${{ steps.source-change.outputs.changed }}
+        run: |
+          set -euo pipefail
+          args=()
+          revision_required=false
+          if [[ "$CONTENT_CHANGED" == "true" ]] && \
+             [[ -n "$REMOTE_VERSION" || "$SOURCE_CHANGED" == "true" || "$EVENT_NAME" == "push" ]]; then
+            revision_required=true
+          fi
+          if [[ "$revision_required" == "true" ]]; then
+            [[ -n "$CANDIDATE_VERSION" ]] || {
+              echo "A changed pack requires a candidate version." >&2
+              exit 1
+            }
+            args+=(--candidate-version "$CANDIDATE_VERSION")
+          fi
+          if [[ -n "$REMOTE_VERSION" ]]; then
+            args+=(--remote-version "$REMOTE_VERSION")
+          fi
+          npm run sync:pack-version -- "${args[@]}"
+
+      - name: Reject tracked mutations outside the generated-state allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs.provenance.json)
+                ;;
+              *)
+                echo "Refusing unexpected generated mutation: $path" >&2
+                exit 1
+                ;;
+            esac
+          done < <(git diff --name-only -z)
+
+      - name: Prepare allowlisted persisted-state artifact
+        shell: bash
+        env:
+          PROGRAM_FIXTURE_CHANGED: ${{ steps.program-state.outputs.fixture_changed }}
+          STATE_DIRECTORY: ${{ runner.temp }}/content-state
+        run: |
+          set -euo pipefail
+          install -d -m 0755 "$STATE_DIRECTORY/content"
+          install -m 0644 content/manifest.source.json "$STATE_DIRECTORY/content/manifest.source.json"
+          install -m 0644 content/calendar.json "$STATE_DIRECTORY/content/calendar.json"
+          install -m 0644 content/news.json "$STATE_DIRECTORY/content/news.json"
+          if [[ "$PROGRAM_FIXTURE_CHANGED" == "true" ]]; then
+            install -m 0644 content/programs.fixture.json "$STATE_DIRECTORY/content/programs.fixture.json"
+            install -m 0644 content/programs.provenance.json "$STATE_DIRECTORY/content/programs.provenance.json"
+          fi
+
+      - name: Upload allowlisted persisted state
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: content-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/content-state
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 1
+
+  persist-state:
+    needs: refresh
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      commit_sha: ${{ steps.persist.outputs.commit_sha }}
+      state_changed: ${{ steps.persist.outputs.state_changed }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Download allowlisted persisted state
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: content-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/persisted-content
+
+      - name: Validate, commit, and push persisted state
+        id: persist
+        shell: bash
+        env:
+          STATE_DIRECTORY: ${{ runner.temp }}/persisted-content
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          remote_head="$(git rev-parse refs/remotes/origin/main)"
+          [[ "$remote_head" == "$GITHUB_SHA" ]] || {
+            echo "main advanced from $GITHUB_SHA to $remote_head; refusing a stale state write." >&2
+            exit 1
+          }
+
+          [[ -d "$STATE_DIRECTORY/content" ]] || {
+            echo "Persisted-state artifact has no content directory." >&2
+            exit 1
+          }
+          unsafe_entry="$(find "$STATE_DIRECTORY" -mindepth 1 \( -type l -o \( ! -type f ! -type d \) \) -print -quit)"
+          [[ -z "$unsafe_entry" ]] || {
+            echo "Persisted-state artifact contains an unsafe entry." >&2
+            exit 1
+          }
+          unexpected_directory="$(find "$STATE_DIRECTORY" -mindepth 1 -type d ! -path "$STATE_DIRECTORY/content" -print -quit)"
+          [[ -z "$unexpected_directory" ]] || {
+            echo "Persisted-state artifact contains an unexpected directory." >&2
+            exit 1
+          }
+
+          manifest_seen=false
+          calendar_seen=false
+          news_seen=false
+          fixture_seen=false
+          provenance_seen=false
+          file_count=0
+          while IFS= read -r -d '' file; do
+            relative="${file#"$STATE_DIRECTORY"/}"
+            case "$relative" in
+              content/manifest.source.json) manifest_seen=true ;;
+              content/calendar.json) calendar_seen=true ;;
+              content/news.json) news_seen=true ;;
+              content/programs.fixture.json) fixture_seen=true ;;
+              content/programs.provenance.json) provenance_seen=true ;;
+              *)
+                echo "Persisted-state artifact contains an unexpected file: $relative" >&2
+                exit 1
+                ;;
+            esac
+            file_count=$((file_count + 1))
+          done < <(find "$STATE_DIRECTORY" -type f -print0)
+
+          [[ "$manifest_seen" == "true" && "$calendar_seen" == "true" && "$news_seen" == "true" ]] || {
+            echo "Persisted-state artifact is missing a required source file." >&2
+            exit 1
+          }
+          [[ "$fixture_seen" == "$provenance_seen" ]] || {
+            echo "Program fixture and provenance must be persisted together." >&2
+            exit 1
+          }
+          if [[ "$fixture_seen" == "true" ]]; then
+            [[ "$file_count" -eq 5 ]] || exit 1
+          else
+            [[ "$file_count" -eq 3 ]] || exit 1
+          fi
+
+          [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/manifest.source.json")" -le 262144 ]]
+          [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/calendar.json")" -le 2097152 ]]
+          [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/news.json")" -le 2097152 ]]
+          if [[ "$fixture_seen" == "true" ]]; then
+            [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/programs.fixture.json")" -le 262144000 ]]
+            [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/programs.provenance.json")" -le 2097152 ]]
+          fi
+          for file in "$STATE_DIRECTORY"/content/*.json; do
+            jq -e 'type == "object"' "$file" >/dev/null
+          done
+
+          install -m 0644 "$STATE_DIRECTORY/content/manifest.source.json" content/manifest.source.json
+          install -m 0644 "$STATE_DIRECTORY/content/calendar.json" content/calendar.json
+          install -m 0644 "$STATE_DIRECTORY/content/news.json" content/news.json
+          if [[ "$fixture_seen" == "true" ]]; then
+            install -m 0644 "$STATE_DIRECTORY/content/programs.fixture.json" content/programs.fixture.json
+            install -m 0644 "$STATE_DIRECTORY/content/programs.provenance.json" content/programs.provenance.json
+          fi
+
+          fixture_changed=false
+          provenance_changed=false
+          git diff --quiet -- content/programs.fixture.json || fixture_changed=true
+          git diff --quiet -- content/programs.provenance.json || provenance_changed=true
+          [[ "$fixture_changed" == "$provenance_changed" ]] || {
+            echo "Program fixture and provenance diff are not atomic." >&2
+            exit 1
+          }
+
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs.provenance.json)
+                ;;
+              *)
+                echo "Refusing unexpected persisted mutation: $path" >&2
+                exit 1
+                ;;
+            esac
+          done < <(git diff --name-only -z)
+
+          if git diff --quiet -- content/calendar.json content/news.json content/manifest.source.json content/programs.fixture.json content/programs.provenance.json; then
+            echo "state_changed=false" >> "$GITHUB_OUTPUT"
+            echo "commit_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git add -- content/calendar.json content/news.json content/manifest.source.json
+          if [[ "$fixture_changed" == "true" ]]; then
+            git add -- content/programs.fixture.json content/programs.provenance.json
+          fi
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore(content): persist verified source refresh [skip ci]'
+
+          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          remote_head="$(git rev-parse refs/remotes/origin/main)"
+          [[ "$remote_head" == "$GITHUB_SHA" ]] || {
+            echo "main advanced before push; refusing a non-fast-forward state write." >&2
+            exit 1
+          }
+          git push origin HEAD:refs/heads/main
+          echo "state_changed=true" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build-pages:
+    needs: persist-state
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      changed: ${{ steps.content-change.outputs.changed }}
+      pack_version: ${{ steps.pack-metadata.outputs.pack_version }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ needs.persist-state.outputs.commit_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:pack
+      - name: Recheck durable annual topic publication ledger
+        run: npm run validate:annual-publication
+      - name: Build persisted candidate pack
+        run: npm run build:pack
+      - name: Read candidate pack metadata
+        id: pack-metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "pack_version=$(jq -r '.packVersion' assets/pack/manifest.json)" >> "$GITHUB_OUTPUT"
+      - name: Compare persisted candidate with published content identity
+        id: content-change
+        run: npm run check:pack-change -- --github-output "$GITHUB_OUTPUT"
+      - name: Require a newer revision before replacing published content
+        if: steps.content-change.outputs.changed == 'true' && steps.content-change.outputs.remote_pack_version != ''
+        env:
+          REMOTE_VERSION: ${{ steps.content-change.outputs.remote_pack_version }}
+        run: npm run sync:pack-version -- --verify-newer-than "$REMOTE_VERSION"
+      - name: Prepare Pages artifact
+        if: steps.content-change.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ ! -e public ]] || {
+            echo "Refusing to merge generated pack files into an existing public directory." >&2
+            exit 1
+          }
+          install -d -m 0755 public/pack
+          cp -R assets/pack/. public/pack/
+          touch public/.nojekyll
+      - name: Upload Pages artifact
+        if: steps.content-change.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: public
+
+  deploy:
+    needs: build-pages
+    if: needs.build-pages.outputs.changed == 'true'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Deploy persisted content pack
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+      - name: Verify the deployed pack byte-for-byte
+        shell: bash
+        env:
+          EXPECTED_PACK_VERSION: ${{ needs.build-pages.outputs.pack_version }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          pack_base="${PAGE_URL%/}/pack"
+          work_directory="$(mktemp -d)"
+          trap 'rm -rf "$work_directory"' EXIT
+
+          manifest="$work_directory/manifest.json"
+          for attempt in $(seq 1 18); do
+            if curl --fail --silent --show-error --location \
+              --header 'accept: application/json' \
+              --header 'cache-control: no-cache' \
+              "$pack_base/manifest.json" \
+              --output "$manifest" &&
+              jq -e --arg expected "$EXPECTED_PACK_VERSION" '
+                .schemaVersion == 3 and
+                .packVersion == $expected and
+                (.files | type == "object" and length == 8)
+              ' "$manifest" >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" -eq 18 ]]; then
+              echo "Deployed manifest did not expose expected pack $EXPECTED_PACK_VERSION." >&2
+              exit 1
+            fi
+            sleep 10
+          done
+
+          while IFS=$'\t' read -r path expected_bytes expected_sha; do
+            [[ "$path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {
+              echo "Unsafe deployed pack path: $path" >&2
+              exit 1
+            }
+            output="$work_directory/$path"
+            curl --fail --silent --show-error --location \
+              --header 'cache-control: no-cache' \
+              "$pack_base/$path" \
+              --output "$output"
+            [[ "$(stat -c '%s' "$output")" == "$expected_bytes" ]] || {
+              echo "Deployed size mismatch for $path." >&2
+              exit 1
+            }
+            [[ "$(sha256sum "$output" | cut -d' ' -f1)" == "$expected_sha" ]] || {
+              echo "Deployed SHA-256 mismatch for $path." >&2
+              exit 1
+            }
+          done < <(
+            jq -r '.files | to_entries[] | [.value.path, .value.bytes, .value.sha256] | @tsv' \
+              "$manifest"
+          )
+
+  notify-refresh-failure:
+    needs: refresh
+    if: ${{ always() && needs.refresh.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Resmî kaynak yenileme başarısız: içerik paketi haftalık güncellemesi'
+      body: >-
+        Haftalık içerik yenileme işi (YÖK Atlas programları / takvim / haberler) başarısız oldu.
+        İş günlüğünü inceleyin; kaynak tarafında yapısal değişiklik olabilir.
+
+  notify-deploy-failure:
+    needs: deploy
+    if: ${{ always() && needs.deploy.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'İçerik paketi GitHub Pages dağıtımı doğrulanamadı'
+      body: >-
+        Pages dağıtımı veya dağıtım sonrası byte/hash smoke testi başarısız oldu.
+        Publish static content pack iş günlüğünü ve Pages ortamını inceleyin.

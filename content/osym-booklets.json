@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 2,
+  "authority": "ÖSYM",
+  "coverage": {
+    "firstYear": 2018,
+    "lastYear": 2026,
+    "sessions": ["tyt", "ayt"]
+  },
+  "contentPolicy": {
+    "questionTextStored": false,
+    "questionImagesStored": false,
+    "topicMappingsIncluded": false
+  },
+  "sessionStructures": {
+    "tyt": {
+      "questionsToAnswer": 120,
+      "questionsPrinted": 125,
+      "sections": [
+        { "id": "turkce", "questionsToAnswer": 40, "questionsPrinted": 40 },
+        { "id": "sosyal-bilimler", "questionsToAnswer": 20, "questionsPrinted": 25 },
+        { "id": "temel-matematik", "questionsToAnswer": 40, "questionsPrinted": 40 },
+        { "id": "fen-bilimleri", "questionsToAnswer": 20, "questionsPrinted": 20 }
+      ]
+    },
+    "ayt": {
+      "questionsToAnswer": 160,
+      "questionsPrinted": 166,
+      "sections": [
+        {
+          "id": "turk-dili-ve-edebiyati-sosyal-bilimler-1",
+          "questionsToAnswer": 40,
+          "questionsPrinted": 40
+        },
+        { "id": "sosyal-bilimler-2", "questionsToAnswer": 40, "questionsPrinted": 46 },
+        { "id": "matematik", "questionsToAnswer": 40, "questionsPrinted": 40 },
+        { "id": "fen-bilimleri", "questionsToAnswer": 40, "questionsPrinted": 40 }
+      ]
+    }
+  },
+  "questionBlockProfiles": {
+    "tyt": {
+      "verificationMethod": "official-booklet-headers",
+      "verifiedAt": "2026-07-14",
+      "verifiedBookletIds": [
+        "2018-tyt",
+        "2019-tyt",
+        "2020-tyt",
+        "2021-tyt",
+        "2022-tyt",
+        "2023-tyt",
+        "2024-tyt",
+        "2025-tyt",
+        "2026-tyt"
+      ],
+      "questionBlocks": [
+        {
+          "id": "tyt-turkce-default",
+          "sectionId": "tyt-turkce",
+          "bookletSectionId": "turkce",
+          "officialQuestionRange": { "first": 1, "last": 40 },
+          "subjectIds": ["tyt-turkce"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-sosyal-tarih-default",
+          "sectionId": "tyt-sosyal",
+          "bookletSectionId": "sosyal-bilimler",
+          "officialQuestionRange": { "first": 1, "last": 5 },
+          "subjectIds": ["tyt-tarih"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-sosyal-cografya-default",
+          "sectionId": "tyt-sosyal",
+          "bookletSectionId": "sosyal-bilimler",
+          "officialQuestionRange": { "first": 6, "last": 10 },
+          "subjectIds": ["tyt-cografya"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-sosyal-felsefe-default",
+          "sectionId": "tyt-sosyal",
+          "bookletSectionId": "sosyal-bilimler",
+          "officialQuestionRange": { "first": 11, "last": 15 },
+          "subjectIds": ["tyt-felsefe"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-sosyal-din-default",
+          "sectionId": "tyt-sosyal",
+          "bookletSectionId": "sosyal-bilimler",
+          "officialQuestionRange": { "first": 16, "last": 20 },
+          "subjectIds": ["tyt-din-kulturu"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-sosyal-felsefe-no-dkab",
+          "sectionId": "tyt-sosyal",
+          "bookletSectionId": "sosyal-bilimler",
+          "officialQuestionRange": { "first": 21, "last": 25 },
+          "subjectIds": ["tyt-felsefe"],
+          "answerSetId": "no-dkab",
+          "alternativeForSubjectId": "tyt-din-kulturu",
+          "countsTowardDefaultStats": false
+        },
+        {
+          "id": "tyt-temel-matematik-default",
+          "sectionId": "tyt-matematik",
+          "bookletSectionId": "temel-matematik",
+          "officialQuestionRange": { "first": 1, "last": 40 },
+          "subjectIds": ["tyt-matematik", "tyt-geometri"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-fen-fizik-default",
+          "sectionId": "tyt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 1, "last": 7 },
+          "subjectIds": ["tyt-fizik"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-fen-kimya-default",
+          "sectionId": "tyt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 8, "last": 14 },
+          "subjectIds": ["tyt-kimya"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "tyt-fen-biyoloji-default",
+          "sectionId": "tyt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 15, "last": 20 },
+          "subjectIds": ["tyt-biyoloji"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        }
+      ]
+    },
+    "ayt": {
+      "verificationMethod": "official-booklet-headers",
+      "verifiedAt": "2026-07-14",
+      "verifiedBookletIds": [
+        "2018-ayt",
+        "2019-ayt",
+        "2020-ayt",
+        "2021-ayt",
+        "2022-ayt",
+        "2023-ayt",
+        "2024-ayt",
+        "2025-ayt",
+        "2026-ayt"
+      ],
+      "questionBlocks": [
+        {
+          "id": "ayt-edebiyat-default",
+          "sectionId": "ayt-edebiyat-sosyal-1",
+          "bookletSectionId": "turk-dili-ve-edebiyati-sosyal-bilimler-1",
+          "officialQuestionRange": { "first": 1, "last": 24 },
+          "subjectIds": ["ayt-edebiyat"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-tarih-1-default",
+          "sectionId": "ayt-edebiyat-sosyal-1",
+          "bookletSectionId": "turk-dili-ve-edebiyati-sosyal-bilimler-1",
+          "officialQuestionRange": { "first": 25, "last": 34 },
+          "subjectIds": ["ayt-tarih-1"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-cografya-1-default",
+          "sectionId": "ayt-edebiyat-sosyal-1",
+          "bookletSectionId": "turk-dili-ve-edebiyati-sosyal-bilimler-1",
+          "officialQuestionRange": { "first": 35, "last": 40 },
+          "subjectIds": ["ayt-cografya-1"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-sosyal-2-tarih-default",
+          "sectionId": "ayt-sosyal-2",
+          "bookletSectionId": "sosyal-bilimler-2",
+          "officialQuestionRange": { "first": 1, "last": 11 },
+          "subjectIds": ["ayt-tarih-2"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-sosyal-2-cografya-default",
+          "sectionId": "ayt-sosyal-2",
+          "bookletSectionId": "sosyal-bilimler-2",
+          "officialQuestionRange": { "first": 12, "last": 22 },
+          "subjectIds": ["ayt-cografya-2"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-sosyal-2-felsefe-default",
+          "sectionId": "ayt-sosyal-2",
+          "bookletSectionId": "sosyal-bilimler-2",
+          "officialQuestionRange": { "first": 23, "last": 34 },
+          "subjectIds": ["ayt-felsefe-grubu"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-sosyal-2-din-default",
+          "sectionId": "ayt-sosyal-2",
+          "bookletSectionId": "sosyal-bilimler-2",
+          "officialQuestionRange": { "first": 35, "last": 40 },
+          "subjectIds": ["ayt-din-kulturu"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-sosyal-2-felsefe-no-dkab",
+          "sectionId": "ayt-sosyal-2",
+          "bookletSectionId": "sosyal-bilimler-2",
+          "officialQuestionRange": { "first": 41, "last": 46 },
+          "subjectIds": ["ayt-felsefe-grubu"],
+          "answerSetId": "no-dkab",
+          "alternativeForSubjectId": "ayt-din-kulturu",
+          "countsTowardDefaultStats": false
+        },
+        {
+          "id": "ayt-matematik-default",
+          "sectionId": "ayt-matematik",
+          "bookletSectionId": "matematik",
+          "officialQuestionRange": { "first": 1, "last": 40 },
+          "subjectIds": ["ayt-matematik", "ayt-geometri"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-fen-fizik-default",
+          "sectionId": "ayt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 1, "last": 14 },
+          "subjectIds": ["ayt-fizik"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-fen-kimya-default",
+          "sectionId": "ayt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 15, "last": 27 },
+          "subjectIds": ["ayt-kimya"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        },
+        {
+          "id": "ayt-fen-biyoloji-default",
+          "sectionId": "ayt-fen",
+          "bookletSectionId": "fen-bilimleri",
+          "officialQuestionRange": { "first": 28, "last": 40 },
+          "subjectIds": ["ayt-biyoloji"],
+          "answerSetId": "default",
+          "alternativeForSubjectId": null,
+          "countsTowardDefaultStats": true
+        }
+      ]
+    }
+  },
+  "booklets": [
+    {
+      "year": 2018,
+      "session": "tyt",
+      "examDate": "2018-06-30",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C15133/2018-yks-tyt-ve-ayt-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-1072018.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2018/YKS/TYT_01072018.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2957765,
+      "sha256": "e6ba4a863d26ecfb1461a2c65cca19bbc3c5c28b230b30fa0c5ac1f8c3df1d0b"
+    },
+    {
+      "year": 2018,
+      "session": "ayt",
+      "examDate": "2018-07-01",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C15133/2018-yks-tyt-ve-ayt-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-1072018.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2018/YKS/AYT_01072018.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 4446037,
+      "sha256": "67d52ea48b59ab3bc7bc26f448e6aa6ff6fc234a0f431206810557101f3bead7"
+    },
+    {
+      "year": 2019,
+      "session": "tyt",
+      "examDate": "2019-06-15",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C16792/2019-yuksekogretim-kurumlari-sinavi-2019-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-16062019.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2019/YKS/TSK/tyt_yks_2019_web.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2579091,
+      "sha256": "e6c3e63b42aa50a2eb1358f6a3dad83db289e5670a83d0dad9c1a38cdfce98e5"
+    },
+    {
+      "year": 2019,
+      "session": "ayt",
+      "examDate": "2019-06-16",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C16792/2019-yuksekogretim-kurumlari-sinavi-2019-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-16062019.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2019/YKS/TSK/ayt_yks_2019_web.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2667257,
+      "sha256": "afd69553835bc01def6dcb19092e04f61b17806c90364907d89dc777389663b7"
+    },
+    {
+      "year": 2020,
+      "session": "tyt",
+      "examDate": "2020-06-27",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C19373/2020-yuksekogretim-kurumlari-sinavi-2020-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-28062020.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2020/YKS/TSK/tyt_yks_2020.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2757423,
+      "sha256": "cb221da0c0e474d1958426635c1a607349a4b76a27e27f0b0ea69528c857883d"
+    },
+    {
+      "year": 2020,
+      "session": "ayt",
+      "examDate": "2020-06-28",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C19373/2020-yuksekogretim-kurumlari-sinavi-2020-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-28062020.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2020/YKS/TSK/ayt_yks_2020.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 1670470,
+      "sha256": "b52b16f78038adb24e75b2c3f978488fade964b956dd6c48fc703c8bcd442d0d"
+    },
+    {
+      "year": 2021,
+      "session": "tyt",
+      "examDate": "2021-06-26",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C21184/2021-yuksekogretim-kurumlari-sinavi-2021-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-27062021.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2021/YKS/TSK/tyt_yks_2021.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 4390618,
+      "sha256": "c9220ca9ffdee89ba220bf3cdd3f34ce02f8c0e2b1a3a20b42d7ff810f73d95b"
+    },
+    {
+      "year": 2021,
+      "session": "ayt",
+      "examDate": "2021-06-27",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C21184/2021-yuksekogretim-kurumlari-sinavi-2021-yks-oturumlari-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-27062021.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2021/YKS/TSK/ayt_yks_2021.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3583105,
+      "sha256": "9d8cb3953aa3274e05bbd46fdb85f9060ae63f3ef76143765593764f5ccc0ede"
+    },
+    {
+      "year": 2022,
+      "session": "tyt",
+      "examDate": "2022-06-18",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C23824/2022-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2022/YKS/TSK/yks_2022_tyt.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2435504,
+      "sha256": "52dcd45bdcc11b9ce170f473b1a9a73a7fbe3c025cba74cbd5a3ccb99a1384cf"
+    },
+    {
+      "year": 2022,
+      "session": "ayt",
+      "examDate": "2022-06-19",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C23824/2022-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2022/YKS/TSK/yks_2022_ayt.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3314127,
+      "sha256": "632e68e34ab2d07aa947a5a56413021659773905d95a63dd9fb50833ad8066e5"
+    },
+    {
+      "year": 2023,
+      "session": "tyt",
+      "examDate": "2023-06-17",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C25588/2023-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2023/YKS/TSK/yks_tyt_2023_kitapcik_T23ky.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3217472,
+      "sha256": "0dc9541d881211c8fa0b27524a061b37e61838c13d3f7bf4feceee549e45d1ff"
+    },
+    {
+      "year": 2023,
+      "session": "ayt",
+      "examDate": "2023-06-18",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C25588/2023-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2023/YKS/TSK/yks_ayt_2023_kitapcik_g5A2H.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3932021,
+      "sha256": "48c8106ad2f67f0dbef099a48aa7364f4708c52ef62497365c6d1c821e2c07c2"
+    },
+    {
+      "year": 2024,
+      "session": "tyt",
+      "examDate": "2024-06-08",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C29436/2024-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2024/YKS/TSK/yks_tyt_2024_kitapcik_T24kt.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 5439411,
+      "sha256": "5b517eba3f596ed1e9d2073e84023696c40a1f6a2347d7db0aa8c20ece63b64e"
+    },
+    {
+      "year": 2024,
+      "session": "ayt",
+      "examDate": "2024-06-09",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C29436/2024-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2024/YKS/TSK/yks_ayt_2024_kitapcik_ts85k.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 4390291,
+      "sha256": "6c6d14a245c13fd28f9461845e0d9d375709ed6dcbc9dfb10a2db3219742393b"
+    },
+    {
+      "year": 2025,
+      "session": "tyt",
+      "examDate": "2025-06-21",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C33280/2025-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2025/YKS/TSK/yks_tyt_2025_kitapcik_d250.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3416251,
+      "sha256": "f14164d59354dc92098b3c1722e44380b1465e6ebbef7bcaed1c0cbd8e15a1b9"
+    },
+    {
+      "year": 2025,
+      "session": "ayt",
+      "examDate": "2025-06-22",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C33280/2025-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://dokuman.osym.gov.tr/pdfdokuman/2025/YKS/TSK/yks_ayt_2025_kitapcik_st12.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 3964264,
+      "sha256": "2534d350a418fc62327cb8f08b2a2f9a50bc2fcc790a1e80e2c5eb96ef48df37"
+    },
+    {
+      "year": 2026,
+      "session": "tyt",
+      "examDate": "2026-06-20",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C34130/2026-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_tyt_2026_kitapcik_d350.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 2830472,
+      "sha256": "5216b6fa034f6a50258670527f78f636b1d783b0b8530aee23bf7f7384594347"
+    },
+    {
+      "year": 2026,
+      "session": "ayt",
+      "examDate": "2026-06-21",
+      "releasePageUrl": "https://www.osym.gov.tr/TR%2C34130/2026-yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari.html",
+      "pdfUrl": "https://cdn.osym.gov.tr/pdfdokuman/2026/YKS/TSK/yks_ayt_2026_kitapcik_kt12.pdf",
+      "verifiedAt": "2026-07-14",
+      "bytes": 4264722,
+      "sha256": "3e85eed4978afc62dd5f38ffa079e06aa90cf951af05d0f1183f6acbbab9a026"
+    }
+  ]
+}

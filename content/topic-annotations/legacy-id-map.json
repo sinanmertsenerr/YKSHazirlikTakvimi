@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "purpose": "2026 inceleme korpusundaki eski (MEB-öncesi) konu kimliklerini resmî MEB taksonomisine bağlayan gözden geçirilebilir eşleme. Katlanan (N:1) ve incelen (1:N'de tekil temsilci) kararlar editoryaldir ve nottadır; soru bazlı kesinleştirme bir sonraki inceleme dalgasının işidir.",
+  "subjectNotes": {
+    "tyt-turkce": "Q20 kararı: paragraf-yapi → PARAGRAFIN YAPISI; diğer dört paragraf alt konusu MEB'de PARAGRAFTA ANLAM'a katlanır. Karşılaştırmadaki Q20 ihtilafı (yapı vs anlam) korunur; hakem görüşü (yardımcı düşünce) PARAGRAFTA ANLAM'a düştüğünden üç-yönlü değerlendirmede yeni takside 2/3 çoğunluk oluşur — bu kabalaşmanın belgelenmiş sonucudur, otomatik bir kaza değildir.",
+    "ayt-fizik": "atislar→iki-boyutta-hareket (MEB'de atış hareketleri bu grupta); elektrik-alan-ve-potansiyel→elektriksel-potansiyel (Q5 ihtilafı sığa grubuyla ayrık kalır); modern-fizik ve teknoloji-uygulamalari MEB'de çok gruba incelir, en temsili tekil hedef seçildi.",
+    "tyt-matematik": "Tüm problemler-* alt konuları MEB'in tek 'Denklemler ve Eşitsizlikler ile İlgili Uygulamalar' grubuna katlanır; köklü/üslü tek grupta; mutlak değer birinci dereceden denklemler ünitesindedir.",
+    "tyt-geometri": "Yeni kimlikler MEB tablosu gereği tyt-matematik-* öneklidir (geometri satırları Matematik tablosunda basılır)."
+  },
+  "subjects": {
+    "tyt-turkce": {
+      "cumlede-anlam": "tyt-turkce-cumlede-anlam",
+      "cumlenin-ogeleri": "tyt-turkce-cumlenin-ogeleri",
+      "fiilimsi": "tyt-turkce-filler",
+      "noktalama-isaretleri": "tyt-turkce-noktalama-isaretleri",
+      "paragraf-anlatim-teknikleri": "tyt-turkce-paragrafta-anlam",
+      "paragraf-dusunceyi-gelistirme-yollari": "tyt-turkce-paragrafta-anlam",
+      "paragraf-konu-ana-dusunce": "tyt-turkce-paragrafta-anlam",
+      "paragraf-yapi": "tyt-turkce-paragrafin-yapisi",
+      "paragraf-yardimci-dusunce": "tyt-turkce-paragrafta-anlam",
+      "soz-yorumu": "tyt-turkce-sozcukte-anlam",
+      "sozcukte-anlam": "tyt-turkce-sozcukte-anlam",
+      "sozcukte-yapi-ve-ekler": "tyt-turkce-bicim-bilgisi",
+      "yazim-kurallari": "tyt-turkce-yazim-kurallari"
+    },
+    "tyt-tarih": {
+      "ilk-turk-islam-devletleri": "tyt-tarih-turklerin-islamiyet-i-kabulu",
+      "ilk-ve-orta-caglarda-turk-dunyasi": "tyt-tarih-boylardan-devlete",
+      "milli-mucadele": "tyt-tarih-milli-mucadele-ye-hazirlik-donemi",
+      "osmanli-merkez-teskilati-ve-toplum-duzeni": "tyt-tarih-tek-hanedan-anlayisi-ve-gelenekler-isiginda-devlet-idarecisi"
+    },
+    "tyt-cografya": {
+      "bolgeler-ve-ulkeler": "tyt-cografya-bolgeler",
+      "dogal-afetler": "tyt-cografya-afetler",
+      "ic-ve-dis-kuvvetler": "tyt-cografya-dunya-nin-yapisi-ve-olusum-sureci",
+      "iklim-tipleri": "tyt-cografya-atmosfer-ve-iklim-bilgisi",
+      "nufus-ve-goc": "tyt-cografya-nufus-ve-goc"
+    },
+    "tyt-felsefe": {
+      "ahlak-felsefesi": "tyt-felsefe-ahlak-felsefesinin-konusu-ve-temel-kavramlari",
+      "bilgi-felsefesi": "tyt-felsefe-bilgi-felsefesinin-konusu-ve-bilginin-imkani-problemi",
+      "din-felsefesi": "tyt-felsefe-din-felsefesinin-konusu-ve-sorulari",
+      "felsefeyi-tanima": "tyt-felsefe-felsefenin-anlami",
+      "siyaset-felsefesi": "tyt-felsefe-siyaset-felsefesinin-konusu-ve-problemleri",
+      "varlik-felsefesi": "tyt-felsefe-varlik-felsefesinin-konusu-ve-problemleri"
+    },
+    "tyt-din-kulturu": {
+      "bilgi-ve-inanc": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-islam-da-bilgi-kaynaklari",
+      "din-ve-hayat": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-din-ve-sosyal-degisim",
+      "hz-muhammed": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-hz-muhammed-in-sahsiyeti",
+      "islam-dusuncesinde-yorumlar": "tyt-dkab-din-kulturu-ve-ahlak-bilgisi-dini-yorum-farkliliklarinin-sebepleri"
+    },
+    "tyt-matematik": {
+      "bolme-ve-bolunebilme": "tyt-matematik-bolunebilme-kurallari",
+      "carpanlara-ayirma": "tyt-matematik-polinom-kavrami-ve-polinomlarda-islemler-polinomlarin-carpanlara-ayrilmasi",
+      "denklem-cozme": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler",
+      "fonksiyonlar": "tyt-matematik-fonksiyon-kavrami-ve-gosterimi-iki-fonksiyonun-bileskesi-ve-bir-fonksiyonun-tersi",
+      "koklu-sayilar": "tyt-matematik-uslu-ifadeler-ve-denklemler",
+      "kumeler": "tyt-matematik-kumelerde-temel-kavramlar-kumelerde-islemler",
+      "mantik": "tyt-matematik-onermeler-ve-bilesik-onermeler-niceleyiciler-tanim-aksiyom-teorem-ve-ispat-yontemleri",
+      "mutlak-deger": "tyt-matematik-birinci-dereceden-denklemler-ve-esitsizlikler",
+      "olasilik": "tyt-matematik-basit-olaylarin-olasiliklari",
+      "oran-oranti": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "permutasyon-kombinasyon": "tyt-matematik-siralama-ve-secme",
+      "problemler-grafik": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "problemler-hiz": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "problemler-kesir": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "problemler-rutin-olmayan": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "problemler-yas": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "problemler-yuzde": "tyt-matematik-denklemler-ve-esitsizlikler-ile-ilgili-uygulamalar",
+      "rasyonel-sayilar": "tyt-matematik-sayi-kumeleri",
+      "sayi-basamaklari": "tyt-matematik-sayi-kumeleri",
+      "uslu-sayilar": "tyt-matematik-uslu-ifadeler-ve-denklemler",
+      "veri-istatistik": "tyt-matematik-merkezi-egilim-ve-yayilim-olculeri-verilerin-grafikle-gosterilmesi"
+    },
+    "tyt-geometri": {
+      "aci-kenar-bagintilari": "tyt-matematik-ucgenlerde-temel-kavramlar",
+      "benzerlik": "tyt-matematik-ucgenlerde-eslik-ve-benzerlik",
+      "cokgenler": "tyt-matematik-cokgenler-dortgenler-ve-ozellikleri",
+      "dortgenler-deltoid": "tyt-matematik-ozel-dortgenler",
+      "dortgenler-dikdortgen": "tyt-matematik-ozel-dortgenler",
+      "dortgenler-kare": "tyt-matematik-ozel-dortgenler",
+      "dortgenler-yamuk": "tyt-matematik-ozel-dortgenler",
+      "kati-cisimler-prizma": "tyt-matematik-kati-cisimler",
+      "ozel-ucgenler": "tyt-matematik-dik-ucgen-ve-trigonometri",
+      "ucgende-acilar": "tyt-matematik-ucgenlerde-temel-kavramlar",
+      "ucgende-alan": "tyt-matematik-ucgenin-alani-ucgenin-alani-ile-ilgili-uygulamalar"
+    },
+    "tyt-fizik": {
+      "dalgalar": "tyt-fizik-dalgalar",
+      "elektrostatik": "tyt-fizik-elektrik-yukleri",
+      "hareket-ve-kuvvet": "tyt-fizik-hareket",
+      "isi-sicaklik-ve-genlesme": "tyt-fizik-isi-ve-sicaklik",
+      "kaldirma-kuvveti": "tyt-fizik-kaldirma-kuvveti",
+      "madde-ve-ozellikleri": "tyt-fizik-madde-ve-ozkutle",
+      "optik": "tyt-fizik-aydinlanma"
+    },
+    "tyt-kimya": {
+      "asit-baz-tuz": "tyt-kimya-asitler-ve-bazlar",
+      "atom-ve-periyodik-sistem": "tyt-kimya-periyodik-sistem",
+      "karisimlar": "tyt-kimya-homojen-ve-heterojen-karisimlar",
+      "kimyasal-hesaplamalar-mol": "tyt-kimya-mol-kavrami",
+      "kimyasal-turler-arasi-etkilesimler": "tyt-kimya-guclu-etkilesimler",
+      "maddenin-halleri": "tyt-kimya-sivilar"
+    },
+    "tyt-biyoloji": {
+      "canlilarin-temel-bilesenleri": "tyt-biyoloji-canlilarin-yapisinda-bulunan-temel-bilesikler",
+      "ekosistem-ekolojisi": "tyt-biyoloji-ekosistem-ekolojisi",
+      "guncel-cevre-sorunlari": "tyt-biyoloji-guncel-cevre-sorunlari-ve-insan",
+      "hucre-bolunmeleri-mitoz-mayoz": "tyt-biyoloji-mitoz-ve-eseysiz-ureme",
+      "hucre-ve-organeller": "tyt-biyoloji-hucre",
+      "kalitim": "tyt-biyoloji-kalitim-ve-biyolojik-cesitlilik",
+      "madde-gecisleri": "tyt-biyoloji-hucre"
+    },
+    "ayt-edebiyat": {
+      "ayt-anlam-bilgisi": "ayt-ea-turk-dili-ve-edebiyati-sozcukte-anlam",
+      "ayt-cumhuriyet-ogretici-metinler": "ayt-ea-turk-dili-ve-edebiyati-cumhuriyet-donemi-turk-edebiyati",
+      "ayt-cumhuriyet-siir": "ayt-ea-turk-dili-ve-edebiyati-cumhuriyet-donemi-turk-edebiyati",
+      "ayt-cumhuriyet-tiyatro": "ayt-ea-turk-dili-ve-edebiyati-cumhuriyet-donemi-turk-edebiyati",
+      "ayt-divan-edebiyati": "ayt-ea-turk-dili-ve-edebiyati-divan-edebiyati",
+      "ayt-edebi-sanatlar": "ayt-ea-turk-dili-ve-edebiyati-soz-sanatlari",
+      "ayt-edebiyat-akimlari": "ayt-ea-turk-dili-ve-edebiyati-edebi-akimlar",
+      "ayt-halk-edebiyati-anonim": "ayt-ea-turk-dili-ve-edebiyati-halk-edebiyati",
+      "ayt-islamiyet-oncesi-turk-edebiyati-ve-gecis-donemi": "ayt-ea-turk-dili-ve-edebiyati-islamiyet-oncesi-turk-edebiyati-gecis-donemi-turk-edebiyati",
+      "ayt-milli-edebiyat": "ayt-ea-turk-dili-ve-edebiyati-milli-edebiyat-donemi-turk-edebiyati",
+      "ayt-servetifunun": "ayt-ea-turk-dili-ve-edebiyati-servetifunun-donemi-turk-edebiyati-fecriati-donemi-turk-edebiyati",
+      "ayt-siir-bilgisi-nazim-bicimi": "ayt-ea-turk-dili-ve-edebiyati-siir-bilgisi",
+      "ayt-siir-bilgisi-uyak": "ayt-ea-turk-dili-ve-edebiyati-siir-bilgisi",
+      "ayt-tanzimat": "ayt-ea-turk-dili-ve-edebiyati-tanzimat-donemi-turk-edebiyati"
+    },
+    "ayt-fizik": {
+      "ayt-atislar": "ayt-say-fizik-iki-boyutta-hareket",
+      "ayt-atom-fizigi-ve-radyoaktivite": "ayt-say-fizik-radyoaktivite",
+      "ayt-bagil-hareket": "ayt-say-fizik-bagil-hareket",
+      "ayt-basit-harmonik-hareket": "ayt-say-fizik-basit-harmonik-hareket",
+      "ayt-cembersel-hareket": "ayt-say-fizik-duzgun-cembersel-hareket",
+      "ayt-dalga-mekanigi": "ayt-say-fizik-dalgalarda-kirinim-girisim-ve-doppler-olayi",
+      "ayt-elektrik-alan-ve-potansiyel": "ayt-say-fizik-elektriksel-potansiyel",
+      "ayt-induksiyon-ve-alternatif-akim": "ayt-say-fizik-manyetizma-ve-elektromanyetik-induklenme",
+      "ayt-is-guc-enerji-ii": "ayt-say-fizik-enerji-ve-hareket",
+      "ayt-kuvvet-tork-denge": "ayt-say-fizik-tork",
+      "ayt-modern-fizigin-teknolojideki-uygulamalari": "ayt-say-fizik-goruntuleme-teknolojileri",
+      "ayt-modern-fizik": "ayt-say-fizik-fotoelektrik-olayi",
+      "ayt-paralel-levhalar-ve-siga": "ayt-say-fizik-duzgun-elektrik-alan-ve-siga"
+    },
+    "ayt-tarih-2": {
+      "ayt-tarih-2-ataturkculuk-ve-turk-inkilabi": "ayt-soz-tarih-2-ataturk-ilkeleri",
+      "ayt-tarih-2-beylikten-devlete-osmanli": "ayt-soz-tarih-2-osmanli-devleti-nin-rumeli-deki-iskan-ve-istimalet-politikasi",
+      "ayt-tarih-2-degisen-dunya-dengeleri-ve-osmanli": "ayt-soz-tarih-2-avrupa-da-degisim-cagi",
+      "ayt-tarih-2-ikinci-dunya-savasi": "ayt-soz-tarih-2-ii-dunya-savasi",
+      "ayt-tarih-2-ilk-ve-orta-caglarda-turk-dunyasi": "ayt-soz-tarih-2-boylardan-devlete",
+      "ayt-tarih-2-milli-mucadele": "ayt-soz-tarih-2-milli-mucadele-ye-hazirlik-donemi",
+      "ayt-tarih-2-selcuklu-turkiyesi": "ayt-soz-tarih-2-anadolu-da-turk-siyasi-birligini-saglama-cabalari",
+      "ayt-tarih-2-tarih-ve-zaman": "ayt-soz-tarih-2-insanligin-hafizasi-tarih",
+      "ayt-tarih-2-uluslararasi-iliskilerde-denge": "ayt-soz-tarih-2-uzun-savaslardan-diplomasiye",
+      "ayt-tarih-2-yirminci-yuzyil-basinda-osmanli-ve-dunya": "ayt-soz-tarih-2-20-yuzyil-baslarinda-osmanli-devleti"
+    }
+  }
+}

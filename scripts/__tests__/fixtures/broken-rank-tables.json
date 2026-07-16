@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "examYear": 2026,
+  "availability": "unavailable",
+  "officialResultsDate": "2026-07-22",
+  "tables": [
+    {
+      "scoreType": "tyt",
+      "points": [{ "score": 500, "rank": 1 }]
+    }
+  ],
+  "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1",
+  "verifiedAt": "2026-07-14T20:04:17Z",
+  "reason": {
+    "tr": "Sentetik nokta yasaktır.",
+    "en": "Synthetic points are forbidden."
+  }
+}
