@@ -7,12 +7,7 @@ import { AppState, Platform, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import i18n, { resolveLanguage } from '@/i18n';
-import {
-  calendarPack,
-  initializeActiveContent,
-  reloadActiveContent,
-  useContentRevisionStore,
-} from '@/data/content';
+import { calendarPack, reloadActiveContent, useContentRevisionStore } from '@/data/content';
 import { checkForPackUpdate } from '@/data/packUpdater';
 import { resolveExamYear } from '@/features/calendar/examYear';
 import { AppDataProvider } from '@/providers/AppDataProvider';
@@ -22,6 +17,7 @@ import {
 } from '@/services/notifications';
 import { useSettingsStore } from '@/stores/settings';
 import { useTheme } from '@/theme/useTheme';
+import { logStartupOutcome, withStartupPhase } from '@/utils/startupDiagnostics';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -59,7 +55,7 @@ export default function RootLayout() {
   const { colors, dark } = useTheme();
   const language = useSettingsStore((state) => state.language);
   const contentRevision = useContentRevisionStore((state) => state.revision);
-  const [contentReady, setContentReady] = useState(false);
+  const [contentBootstrapDone, setContentBootstrapDone] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -72,23 +68,31 @@ export default function RootLayout() {
 
   useEffect(() => {
     let active = true;
-    const refreshContent = async () => {
-      const result = await checkForPackUpdate();
+    // Bundled content is already validated at module load, so render it immediately. Resolving an
+    // activated download remains a background enhancement and must never hold the app shell blank.
+    reconcileAutomaticExamYear();
+    void SplashScreen.hideAsync();
+    const initialContentLoad = withStartupPhase('content.load-active', () =>
+      reloadActiveContent(),
+    ).catch(() => false);
+    const refreshContent = async (syncWhenUnchanged = true) => {
+      await initialContentLoad;
+      const result = await withStartupPhase('content.update-check', () => checkForPackUpdate());
+      logStartupOutcome('content.update-check', result.status, result.active.version);
       if (result.status === 'updated') {
-        await reloadActiveContent();
+        await withStartupPhase('content.reload-updated', () => reloadActiveContent());
         return;
       }
-      await syncNotificationsForActiveContent();
+      if (syncWhenUnchanged) {
+        await withStartupPhase('notifications.sync', () => syncNotificationsForActiveContent());
+      }
     };
-    void initializeActiveContent()
-      .catch(() => false)
-      .finally(() => {
-        if (!active) return;
-        reconcileAutomaticExamYear();
-        setContentReady(true);
-        void SplashScreen.hideAsync();
-        void refreshContent().catch(() => undefined);
-      });
+    void initialContentLoad.finally(() => {
+      if (!active) return;
+      reconcileAutomaticExamYear();
+      setContentBootstrapDone(true);
+      void refreshContent(false).catch(() => undefined);
+    });
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') void refreshContent().catch(() => undefined);
     });
@@ -99,13 +103,11 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (!contentReady || contentRevision === 0) return;
-    void syncNotificationsForActiveContent().catch(() => undefined);
-  }, [contentReady, contentRevision]);
-
-  if (!contentReady) {
-    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
-  }
+    if (!contentBootstrapDone) return;
+    void withStartupPhase('notifications.sync', () => syncNotificationsForActiveContent()).catch(
+      () => undefined,
+    );
+  }, [contentBootstrapDone, contentRevision]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>

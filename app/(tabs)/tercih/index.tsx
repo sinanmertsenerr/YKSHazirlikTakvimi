@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { AppHeader, Button, Card, Footnote, Screen, SectionTitle } from '@/components/ui';
+import { prewarmProgramDatabase } from '@/db/programRepository';
 import { useSettingsStore } from '@/stores/settings';
 import { useTheme } from '@/theme/useTheme';
 
@@ -17,6 +19,14 @@ export default function PreferenceScreen() {
   const { colors, typography } = useTheme();
   const router = useRouter();
   const scoreType = useSettingsStore((state) => state.targetScoreType);
+
+  useEffect(() => {
+    const cancel = cancelIdleCallback;
+    const callbackId = requestIdleCallback(() => {
+      void prewarmProgramDatabase().catch(() => undefined);
+    });
+    return () => cancel(callbackId);
+  }, []);
 
   return (
     <Screen>

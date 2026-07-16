@@ -50,3 +50,63 @@ describe('persisted score-type hygiene', () => {
     });
   });
 });
+
+describe('persistent content-pack check telemetry', () => {
+  afterEach(() => {
+    useSettingsStore.setState({
+      activePackVersion: 'bundled',
+      lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      lastPackError: null,
+    });
+  });
+
+  it('migrates the legacy successful check timestamp without inventing a failure', () => {
+    expect(migratePersistedSettings({ lastPackCheckTs: 1234 }, 2)).toMatchObject({
+      lastPackCheckTs: 1234,
+      lastPackSuccessTs: 1234,
+      lastPackFailureTs: null,
+      lastPackError: null,
+    });
+  });
+
+  it('records failures across relaunches and clears them after a successful check', () => {
+    useSettingsStore.getState().setPackCheckFailure(2000, '  manifest unavailable  ');
+    expect(useSettingsStore.getState()).toMatchObject({
+      activePackVersion: 'bundled',
+      lastPackCheckTs: 2000,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: 2000,
+      lastPackError: 'manifest unavailable',
+    });
+
+    useSettingsStore.getState().setPackCheckSuccess('2026.07.4', 3000);
+    expect(useSettingsStore.getState()).toMatchObject({
+      activePackVersion: '2026.07.4',
+      lastPackCheckTs: 3000,
+      lastPackSuccessTs: 3000,
+      lastPackFailureTs: null,
+      lastPackError: null,
+    });
+  });
+
+  it('sanitizes corrupt persisted telemetry instead of extending backoff indefinitely', () => {
+    expect(
+      migratePersistedSettings(
+        {
+          lastPackCheckTs: -1,
+          lastPackSuccessTs: Number.POSITIVE_INFINITY,
+          lastPackFailureTs: 'yesterday',
+          lastPackError: 'secret detail',
+        },
+        3,
+      ),
+    ).toMatchObject({
+      lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      lastPackError: null,
+    });
+  });
+});

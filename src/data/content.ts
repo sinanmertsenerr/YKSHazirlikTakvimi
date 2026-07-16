@@ -2,10 +2,7 @@ import { z } from 'zod';
 import { create } from 'zustand';
 import { File } from 'expo-file-system';
 
-import {
-  subjectOfficialStats,
-  type SubjectOfficialStats,
-} from '../features/topics/officialStats';
+import { subjectOfficialStats, type SubjectOfficialStats } from '../features/topics/officialStats';
 
 import calendarJson from '../../content/calendar.json';
 import coefficientsJson from '../../content/coefficients.json';
@@ -93,7 +90,9 @@ export function parseRuntimeContentTransaction(
   }
   if (parsed.topicGroupMappings.subjects.length) {
     if (parsed.topicGroupStatistics.availability !== 'available') {
-      throw new Error('Topic-group mappings cannot activate without available official statistics.');
+      throw new Error(
+        'Topic-group mappings cannot activate without available official statistics.',
+      );
     }
     const topicIdsBySubject = new Map(
       parsed.topics.exams.flatMap((exam) =>
@@ -107,7 +106,9 @@ export function parseRuntimeContentTransaction(
     const groups = parsed.topicGroupStatistics.groups;
     for (const subject of parsed.topicGroupMappings.subjects) {
       if (!topicIdsBySubject.has(subject.displaySubjectId)) {
-        throw new Error(`Topic-group mapping references unknown subject ${subject.displaySubjectId}.`);
+        throw new Error(
+          `Topic-group mapping references unknown subject ${subject.displaySubjectId}.`,
+        );
       }
       const attributable = new Set(
         groups
@@ -121,7 +122,9 @@ export function parseRuntimeContentTransaction(
       const mapped = new Set(subject.entries.map((entry) => entry.groupId));
       for (const entry of subject.entries) {
         if (!attributable.has(entry.groupId)) {
-          throw new Error(`Topic-group mapping ${entry.groupId} is not attributable to ${subject.displaySubjectId}.`);
+          throw new Error(
+            `Topic-group mapping ${entry.groupId} is not attributable to ${subject.displaySubjectId}.`,
+          );
         }
         const topicIds = topicIdsBySubject.get(entry.topicsSubjectId ?? subject.displaySubjectId);
         if (!topicIds) {
@@ -129,13 +132,17 @@ export function parseRuntimeContentTransaction(
         }
         for (const topicId of entry.topicIds) {
           if (!topicIds.has(topicId)) {
-            throw new Error(`Topic-group mapping ${entry.groupId} references unknown topic ${topicId}.`);
+            throw new Error(
+              `Topic-group mapping ${entry.groupId} references unknown topic ${topicId}.`,
+            );
           }
         }
       }
       for (const groupId of attributable) {
         if (!mapped.has(groupId)) {
-          throw new Error(`Topic-group mapping for ${subject.displaySubjectId} is incomplete: ${groupId}.`);
+          throw new Error(
+            `Topic-group mapping for ${subject.displaySubjectId} is incomplete: ${groupId}.`,
+          );
         }
       }
     }
@@ -205,16 +212,23 @@ export async function initializeActiveContent(attempt = 0): Promise<boolean> {
   const file = (key: keyof RuntimeContentDocuments) =>
     new File(active.directory, active.manifest.files[key].path);
   try {
-    const [topics, coefficients, rankTables, calendar, news, topicGroupStatistics, topicGroupMappings] =
-      await Promise.all([
-        file('topics').json(),
-        file('coefficients').json(),
-        file('rankTables').json(),
-        file('calendar').json(),
-        file('news').json(),
-        file('topicGroupStatistics').json(),
-        file('topicGroupMappings').json(),
-      ]);
+    const [
+      topics,
+      coefficients,
+      rankTables,
+      calendar,
+      news,
+      topicGroupStatistics,
+      topicGroupMappings,
+    ] = await Promise.all([
+      file('topics').json(),
+      file('coefficients').json(),
+      file('rankTables').json(),
+      file('calendar').json(),
+      file('news').json(),
+      file('topicGroupStatistics').json(),
+      file('topicGroupMappings').json(),
+    ]);
     const next = parseRuntimeContentTransaction({
       topics,
       coefficients,
@@ -266,18 +280,6 @@ export function findSubject(subjectId: string) {
 
 export function findTopic(subjectId: string, topicId: string) {
   return findSubject(subjectId)?.topics.find((topic) => topic.id === topicId);
-}
-
-export function officialTopicGroupsForSubject(subjectId: string): OfficialTopicGroup[] {
-  if (topicGroupStatisticsPack.availability !== 'available') return [];
-  return topicGroupStatisticsPack.groups
-    .filter(
-      (group) =>
-        group.displaySubjectId === subjectId && group.countingPolicy !== 'cross-check-only',
-    )
-    .sort(
-      (left, right) => left.displayOrder - right.displayOrder || left.id.localeCompare(right.id),
-    );
 }
 
 export function findOfficialTopicGroup(groupId: string): OfficialTopicGroup | undefined {

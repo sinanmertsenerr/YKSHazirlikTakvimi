@@ -19,11 +19,11 @@ import {
   topicGroupStatisticsPackSchema,
   topicsPackSchema,
 } from '@/data/content';
-import { useSettingsStore } from '@/stores/settings';
+import { type SettingsState, useSettingsStore } from '@/stores/settings';
 
 export const PACK_SCHEMA_VERSION = CURRENT_PACK_SCHEMA_VERSION;
-const PACK_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const FAILED_CHECK_BACKOFF_MS = 5 * 60 * 1000;
+export const PACK_CHECK_INTERVAL_MS = 3 * 60 * 60 * 1000;
+export const FAILED_CHECK_BACKOFF_MS = 15 * 60 * 1000;
 const PACK_ROOT_NAME = 'yks-content-packs';
 const ACTIVE_POINTER_SLOT_NAMES = ['active-pack.a.json', 'active-pack.b.json'] as const;
 const LEGACY_ACTIVE_POINTER_NAME = 'active-pack.json';
@@ -33,6 +33,7 @@ const MAX_MANIFEST_BYTES = 1024 * 1024;
 const MAX_JSON_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_PACK_FILE_BYTES = 250 * 1024 * 1024;
 const MAX_TOTAL_PACK_BYTES = 300 * 1024 * 1024;
+const MAX_CONCURRENT_FILE_OPERATIONS = 3;
 
 const manifestFileSchema = z
   .object({
@@ -100,6 +101,7 @@ export const activePointerSchema = z
 
 export type PackManifest = z.infer<typeof packManifestSchema>;
 export type PackFileKey = keyof PackManifest['files'];
+type PackFileDescriptor = PackManifest['files'][PackFileKey];
 
 export type PackValidationHook = (context: {
   key: PackFileKey;
@@ -123,7 +125,7 @@ export type PackUpdateResult =
   | { status: 'failed'; checkedAt: number; active: PackLocation; error: Error };
 
 export type CheckForPackUpdateOptions = {
-  /** Bypasses only the 24-hour check window; version and compatibility checks still apply. */
+  /** Bypasses only the automatic check window; version and compatibility checks still apply. */
   force?: boolean;
   baseUrl?: string;
   now?: number;
@@ -133,8 +135,61 @@ export type CheckForPackUpdateOptions = {
 const bundledManifestResult = packManifestSchema.safeParse(bundledManifestJson);
 const bundledManifest = bundledManifestResult.success ? bundledManifestResult.data : null;
 
-let updateInFlight: Promise<PackUpdateResult> | null = null;
-let lastFailedCheckTs: number | null = null;
+type PackCheckTimestamps = Pick<
+  SettingsState,
+  'lastPackCheckTs' | 'lastPackSuccessTs' | 'lastPackFailureTs'
+>;
+
+export function nextAutomaticPackCheckAt(state: PackCheckTimestamps): number | null {
+  const lastAttempt = state.lastPackCheckTs;
+  if (lastAttempt === null) return null;
+  const latestSucceededAt = state.lastPackSuccessTs ?? 0;
+  const latestFailedAt = state.lastPackFailureTs ?? 0;
+  const interval =
+    latestFailedAt >= latestSucceededAt && latestFailedAt === lastAttempt
+      ? FAILED_CHECK_BACKOFF_MS
+      : PACK_CHECK_INTERVAL_MS;
+  return lastAttempt + interval;
+}
+
+export function shouldThrottlePackCheck(
+  state: PackCheckTimestamps,
+  now: number,
+  force = false,
+): boolean {
+  if (force) return false;
+  const nextCheckAt = nextAutomaticPackCheckAt(state);
+  return nextCheckAt !== null && now >= (state.lastPackCheckTs ?? 0) && now < nextCheckAt;
+}
+
+export class PackUpdateCoordinator {
+  private inFlight: { force: boolean; promise: Promise<PackUpdateResult> } | null = null;
+
+  run(
+    options: CheckForPackUpdateOptions,
+    operation: (options: CheckForPackUpdateOptions) => Promise<PackUpdateResult>,
+  ): Promise<PackUpdateResult> {
+    const force = options.force === true;
+    const current = this.inFlight;
+    if (current) {
+      if (!force || current.force) return current.promise;
+      return current.promise.then(
+        () => this.run(options, operation),
+        () => this.run(options, operation),
+      );
+    }
+
+    const operationPromise = Promise.resolve().then(() => operation(options));
+    let trackedPromise: Promise<PackUpdateResult>;
+    trackedPromise = operationPromise.finally(() => {
+      if (this.inFlight?.promise === trackedPromise) this.inFlight = null;
+    });
+    this.inFlight = { force, promise: trackedPromise };
+    return trackedPromise;
+  }
+}
+
+const updateCoordinator = new PackUpdateCoordinator();
 
 function packRoot(): Directory {
   return new Directory(Paths.document, PACK_ROOT_NAME);
@@ -429,6 +484,47 @@ async function validateDownloadedFile(
   await hook?.({ key, file, manifest });
 }
 
+export function canReuseValidatedPackFile(
+  active: PackFileDescriptor | undefined,
+  candidate: PackFileDescriptor,
+): boolean {
+  return (
+    active !== undefined &&
+    active.bytes === candidate.bytes &&
+    active.sha256.toLowerCase() === candidate.sha256.toLowerCase()
+  );
+}
+
+export async function runWithConcurrency<Item>(
+  items: readonly Item[],
+  concurrency: number,
+  operation: (item: Item) => void | Promise<void>,
+): Promise<void> {
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
+    throw new Error('Concurrency must be a positive integer.');
+  }
+  let nextIndex = 0;
+  let failed = false;
+  let firstError: unknown;
+  const worker = async () => {
+    while (!failed && nextIndex < items.length) {
+      const item = items[nextIndex];
+      nextIndex += 1;
+      if (item === undefined) continue;
+      try {
+        await operation(item);
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          firstError = error;
+        }
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => worker()));
+  if (failed) throw firstError;
+}
+
 async function readManifestFromDirectory(directory: Directory): Promise<PackManifest | null> {
   const file = new File(directory, 'manifest.json');
   if (!file.exists) return null;
@@ -563,6 +659,54 @@ async function downloadPackFile(url: string, destination: File): Promise<void> {
   }
 }
 
+async function reusePreviouslyValidatedFile(
+  key: PackFileKey,
+  source: File,
+  destination: File,
+  manifest: PackManifest,
+): Promise<void> {
+  await source.copy(destination, { overwrite: true });
+  if (!destination.exists || destination.size !== manifest.files[key].bytes) {
+    throw new Error(`Could not reuse validated pack file: ${manifest.files[key].path}`);
+  }
+  // The source belongs to an immutable, atomically activated pack and its declared payload hash is
+  // identical to the candidate descriptor. Re-running SQLite integrity checks and JSON parsing
+  // would add latency without increasing trust in the copied bytes.
+}
+
+async function installCandidateFile(
+  key: PackFileKey,
+  candidateDirectory: Directory,
+  manifest: PackManifest,
+  baseUrl: string,
+  reusableSource: File | null,
+  hook?: PackValidationHook,
+): Promise<void> {
+  const descriptor = manifest.files[key];
+  const destination = new File(candidateDirectory, descriptor.path);
+  if (reusableSource) {
+    let reused = false;
+    try {
+      await reusePreviouslyValidatedFile(key, reusableSource, destination, manifest);
+      reused = true;
+    } catch {
+      if (destination.exists) {
+        try {
+          destination.delete();
+        } catch {
+          // The subsequent idempotent download can overwrite a partial copy when supported.
+        }
+      }
+    }
+    if (reused) {
+      await hook?.({ key, file: destination, manifest });
+      return;
+    }
+  }
+  await downloadPackFile(`${baseUrl}/${descriptor.path}`, destination);
+  await validateDownloadedFile(key, destination, manifest, hook);
+}
+
 function writeManifest(directory: Directory, manifest: PackManifest): void {
   const file = new File(directory, 'manifest.json');
   file.create({ overwrite: true });
@@ -678,17 +822,7 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
   const now = options.now ?? Date.now();
   const settings = useSettingsStore.getState();
   const active = await getActivePackLocation();
-  const lastAttemptTs = Math.max(settings.lastPackCheckTs ?? 0, lastFailedCheckTs ?? 0);
-  const interval =
-    lastFailedCheckTs !== null && lastFailedCheckTs >= (settings.lastPackCheckTs ?? 0)
-      ? FAILED_CHECK_BACKOFF_MS
-      : PACK_CHECK_INTERVAL_MS;
-  if (
-    !options.force &&
-    lastAttemptTs > 0 &&
-    now >= lastAttemptTs &&
-    now - lastAttemptTs < interval
-  ) {
+  if (shouldThrottlePackCheck(settings, now, options.force)) {
     return { status: 'throttled', checkedAt: now, active };
   }
 
@@ -699,13 +833,11 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
     const currentAppVersion = Constants.expoConfig?.version ?? '0.0.0';
 
     if (compareVersions(currentAppVersion, manifest.minAppVersion) < 0) {
-      lastFailedCheckTs = null;
-      settings.setPackState(active.version, now);
+      settings.setPackCheckSuccess(active.version, now);
       return { status: 'incompatible', checkedAt: now, active, manifest };
     }
     if (!shouldInstallRemotePack(manifest.packVersion, active.version)) {
-      lastFailedCheckTs = null;
-      settings.setPackState(active.version, now);
+      settings.setPackCheckSuccess(active.version, now);
       return { status: 'up-to-date', checkedAt: now, active, manifest };
     }
 
@@ -717,12 +849,37 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
 
     const directory = await activateOnlyAfterValidation(
       async () => {
-        for (const key of Object.keys(manifest.files) as PackFileKey[]) {
-          const descriptor = manifest.files[key];
-          const file = new File(candidateDirectory, descriptor.path);
-          await downloadPackFile(`${baseUrl}/${descriptor.path}`, file);
-          await validateDownloadedFile(key, file, manifest, options.validateFile);
-        }
+        const operations = (Object.keys(manifest.files) as PackFileKey[]).map((key) => {
+          const activeDescriptor =
+            active.source === 'downloaded' ? active.manifest.files[key] : undefined;
+          const source =
+            active.source === 'downloaded' &&
+            activeDescriptor !== undefined &&
+            canReuseValidatedPackFile(activeDescriptor, manifest.files[key])
+              ? new File(active.directory, activeDescriptor.path)
+              : null;
+          return { key, source };
+        });
+        const install = ({ key, source }: (typeof operations)[number]) =>
+          installCandidateFile(
+            key,
+            candidateDirectory,
+            manifest,
+            baseUrl,
+            source,
+            options.validateFile,
+          );
+        // Finish every fallible network transfer before spending I/O on unchanged local copies.
+        await runWithConcurrency(
+          operations.filter((operation) => operation.source === null),
+          MAX_CONCURRENT_FILE_OPERATIONS,
+          install,
+        );
+        await runWithConcurrency(
+          operations.filter((operation) => operation.source !== null),
+          MAX_CONCURRENT_FILE_OPERATIONS,
+          install,
+        );
         writeManifest(candidateDirectory, manifest);
       },
       () => activatePack(candidateDirectory, manifest, now),
@@ -734,8 +891,7 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
       directory,
       manifest,
     };
-    lastFailedCheckTs = null;
-    settings.setPackState(manifest.packVersion, now);
+    settings.setPackCheckSuccess(manifest.packVersion, now);
     return { status: 'updated', checkedAt: now, active: downloaded };
   } catch (error) {
     if (staging?.exists) {
@@ -745,8 +901,9 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
         // The active pointer was never changed, so cleanup can safely wait until a later check.
       }
     }
-    lastFailedCheckTs = now;
-    return { status: 'failed', checkedAt: now, active, error: toError(error) };
+    const packError = toError(error);
+    settings.setPackCheckFailure(now, packError.message);
+    return { status: 'failed', checkedAt: now, active, error: packError };
   }
 }
 
@@ -754,9 +911,5 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
 export function checkForPackUpdate(
   options: CheckForPackUpdateOptions = {},
 ): Promise<PackUpdateResult> {
-  if (updateInFlight) return updateInFlight;
-  updateInFlight = performPackCheck(options).finally(() => {
-    updateInFlight = null;
-  });
-  return updateInFlight;
+  return updateCoordinator.run(options, performPackCheck);
 }

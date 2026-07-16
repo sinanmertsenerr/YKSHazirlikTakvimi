@@ -27,6 +27,9 @@ export type SettingsState = {
   diplomaNote: number;
   notificationPrefs: NotificationPreferences;
   lastPackCheckTs: number | null;
+  lastPackSuccessTs: number | null;
+  lastPackFailureTs: number | null;
+  lastPackError: string | null;
   activePackVersion: string;
   setLanguage: (language: LanguagePreference) => void;
   setTheme: (theme: ThemePreference) => void;
@@ -36,7 +39,8 @@ export type SettingsState = {
   setTargetNet: (targetNet: number) => void;
   setDiplomaNote: (diplomaNote: number) => void;
   setNotificationPrefs: (notificationPrefs: Partial<NotificationPreferences>) => void;
-  setPackState: (activePackVersion: string, lastPackCheckTs: number) => void;
+  setPackCheckSuccess: (activePackVersion: string, lastPackSuccessTs: number) => void;
+  setPackCheckFailure: (lastPackFailureTs: number, lastPackError: string) => void;
   replaceSettings: (settings: SettingsSnapshot) => void;
 };
 
@@ -51,6 +55,9 @@ export type SettingsSnapshot = Pick<
   | 'diplomaNote'
   | 'notificationPrefs'
   | 'lastPackCheckTs'
+  | 'lastPackSuccessTs'
+  | 'lastPackFailureTs'
+  | 'lastPackError'
   | 'activePackVersion'
 >;
 
@@ -72,6 +79,22 @@ export function migratePersistedSettings(
   if (!SCORE_TYPES.includes(state.targetScoreType as ScoreType)) {
     state.targetScoreType = 'say';
   }
+  const timestamp = (value: unknown): number | null =>
+    typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
+  const legacySuccessfulCheck = timestamp(state.lastPackCheckTs);
+  const lastPackSuccessTs = timestamp(state.lastPackSuccessTs) ?? legacySuccessfulCheck;
+  const lastPackFailureTs = timestamp(state.lastPackFailureTs);
+  const derivedLastCheckTs =
+    lastPackSuccessTs === null && lastPackFailureTs === null
+      ? null
+      : Math.max(lastPackSuccessTs ?? 0, lastPackFailureTs ?? 0);
+  state.lastPackSuccessTs = lastPackSuccessTs;
+  state.lastPackFailureTs = lastPackFailureTs;
+  state.lastPackCheckTs = timestamp(state.lastPackCheckTs) ?? derivedLastCheckTs;
+  state.lastPackError =
+    state.lastPackFailureTs !== null && typeof state.lastPackError === 'string'
+      ? state.lastPackError.trim().slice(0, 500) || null
+      : null;
   // Older builds did not record whether examYear came from the default or a user action. Preserve
   // that value as manual rather than risking an explicit selection during migration.
   return version < 1 ? { ...state, examYearMode: 'manual' } : state;
@@ -94,6 +117,9 @@ export const useSettingsStore = create<SettingsState>()(
         minute: 0,
       },
       lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      lastPackError: null,
       activePackVersion: 'bundled',
       setLanguage: (language) => set({ language }),
       setTheme: (theme) => set({ theme }),
@@ -106,17 +132,28 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => ({
           notificationPrefs: { ...state.notificationPrefs, ...notificationPrefs },
         })),
-      setPackState: (activePackVersion, lastPackCheckTs) =>
-        set({ activePackVersion, lastPackCheckTs }),
+      setPackCheckSuccess: (activePackVersion, lastPackSuccessTs) =>
+        set({
+          activePackVersion,
+          lastPackCheckTs: lastPackSuccessTs,
+          lastPackSuccessTs,
+          lastPackFailureTs: null,
+          lastPackError: null,
+        }),
+      setPackCheckFailure: (lastPackFailureTs, lastPackError) =>
+        set({
+          lastPackCheckTs: lastPackFailureTs,
+          lastPackFailureTs,
+          lastPackError: lastPackError.trim().slice(0, 500) || 'Unknown content update error.',
+        }),
       replaceSettings: (settings) => set(settings),
     }),
     {
       name: 'settings-v1',
       storage: createJSONStorage(() => storage),
-      // v2 forces one migrate() pass so the targetScoreType hygiene guard runs on every
-      // install persisted before the ScoreType union changed (zustand skips migrate when
-      // the persisted version already matches).
-      version: 2,
+      // v3 persists content-check telemetry/backoff and also forces the score-type hygiene
+      // migration for every install written before the current contract.
+      version: 3,
       migrate: migratePersistedSettings,
       partialize: (state) => ({
         language: state.language,
@@ -128,6 +165,9 @@ export const useSettingsStore = create<SettingsState>()(
         diplomaNote: state.diplomaNote,
         notificationPrefs: state.notificationPrefs,
         lastPackCheckTs: state.lastPackCheckTs,
+        lastPackSuccessTs: state.lastPackSuccessTs,
+        lastPackFailureTs: state.lastPackFailureTs,
+        lastPackError: state.lastPackError,
         activePackVersion: state.activePackVersion,
       }),
     },
@@ -146,6 +186,9 @@ export function getSettingsSnapshot(): SettingsSnapshot {
     diplomaNote: state.diplomaNote,
     notificationPrefs: state.notificationPrefs,
     lastPackCheckTs: state.lastPackCheckTs,
+    lastPackSuccessTs: state.lastPackSuccessTs,
+    lastPackFailureTs: state.lastPackFailureTs,
+    lastPackError: state.lastPackError,
     activePackVersion: state.activePackVersion,
   };
 }

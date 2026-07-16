@@ -33,16 +33,27 @@ import coefficientsJson from '../../content/coefficients.json';
 import rankTablesJson from '../../content/rank-tables.json';
 import topicGroupStatisticsJson from '../../content/topic-group-statistics.json';
 
+import { useSettingsStore } from '@/stores/settings';
+
 import {
   activateOnlyAfterValidation,
   activePointerSchema,
+  canReuseValidatedPackFile,
+  checkForPackUpdate,
   compareVersions,
+  FAILED_CHECK_BACKOFF_MS,
+  nextAutomaticPackCheckAt,
+  PACK_CHECK_INTERVAL_MS,
   PACK_SCHEMA_VERSION,
+  PackUpdateCoordinator,
   packManifestSchema,
   retainedVersionDirectoryNames,
+  runWithConcurrency,
   shouldInstallRemotePack,
+  shouldThrottlePackCheck,
   shouldUseDownloadedPack,
   validateJsonDocument,
+  type PackUpdateResult,
 } from './packUpdater';
 
 const descriptor = (path: string) => ({ path, sha256: 'a'.repeat(64), bytes: 1 });
@@ -185,5 +196,198 @@ describe('content pack version ordering', () => {
       ),
     ).rejects.toThrow('Schema validation failed for coefficients.json.');
     expect(activate).not.toHaveBeenCalled();
+  });
+});
+
+describe('content pack check coordination and persistent backoff', () => {
+  const bundled = {
+    source: 'bundled' as const,
+    version: 'bundled',
+    directory: null,
+    manifest: null,
+  };
+  const result: PackUpdateResult = { status: 'throttled', checkedAt: 1, active: bundled };
+
+  it('uses the shorter success interval and persistent failure backoff', () => {
+    expect(
+      nextAutomaticPackCheckAt({
+        lastPackCheckTs: 1000,
+        lastPackSuccessTs: 1000,
+        lastPackFailureTs: null,
+      }),
+    ).toBe(1000 + PACK_CHECK_INTERVAL_MS);
+    expect(
+      nextAutomaticPackCheckAt({
+        lastPackCheckTs: 2000,
+        lastPackSuccessTs: 1000,
+        lastPackFailureTs: 2000,
+      }),
+    ).toBe(2000 + FAILED_CHECK_BACKOFF_MS);
+    expect(
+      shouldThrottlePackCheck(
+        {
+          lastPackCheckTs: 2000,
+          lastPackSuccessTs: 1000,
+          lastPackFailureTs: 2000,
+        },
+        2000 + FAILED_CHECK_BACKOFF_MS - 1,
+      ),
+    ).toBe(true);
+    expect(
+      shouldThrottlePackCheck(
+        {
+          lastPackCheckTs: 2000,
+          lastPackSuccessTs: 1000,
+          lastPackFailureTs: 2000,
+        },
+        2001,
+        true,
+      ),
+    ).toBe(false);
+  });
+
+  it('queues a forced request behind a non-forced check instead of losing force semantics', async () => {
+    const coordinator = new PackUpdateCoordinator();
+    const calls: boolean[] = [];
+    let releaseFirst!: () => void;
+    const firstGate = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const operation = jest.fn(async (options: { force?: boolean }) => {
+      calls.push(options.force === true);
+      if (calls.length === 1) await firstGate;
+      return result;
+    });
+
+    const automatic = coordinator.run({}, operation);
+    await Promise.resolve();
+    const forcedOne = coordinator.run({ force: true }, operation);
+    const forcedTwo = coordinator.run({ force: true }, operation);
+    expect(calls).toEqual([false]);
+
+    releaseFirst();
+    await expect(Promise.all([automatic, forcedOne, forcedTwo])).resolves.toEqual([
+      result,
+      result,
+      result,
+    ]);
+    expect(calls).toEqual([false, true]);
+    expect(operation).toHaveBeenCalledTimes(2);
+  });
+
+  it('shares an already-forced transaction with automatic callers', async () => {
+    const coordinator = new PackUpdateCoordinator();
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const operation = jest.fn(async () => {
+      await gate;
+      return result;
+    });
+    const forced = coordinator.run({ force: true }, operation);
+    const automatic = coordinator.run({}, operation);
+    release();
+    await Promise.all([forced, automatic]);
+    expect(operation).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('content-addressed candidate installation helpers', () => {
+  it('reuses only a byte-identical, hash-identical previously validated payload', () => {
+    const candidate = descriptor('news.json');
+    expect(canReuseValidatedPackFile(candidate, { ...candidate, path: 'renamed.json' })).toBe(true);
+    expect(canReuseValidatedPackFile({ ...candidate, bytes: 2 }, candidate)).toBe(false);
+    expect(canReuseValidatedPackFile({ ...candidate, sha256: 'b'.repeat(64) }, candidate)).toBe(
+      false,
+    );
+    expect(canReuseValidatedPackFile(undefined, candidate)).toBe(false);
+  });
+
+  it('bounds concurrent file work without dropping any operation', async () => {
+    let active = 0;
+    let maximum = 0;
+    const completed: number[] = [];
+    await runWithConcurrency([0, 1, 2, 3, 4, 5, 6], 3, async (value) => {
+      active += 1;
+      maximum = Math.max(maximum, active);
+      await new Promise<void>((resolve) => setTimeout(resolve, 2));
+      completed.push(value);
+      active -= 1;
+    });
+    expect(maximum).toBe(3);
+    expect(completed.sort((left, right) => left - right)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    await expect(runWithConcurrency([1], 0, () => undefined)).rejects.toThrow('positive integer');
+  });
+
+  it('waits for in-flight workers before surfacing the first failure', async () => {
+    const completed: number[] = [];
+    await expect(
+      runWithConcurrency([0, 1, 2], 2, async (value) => {
+        if (value === 0) {
+          await Promise.resolve();
+          throw new Error('download failed');
+        }
+        await new Promise<void>((resolve) => setTimeout(resolve, 3));
+        completed.push(value);
+      }),
+    ).rejects.toThrow('download failed');
+    expect(completed).toEqual([1]);
+  });
+});
+
+describe('persisted updater outcomes', () => {
+  const mockGetSettings = useSettingsStore.getState as jest.Mock;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    mockGetSettings.mockReset();
+  });
+
+  it('records a failed forced check so relaunch backoff and UI diagnostics survive', async () => {
+    const setPackCheckFailure = jest.fn();
+    mockGetSettings.mockReturnValue({
+      lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      setPackCheckFailure,
+      setPackCheckSuccess: jest.fn(),
+    });
+
+    const result = await checkForPackUpdate({
+      baseUrl: 'http://insecure.example/pack',
+      force: true,
+      now: 4321,
+    });
+    expect(result.status).toBe('failed');
+    expect(setPackCheckFailure).toHaveBeenCalledWith(
+      4321,
+      'A secure HTTPS content pack URL is not configured.',
+    );
+  });
+
+  it('records a successful manifest check and clears earlier diagnostics', async () => {
+    const setPackCheckSuccess = jest.fn();
+    mockGetSettings.mockReturnValue({
+      lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      setPackCheckFailure: jest.fn(),
+      setPackCheckSuccess,
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: { get: () => null },
+      text: async () => JSON.stringify(validManifest),
+    } as unknown as Response);
+
+    const result = await checkForPackUpdate({
+      baseUrl: 'https://content.example/pack',
+      force: true,
+      now: 5000,
+    });
+    expect(['incompatible', 'up-to-date']).toContain(result.status);
+    expect(setPackCheckSuccess).toHaveBeenCalledWith(expect.any(String), 5000);
   });
 });
