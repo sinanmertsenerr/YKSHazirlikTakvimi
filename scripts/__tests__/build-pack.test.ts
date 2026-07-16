@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -38,12 +39,33 @@ test('pack-version override changes only the built manifest and preserves the so
 
     const after = await readFile(sourceManifestPath);
     assert.deepEqual(after, before);
-    const sourceManifest = JSON.parse(after.toString('utf8')) as { packVersion: string };
-    const builtManifest = JSON.parse(
-      await readFile(resolve(outputDir, 'manifest.json'), 'utf8'),
-    ) as { packVersion: string };
+    const sourceManifest = JSON.parse(after.toString('utf8')) as {
+      packVersion: string;
+      files: Record<string, { path: string }>;
+    };
+    const builtManifestRaw = await readFile(resolve(outputDir, 'manifest.json'), 'utf8');
+    const builtManifest = JSON.parse(builtManifestRaw) as {
+      packVersion: string;
+      files: Record<string, { path: string; bytes: number; sha256: string }>;
+    };
     assert.notEqual(sourceManifest.packVersion, override);
     assert.equal(builtManifest.packVersion, override);
+    assert.equal(builtManifestRaw, `${JSON.stringify(builtManifest)}\n`);
+
+    for (const [key, sourceDescriptor] of Object.entries(sourceManifest.files)) {
+      if (!sourceDescriptor.path.endsWith('.json')) continue;
+      const sourceDocument = JSON.parse(
+        await readFile(resolve(contentDir, sourceDescriptor.path), 'utf8'),
+      ) as unknown;
+      const expected = Buffer.from(`${JSON.stringify(sourceDocument)}\n`);
+      const published = await readFile(resolve(outputDir, sourceDescriptor.path));
+      assert.deepEqual(published, expected, `${sourceDescriptor.path} should be minified`);
+      assert.equal(builtManifest.files[key]?.bytes, published.byteLength);
+      assert.equal(
+        builtManifest.files[key]?.sha256,
+        createHash('sha256').update(published).digest('hex'),
+      );
+    }
 
     await assert.rejects(
       buildPack({ contentDir, outputDir: join(temporaryRoot, 'invalid-pack'), packVersion: 'bad' }),

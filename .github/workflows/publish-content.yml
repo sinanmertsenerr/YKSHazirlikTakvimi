@@ -366,6 +366,7 @@ jobs:
     timeout-minutes: 45
     outputs:
       changed: ${{ steps.content-change.outputs.changed }}
+      pack_version: ${{ steps.pack-metadata.outputs.pack_version }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -381,6 +382,12 @@ jobs:
         run: npm run validate:annual-publication
       - name: Build persisted candidate pack
         run: npm run build:pack
+      - name: Read candidate pack metadata
+        id: pack-metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "pack_version=$(jq -r '.packVersion' assets/pack/manifest.json)" >> "$GITHUB_OUTPUT"
       - name: Compare persisted candidate with published content identity
         id: content-change
         run: npm run check:pack-change -- --github-output "$GITHUB_OUTPUT"
@@ -424,6 +431,60 @@ jobs:
       - name: Deploy persisted content pack
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+      - name: Verify the deployed pack byte-for-byte
+        shell: bash
+        env:
+          EXPECTED_PACK_VERSION: ${{ needs.build-pages.outputs.pack_version }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          pack_base="${PAGE_URL%/}/pack"
+          work_directory="$(mktemp -d)"
+          trap 'rm -rf "$work_directory"' EXIT
+
+          manifest="$work_directory/manifest.json"
+          for attempt in $(seq 1 18); do
+            if curl --fail --silent --show-error --location \
+              --header 'accept: application/json' \
+              --header 'cache-control: no-cache' \
+              "$pack_base/manifest.json" \
+              --output "$manifest" &&
+              jq -e --arg expected "$EXPECTED_PACK_VERSION" '
+                .schemaVersion == 3 and
+                .packVersion == $expected and
+                (.files | type == "object" and length == 8)
+              ' "$manifest" >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" -eq 18 ]]; then
+              echo "Deployed manifest did not expose expected pack $EXPECTED_PACK_VERSION." >&2
+              exit 1
+            fi
+            sleep 10
+          done
+
+          while IFS=$'\t' read -r path expected_bytes expected_sha; do
+            [[ "$path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {
+              echo "Unsafe deployed pack path: $path" >&2
+              exit 1
+            }
+            output="$work_directory/$path"
+            curl --fail --silent --show-error --location \
+              --header 'cache-control: no-cache' \
+              "$pack_base/$path" \
+              --output "$output"
+            [[ "$(stat -c '%s' "$output")" == "$expected_bytes" ]] || {
+              echo "Deployed size mismatch for $path." >&2
+              exit 1
+            }
+            [[ "$(sha256sum "$output" | cut -d' ' -f1)" == "$expected_sha" ]] || {
+              echo "Deployed SHA-256 mismatch for $path." >&2
+              exit 1
+            }
+          done < <(
+            jq -r '.files | to_entries[] | [.value.path, .value.bytes, .value.sha256] | @tsv' \
+              "$manifest"
+          )
 
   notify-refresh-failure:
     needs: refresh
@@ -437,3 +498,16 @@ jobs:
       body: >-
         Haftalık içerik yenileme işi (YÖK Atlas programları / takvim / haberler) başarısız oldu.
         İş günlüğünü inceleyin; kaynak tarafında yapısal değişiklik olabilir.
+
+  notify-deploy-failure:
+    needs: deploy
+    if: ${{ always() && needs.deploy.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'İçerik paketi GitHub Pages dağıtımı doğrulanamadı'
+      body: >-
+        Pages dağıtımı veya dağıtım sonrası byte/hash smoke testi başarısız oldu.
+        Publish static content pack iş günlüğünü ve Pages ortamını inceleyin.

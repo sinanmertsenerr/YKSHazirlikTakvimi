@@ -103,7 +103,12 @@ export async function buildPack(options: BuildPackOptions = {}): Promise<string>
       const sourcePath = resolve(contentDir, descriptor.path);
       const destinationPath = resolve(stagingDir, descriptor.path);
       await mkdir(dirname(destinationPath), { recursive: true });
-      await copyFile(sourcePath, destinationPath);
+      if (descriptor.path.endsWith('.json')) {
+        const document = JSON.parse(await readFile(sourcePath, 'utf8')) as unknown;
+        await writeFile(destinationPath, `${JSON.stringify(document)}\n`, 'utf8');
+      } else {
+        await copyFile(sourcePath, destinationPath);
+      }
       const fileStat = await stat(destinationPath);
       files[key] = {
         path: descriptor.path,
@@ -119,11 +124,7 @@ export async function buildPack(options: BuildPackOptions = {}): Promise<string>
       examYear: sourceManifest.examYear,
       files,
     };
-    await writeFile(
-      resolve(stagingDir, 'manifest.json'),
-      `${JSON.stringify(manifest, null, 2)}\n`,
-      'utf8',
-    );
+    await writeFile(resolve(stagingDir, 'manifest.json'), `${JSON.stringify(manifest)}\n`, 'utf8');
     await replaceDirectoryAtomically(stagingDir, outputDir);
   } catch (error) {
     await rm(stagingDir, { recursive: true, force: true });

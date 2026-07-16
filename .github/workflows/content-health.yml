@@ -1,0 +1,104 @@
+name: Monitor published content pack
+
+on:
+  schedule:
+    - cron: '53 */2 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Verify manifest, news payload, and publisher recency
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          pack_base="$(jq -r '.expo.extra.packBaseUrl' app.json)"
+          [[ "$pack_base" =~ ^https://[^/]+/.+/pack$ ]] || {
+            echo "Configured pack URL is not a clean HTTPS /pack URL." >&2
+            exit 1
+          }
+
+          work_directory="$(mktemp -d)"
+          trap 'rm -rf "$work_directory"' EXIT
+          manifest="$work_directory/manifest.json"
+          news="$work_directory/news.json"
+
+          curl --fail --silent --show-error --location \
+            --header 'accept: application/json' \
+            --header 'cache-control: no-cache' \
+            "$pack_base/manifest.json" \
+            --output "$manifest"
+          jq -e '
+            .schemaVersion == 3 and
+            (.packVersion | test("^[0-9]{4}\\.[0-9]{2}\\.[0-9]+$")) and
+            (.files.news.path | type == "string") and
+            (.files.news.bytes | type == "number") and
+            (.files.news.sha256 | test("^[a-f0-9]{64}$"))
+          ' "$manifest" >/dev/null
+
+          news_path="$(jq -r '.files.news.path' "$manifest")"
+          [[ "$news_path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {
+            echo "Unsafe published news path." >&2
+            exit 1
+          }
+          curl --fail --silent --show-error --location \
+            --header 'accept: application/json' \
+            --header 'cache-control: no-cache' \
+            "$pack_base/$news_path" \
+            --output "$news"
+          [[ "$(stat -c '%s' "$news")" == "$(jq -r '.files.news.bytes' "$manifest")" ]] || {
+            echo "Published news size does not match the manifest." >&2
+            exit 1
+          }
+          [[ "$(sha256sum "$news" | cut -d' ' -f1)" == "$(jq -r '.files.news.sha256' "$manifest")" ]] || {
+            echo "Published news SHA-256 does not match the manifest." >&2
+            exit 1
+          }
+          jq -e '.schemaVersion == 2 and (.items | type == "array" and length > 0)' "$news" \
+            >/dev/null
+
+          runs="$work_directory/runs.json"
+          curl --fail --silent --show-error --location \
+            --header 'accept: application/vnd.github+json' \
+            --header "authorization: Bearer $GH_TOKEN" \
+            --header 'x-github-api-version: 2022-11-28' \
+            "https://api.github.com/repos/$REPOSITORY/actions/workflows/publish-content.yml/runs?status=completed&per_page=1" \
+            --output "$runs"
+          conclusion="$(jq -r '.workflow_runs[0].conclusion // ""' "$runs")"
+          completed_at="$(jq -r '.workflow_runs[0].updated_at // ""' "$runs")"
+          [[ "$conclusion" == "success" && -n "$completed_at" ]] || {
+            echo "No recent successful content publisher run was found." >&2
+            exit 1
+          }
+          age_seconds="$(( $(date -u +%s) - $(date -u -d "$completed_at" +%s) ))"
+          [[ "$age_seconds" -ge 0 && "$age_seconds" -le 36000 ]] || {
+            echo "Latest successful content publisher run is ${age_seconds}s old (limit 36000s)." >&2
+            exit 1
+          }
+
+  notify-health-failure:
+    needs: health
+    if: ${{ always() && needs.health.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Yayımlanan içerik paketi sağlık kontrolü başarısız'
+      body: >-
+        GitHub Pages manifesti, haber dosyası veya altı saatlik yayın işinin güncelliği doğrulanamadı.
+        Monitor published content pack iş günlüğünü ve Pages yapılandırmasını inceleyin.

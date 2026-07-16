@@ -6,6 +6,9 @@ The content workflow cannot create the repository's Pages site with its job toke
 publish, an administrator must open **Settings → Pages → Build and deployment** and select
 **GitHub Actions** as the source. Confirm that `GET /repos/sinanmertsenerr/YKSHazirlikTakvimi/pages`
 returns a Pages site and that the configured pack URL no longer returns the generic GitHub 404.
+The application and `.github/workflows/publish-content.yml` must both exist on the repository's
+default branch; scheduled workflows are not a deployment mechanism while they live only on a
+feature branch.
 
 GitHub documents this prerequisite in
 [Using custom workflows with GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
@@ -26,7 +29,8 @@ and
 3. `build-pages` checks out the exact persisted commit with read-only permissions and builds the
    Pages artifact. An unchanged content identity creates no Pages artifact or deployment.
 4. `deploy` is the only job with `pages: write` and `id-token: write`, and it is the only job attached
-   to the `github-pages` environment.
+   to the `github-pages` environment. After Pages reports success, the job waits for the expected
+   pack revision to become visible and verifies every published file's byte length and SHA-256.
 
 The source `content/manifest.source.json` pack revision is persisted with actual pack changes. App
 versioning remains in `app.json`/`package.json`; pack revisioning identifies the independently
@@ -62,11 +66,26 @@ importantly, GitHub automatically disables scheduled workflows in a public repos
 without repository activity. Scheduled runs themselves must not be treated as a permanent external
 scheduler or health signal.
 
-Monitor the published manifest age outside Actions and alert when refreshes stop. Re-enable an
-inactive workflow in GitHub and use `workflow_dispatch` for recovery. The annual classifier has a
-single yearly cron, so its result also needs an explicit completion check and manual retry path.
+`.github/workflows/content-health.yml` runs every two hours and verifies the public manifest, the
+manifest-addressed news payload, and that the latest completed publisher run succeeded within ten
+hours. It opens or updates a visible issue through the alert-only notification workflow when any
+check fails. Re-enable an inactive workflow in GitHub and use `workflow_dispatch` for recovery.
+
+This repository-local health job is a second signal, not an independent scheduler: GitHub can
+disable both scheduled workflows together. Monitor the public manifest URL and the health workflow
+from an external uptime service as well. The annual classifier has a single yearly cron, so its
+result also needs an explicit completion check and manual retry path.
 See GitHub's
 [schedule event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
+## Runtime transfer behavior
+
+Published JSON files are minified while the reviewable `content/*.json` sources remain formatted.
+The manifest records hashes and byte lengths for the exact minified bytes. On-device updates reuse
+files from the already validated active pack only when both SHA-256 and byte length match the new
+manifest, download changed files with bounded concurrency, and atomically activate the candidate
+after all changed payloads pass validation. A manual refresh is queued behind an automatic check
+when necessary, so its forced network check is never silently downgraded.
 
 ## Workflow artifact visibility
 
