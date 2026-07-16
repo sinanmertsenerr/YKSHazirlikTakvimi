@@ -1,12 +1,16 @@
 import { Asset } from 'expo-asset';
+import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import { defaultDatabaseDirectory, openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { Platform } from 'react-native';
+
+import { CURRENT_SCHEMA_VERSION } from '../../scripts/lib/content-schemas';
 
 import {
   programsPack,
   programsPackSchema,
   reloadActiveContent,
+  useContentRevisionStore,
   type Program,
 } from '@/data/content';
 import { getActivePackLocation, invalidateDownloadedPackVersion } from '@/data/packUpdater';
@@ -24,6 +28,7 @@ import {
   type SqlQuery,
   uniqueFavoriteIds,
 } from '@/db/programQueries';
+import { expandProgramSearch } from '@/features/programs/searchAliases';
 import { trSearch } from '@/utils/format';
 
 type ProgramRow = {
@@ -64,6 +69,11 @@ type DatabaseLocation = {
   key: string;
   name: string;
   directory: string;
+  file: File;
+  validationMarker: File;
+  identity: string;
+  expectedBytes: number;
+  expectedSha256: string;
   source: 'bundled' | 'downloaded';
   packVersion: string;
 };
@@ -73,9 +83,22 @@ type DatabaseEntry = {
   source: DatabaseLocation['source'];
   packVersion: string;
   database: Promise<SQLiteDatabase>;
+  location: DatabaseLocation;
   users: number;
   stale: boolean;
   closing: boolean;
+};
+
+type DatabaseLocationCache = {
+  contentRevision: number;
+  request: Promise<DatabaseLocation>;
+};
+
+type ValidationMarker = {
+  key: string;
+  identity: string;
+  bytes: number;
+  schemaVersion: number;
 };
 
 export type ProgramPage = {
@@ -94,6 +117,7 @@ const FAVORITE_BIND_CHUNK = 300;
 const programRuntimeSchema = programsPackSchema.shape.programs.element;
 let databaseEntry: DatabaseEntry | null = null;
 let databaseEntryRequest: Promise<DatabaseEntry> | null = null;
+let databaseLocationCache: DatabaseLocationCache | null = null;
 
 function sqliteBoolean(value: number): boolean | number {
   if (value === 0) return false;
@@ -101,14 +125,108 @@ function sqliteBoolean(value: number): boolean | number {
   return value;
 }
 
+function databaseIdentity(sha256: string, bytes: number): string {
+  return `${sha256.toLowerCase()}-${bytes}`;
+}
+
+function validationMarkerFor(
+  identity: string,
+  source: DatabaseLocation['source'],
+  packVersion: string,
+): File {
+  const safeVersion = packVersion.replace(/[^a-z0-9.-]/gi, '-');
+  return new File(
+    defaultDatabaseDirectory,
+    `yks-programs-validated-${source}-${safeVersion}-${identity}.json`,
+  );
+}
+
+function deleteIfPresent(file: File): void {
+  if (!file.exists) return;
+  try {
+    file.delete();
+  } catch {
+    // A failed cleanup is harmless: size/hash/marker validation still fails closed next time.
+  }
+}
+
+function invalidateValidationMarker(location: DatabaseLocation): void {
+  deleteIfPresent(location.validationMarker);
+}
+
+async function hasValidValidationMarker(location: DatabaseLocation): Promise<boolean> {
+  const marker = location.validationMarker;
+  if (!marker.exists) return false;
+  try {
+    const parsed = JSON.parse(await marker.text()) as Partial<ValidationMarker>;
+    if (
+      parsed.key === location.key &&
+      parsed.identity === location.identity &&
+      parsed.bytes === location.expectedBytes &&
+      parsed.schemaVersion === CURRENT_SCHEMA_VERSION &&
+      location.file.exists &&
+      location.file.size === location.expectedBytes
+    ) {
+      return true;
+    }
+  } catch {
+    // Interrupted or malformed marker writes are treated exactly like a missing marker.
+  }
+  deleteIfPresent(marker);
+  return false;
+}
+
+function writeValidationMarker(location: DatabaseLocation): void {
+  const marker: ValidationMarker = {
+    key: location.key,
+    identity: location.identity,
+    bytes: location.expectedBytes,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+  };
+  location.validationMarker.create({ overwrite: true });
+  location.validationMarker.write(`${JSON.stringify(marker)}\n`);
+}
+
+async function sha256(file: File): Promise<string> {
+  const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, await file.bytes());
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function fileMatchesManifest(
+  file: File,
+  expectedBytes: number,
+  expectedSha256: string,
+): Promise<boolean> {
+  return (
+    file.exists &&
+    file.size === expectedBytes &&
+    (await sha256(file)).toLowerCase() === expectedSha256.toLowerCase()
+  );
+}
+
+function clearDatabaseLocationCache(): void {
+  databaseLocationCache = null;
+}
+
 async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
   const active = await getActivePackLocation();
+  const descriptor = active.manifest?.files.programs;
+  if (!descriptor) throw new Error('The active content manifest has no programs database');
+  const identity = databaseIdentity(descriptor.sha256, descriptor.bytes);
+  const validationMarker = validationMarkerFor(identity, active.source, active.version);
+
   if (active.source === 'downloaded') {
-    const name = active.manifest.files.programs.path;
+    const name = descriptor.path;
+    const file = new File(active.directory, name);
     return {
-      key: `${active.directory.uri}/${name}`,
+      key: file.uri,
       name,
       directory: active.directory.uri,
+      file,
+      validationMarker,
+      identity,
+      expectedBytes: descriptor.bytes,
+      expectedSha256: descriptor.sha256,
       source: 'downloaded',
       packVersion: active.version,
     };
@@ -118,19 +236,54 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
   const asset = Asset.fromModule(moduleId);
   await asset.downloadAsync();
   if (!asset.localUri) throw new Error('Bundled programs database could not be loaded');
-  const assetVersion = (asset.hash ?? active.version).replace(/[^a-z0-9.-]/gi, '-');
-  const destination = new File(defaultDatabaseDirectory, `yks-programs-bundled-${assetVersion}.db`);
-  if (!destination.exists) {
-    const source = new File(asset.localUri);
-    await source.copy(destination, { overwrite: true });
-  }
-  return {
+
+  const destination = new File(defaultDatabaseDirectory, `yks-programs-bundled-${identity}.db`);
+  const location: DatabaseLocation = {
     key: destination.uri,
     name: destination.name,
     directory: defaultDatabaseDirectory,
+    file: destination,
+    validationMarker,
+    identity,
+    expectedBytes: descriptor.bytes,
+    expectedSha256: descriptor.sha256,
     source: 'bundled',
     packVersion: active.version,
   };
+  const markerValid = await hasValidValidationMarker(location);
+  let copyRequired = !destination.exists || destination.size !== descriptor.bytes;
+  if (!copyRequired && !markerValid) {
+    copyRequired = !(await fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256));
+  }
+  if (copyRequired) {
+    invalidateValidationMarker(location);
+    deleteIfPresent(destination);
+    const source = new File(asset.localUri);
+    if (source.size !== descriptor.bytes) {
+      throw new Error('Bundled programs database size does not match its manifest');
+    }
+    await source.copy(destination, { overwrite: true });
+    if (!(await fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256))) {
+      deleteIfPresent(destination);
+      throw new Error('Bundled programs database hash does not match its manifest');
+    }
+  }
+  return location;
+}
+
+async function getDatabaseLocation(): Promise<DatabaseLocation> {
+  const contentRevision = useContentRevisionStore.getState().revision;
+  if (databaseLocationCache?.contentRevision === contentRevision) {
+    return databaseLocationCache.request;
+  }
+  const request = resolveDatabaseLocation();
+  databaseLocationCache = { contentRevision, request };
+  try {
+    return await request;
+  } catch (error) {
+    if (databaseLocationCache?.request === request) clearDatabaseLocationCache();
+    throw error;
+  }
 }
 
 async function openValidatedDatabase(location: DatabaseLocation): Promise<SQLiteDatabase> {
@@ -139,22 +292,36 @@ async function openValidatedDatabase(location: DatabaseLocation): Promise<SQLite
     { useNewConnection: true },
     location.directory,
   );
+  let quickCheckFailed = false;
   try {
-    const integrity = await database.getFirstAsync<{ quick_check: unknown }>(
-      'PRAGMA quick_check(1)',
-    );
-    if (integrity?.quick_check !== 'ok') {
-      throw new Error('The program database failed its runtime integrity check');
+    const alreadyValidated = await hasValidValidationMarker(location);
+    if (!alreadyValidated) {
+      const integrity = await database.getFirstAsync<{ quick_check: unknown }>(
+        'PRAGMA quick_check(1)',
+      );
+      if (integrity?.quick_check !== 'ok') {
+        quickCheckFailed = true;
+        throw new Error('The program database failed its runtime integrity check');
+      }
     }
     const metadata = await database.getFirstAsync<{ value: unknown }>(
       "SELECT value FROM pack_metadata WHERE key = 'schemaVersion' LIMIT 1",
     );
-    if (typeof metadata?.value !== 'string' || !/^\d+$/.test(metadata.value)) {
-      throw new Error('The program database schema metadata is missing');
+    if (metadata?.value !== String(CURRENT_SCHEMA_VERSION)) {
+      throw new Error('The program database schema metadata is unsupported');
+    }
+    if (!alreadyValidated) {
+      try {
+        writeValidationMarker(location);
+      } catch {
+        invalidateValidationMarker(location);
+      }
     }
     return database;
   } catch (error) {
+    invalidateValidationMarker(location);
     await database.closeAsync().catch(() => undefined);
+    if (quickCheckFailed && location.source === 'bundled') deleteIfPresent(location.file);
     throw error;
   }
 }
@@ -166,7 +333,7 @@ function closeWhenUnused(entry: DatabaseEntry): void {
 }
 
 async function resolveDatabaseEntry(): Promise<DatabaseEntry> {
-  const location = await resolveDatabaseLocation();
+  const location = await getDatabaseLocation();
   if (databaseEntry?.key === location.key) return databaseEntry;
 
   const previous = databaseEntry;
@@ -175,6 +342,7 @@ async function resolveDatabaseEntry(): Promise<DatabaseEntry> {
     source: location.source,
     packVersion: location.packVersion,
     database: openValidatedDatabase(location),
+    location,
     users: 0,
     stale: false,
     closing: false,
@@ -207,6 +375,8 @@ async function runProgramDatabaseOperation<T>(
     const database = await entry.database;
     return await operation(database);
   } catch (error) {
+    invalidateValidationMarker(entry.location);
+    clearDatabaseLocationCache();
     if (databaseEntry === entry) {
       entry.stale = true;
       databaseEntry = null;
@@ -229,6 +399,7 @@ async function withProgramDatabase<T>(operation: (database: SQLiteDatabase) => P
     // A valid-size SQLite file can still be corrupted after activation. Remove only this pack's
     // pointers, align JSON content with the rollback/bundled pack, then retry exactly once.
     await invalidateDownloadedPackVersion(entry.packVersion);
+    clearDatabaseLocationCache();
     try {
       await reloadActiveContent();
     } catch {
@@ -238,6 +409,12 @@ async function withProgramDatabase<T>(operation: (database: SQLiteDatabase) => P
     if (fallback.key === entry.key) throw error;
     return runProgramDatabaseOperation(fallback, operation);
   }
+}
+
+/** Opens and validates the active program database before the browse screen needs its first page. */
+export async function prewarmProgramDatabase(): Promise<void> {
+  if (Platform.OS === 'web') return;
+  await withProgramDatabase(async () => undefined);
 }
 
 async function all<Row>(database: SQLiteDatabase, query: SqlQuery): Promise<Row[]> {
@@ -331,8 +508,15 @@ async function queryFavoritePage(
 
 function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): ProgramPage {
   const favoriteIds = query.favoriteIds ? uniqueFavoriteIds(query.favoriteIds) : null;
-  const favoriteOrder = new Map(favoriteIds?.map((id, index) => [id, index]));
-  const search = trSearch(query.search ?? '');
+  // null (not an empty Map) when the query is not favorites-scoped: an empty Map is
+  // truthy, so the membership filter below would silently reject every row.
+  const favoriteOrder = favoriteIds ? new Map(favoriteIds.map((id, index) => [id, index])) : null;
+  // Same expansion source as the SQL path (parity): TR queries may carry alias
+  // expansions; the literal term is always patterns[0].
+  const searchPatterns =
+    query.language === 'tr'
+      ? expandProgramSearch(query.search ?? '')
+      : [trSearch(query.search ?? '')].filter(Boolean);
   const filtered = programsPack.programs
     .flatMap((program) => {
       const publishable = fallbackProgram(program);
@@ -349,10 +533,11 @@ function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): P
     .filter((program) => !query.scholarship || program.scholarship === query.scholarship)
     .filter((program) => !favoriteOrder || favoriteOrder.has(program.id))
     .filter((program) => {
-      if (!search) return true;
-      return trSearch(
+      if (!searchPatterns.length) return true;
+      const haystack = trSearch(
         `${program.name[query.language]} ${program.university[query.language]}`,
-      ).includes(search);
+      );
+      return searchPatterns.some((pattern) => haystack.includes(pattern));
     })
     .sort((left, right) => {
       if (favoriteOrder) {

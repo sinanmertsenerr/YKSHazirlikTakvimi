@@ -19,14 +19,28 @@ type ProgramsState = {
   loading: boolean;
   loadingMore: boolean;
   hasMore: boolean;
+  error: Error | null;
 };
+
+type ProgramFacetsState = {
+  queryKey: string;
+  cities: string[];
+  languages: string[];
+  loading: boolean;
+  error: Error | null;
+};
+
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error));
+}
 
 function useDebouncedValue(value: string, delay: number): string {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
+    if (value === debounced) return;
     const timeout = setTimeout(() => setDebounced(value), delay);
     return () => clearTimeout(timeout);
-  }, [delay, value]);
+  }, [debounced, delay, value]);
   return debounced;
 }
 
@@ -61,7 +75,9 @@ export function usePrograms(query: Omit<ProgramPageQuery, 'limit' | 'offset'>) {
     loading: true,
     loadingMore: false,
     hasMore: false,
+    error: null,
   });
+  const [requestVersion, setRequestVersion] = useState(0);
   const generation = useRef(0);
   const nextOffset = useRef(PAGE_SIZE);
   const loadingMore = useRef(false);
@@ -90,9 +106,10 @@ export function usePrograms(query: Omit<ProgramPageQuery, 'limit' | 'offset'>) {
           loading: false,
           loadingMore: false,
           hasMore: page.hasMore,
+          error: null,
         });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (generation.current !== requestGeneration) return;
         loadedQueryKey.current = queryKey;
         setState({
@@ -101,9 +118,20 @@ export function usePrograms(query: Omit<ProgramPageQuery, 'limit' | 'offset'>) {
           loading: false,
           loadingMore: false,
           hasMore: false,
+          error: toError(error),
         });
       });
-  }, [queryKey, stableQuery]);
+  }, [queryKey, requestVersion, stableQuery]);
+
+  const retry = useCallback(() => {
+    loadedQueryKey.current = '';
+    setState((current) =>
+      current.queryKey === queryKey
+        ? { ...current, loading: true, loadingMore: false, error: null }
+        : current,
+    );
+    setRequestVersion((version) => version + 1);
+  }, [queryKey]);
 
   const loadMore = useCallback(() => {
     if (loadedQueryKey.current !== queryKey || loadingMore.current || !hasMore.current) return;
@@ -123,12 +151,18 @@ export function usePrograms(query: Omit<ProgramPageQuery, 'limit' | 'offset'>) {
           loading: false,
           loadingMore: false,
           hasMore: page.hasMore,
+          error: null,
         }));
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (generation.current !== requestGeneration) return;
         hasMore.current = false;
-        setState((current) => ({ ...current, loadingMore: false, hasMore: false }));
+        setState((current) => ({
+          ...current,
+          loadingMore: false,
+          hasMore: false,
+          error: toError(error),
+        }));
       })
       .finally(() => {
         if (generation.current === requestGeneration) loadingMore.current = false;
@@ -141,23 +175,28 @@ export function usePrograms(query: Omit<ProgramPageQuery, 'limit' | 'offset'>) {
       loading: true,
       loadingMore: false,
       hasMore: false,
+      error: null,
       loadMore,
+      retry,
     };
   }
-  return { ...state, loadMore };
+  return { ...state, loadMore, retry };
 }
 
 export function useProgram(programId: string | undefined) {
   const contentRevision = useContentRevisionStore((state) => state.revision);
   const queryKey = `${contentRevision}:${programId ?? ''}`;
+  const [requestVersion, setRequestVersion] = useState(0);
   const [state, setState] = useState<{
     queryKey: string;
     program: Program | null;
     loading: boolean;
+    error: Error | null;
   }>({
     queryKey: '',
     program: null,
     loading: true,
+    error: null,
   });
 
   useEffect(() => {
@@ -169,54 +208,98 @@ export function useProgram(programId: string | undefined) {
     }
     void queryProgramById(programId)
       .then((program) => {
-        if (active) setState({ queryKey, program, loading: false });
+        if (active) setState({ queryKey, program, loading: false, error: null });
       })
-      .catch(() => {
-        if (active) setState({ queryKey, program: null, loading: false });
+      .catch((error: unknown) => {
+        if (active) setState({ queryKey, program: null, loading: false, error: toError(error) });
       });
     return () => {
       active = false;
     };
-  }, [programId, queryKey]);
+  }, [programId, queryKey, requestVersion]);
 
-  if (!programId) return { program: null, loading: false };
-  return state.queryKey === queryKey ? state : { program: null, loading: true };
+  const retry = useCallback(() => {
+    setState((current) =>
+      current.queryKey === queryKey
+        ? { ...current, program: null, loading: true, error: null }
+        : current,
+    );
+    setRequestVersion((version) => version + 1);
+  }, [queryKey]);
+  if (!programId) return { program: null, loading: false, error: null, retry };
+  return state.queryKey === queryKey
+    ? { ...state, retry }
+    : { program: null, loading: true, error: null, retry };
 }
 
-export function useProgramCities(language: ProgramQueryLanguage): string[] {
+export function useProgramFacets(language: ProgramQueryLanguage, enabled: boolean) {
   const contentRevision = useContentRevisionStore((state) => state.revision);
-  const [cities, setCities] = useState<string[]>([]);
-  useEffect(() => {
-    let active = true;
-    void queryProgramCities(language)
-      .then((next) => {
-        if (active) setCities(next);
-      })
-      .catch(() => {
-        if (active) setCities([]);
-      });
-    return () => {
-      active = false;
-    };
-  }, [contentRevision, language]);
-  return cities;
-}
+  const queryKey = `${contentRevision}:${language}`;
+  const [requestVersion, setRequestVersion] = useState(0);
+  const [state, setState] = useState<ProgramFacetsState>({
+    queryKey: '',
+    cities: [],
+    languages: [],
+    loading: false,
+    error: null,
+  });
+  const generation = useRef(0);
+  const loadedQueryKey = useRef('');
+  const failedQueryKey = useRef('');
 
-export function useProgramLanguages(language: ProgramQueryLanguage): string[] {
-  const contentRevision = useContentRevisionStore((state) => state.revision);
-  const [languages, setLanguages] = useState<string[]>([]);
   useEffect(() => {
+    if (!enabled || loadedQueryKey.current === queryKey || failedQueryKey.current === queryKey)
+      return;
+    const requestGeneration = ++generation.current;
     let active = true;
-    void queryProgramLanguages(language)
-      .then((next) => {
-        if (active) setLanguages(next);
+    void Promise.all([queryProgramCities(language), queryProgramLanguages(language)])
+      .then(([cities, languages]) => {
+        if (!active || generation.current !== requestGeneration) return;
+        loadedQueryKey.current = queryKey;
+        failedQueryKey.current = '';
+        setState({
+          queryKey,
+          cities,
+          languages,
+          loading: false,
+          error: null,
+        });
       })
-      .catch(() => {
-        if (active) setLanguages([]);
+      .catch((error: unknown) => {
+        if (!active || generation.current !== requestGeneration) return;
+        loadedQueryKey.current = '';
+        failedQueryKey.current = queryKey;
+        setState({
+          queryKey,
+          cities: [],
+          languages: [],
+          loading: false,
+          error: toError(error),
+        });
       });
     return () => {
       active = false;
     };
-  }, [contentRevision, language]);
-  return languages;
+  }, [enabled, language, queryKey, requestVersion]);
+
+  const retry = useCallback(() => {
+    loadedQueryKey.current = '';
+    failedQueryKey.current = '';
+    setState((current) =>
+      current.queryKey === queryKey
+        ? { ...current, cities: [], languages: [], loading: true, error: null }
+        : current,
+    );
+    setRequestVersion((version) => version + 1);
+  }, [queryKey]);
+  if (state.queryKey !== queryKey) {
+    return {
+      cities: [],
+      languages: [],
+      loading: enabled,
+      error: null,
+      retry,
+    };
+  }
+  return { ...state, retry };
 }

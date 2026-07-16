@@ -1,10 +1,11 @@
 import type { Program } from '@/data/content';
+import { expandProgramSearch } from '@/features/programs/searchAliases';
 import { trSearch } from '@/utils/format';
 
 export type ProgramQueryLanguage = 'tr' | 'en';
 
 export type ProgramListFilters = {
-  scoreType: Extract<Program['scoreType'], 'say' | 'ea' | 'soz' | 'dil'>;
+  scoreType: Program['scoreType'];
   language: ProgramQueryLanguage;
   search?: string;
   city?: string | null;
@@ -96,14 +97,24 @@ function filterWhere(filters: ProgramListFilters): {
     parameters.push(filters.scholarship);
   }
 
-  const search = normalizeProgramSearch(filters.search ?? '');
-  if (search) {
+  // Alias expansion is TR-only (the abbreviations expand to Turkish official names) and
+  // returns the literal term first; every pattern goes through escapeProgramLike exactly
+  // like direct user input. The OR group is parenthesized into ONE clause — the clauses
+  // array is joined with AND, and an unparenthesized OR would let its branches bypass
+  // every other predicate (including the publishability gates) via operator precedence.
+  const rawSearch = filters.search ?? '';
+  const patterns =
+    filters.language === 'tr'
+      ? expandProgramSearch(rawSearch)
+      : [trSearch(rawSearch)].filter(Boolean);
+  if (patterns.length) {
     const nameColumn = filters.language === 'en' ? 'p.name_en' : 'p.name';
     const universityColumn = filters.language === 'en' ? 'p.university_en' : 'p.university';
+    const likeClause = `${normalizedSqlColumn(`${nameColumn} || ' ' || ${universityColumn}`)} LIKE '%' || ? || '%' ESCAPE '!'`;
     clauses.push(
-      `${normalizedSqlColumn(`${nameColumn} || ' ' || ${universityColumn}`)} LIKE '%' || ? || '%' ESCAPE '!'`,
+      patterns.length === 1 ? likeClause : `(${patterns.map(() => likeClause).join(' OR ')})`,
     );
-    parameters.push(search);
+    parameters.push(...patterns.map(escapeProgramLike));
   }
 
   return { clauses, parameters };

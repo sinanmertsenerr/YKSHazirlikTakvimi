@@ -54,6 +54,51 @@ describe('program SQLite query construction', () => {
     expect(normalizeProgramSearch('KÂĞIT')).toBe('kagıt');
   });
 
+  it('expands a Turkish abbreviation into one parenthesized OR group with bound parameters', () => {
+    const query = buildProgramListQuery(
+      { scoreType: 'say', language: 'tr', search: 'ODTÜ' },
+      60,
+      0,
+    );
+
+    // The OR group must stay one self-parenthesized AND-term: unparenthesized, SQL
+    // operator precedence would let the second branch bypass the publishability and
+    // score-type predicates entirely.
+    expect(query.sql).toMatch(/\(\s*lower\([\s\S]+?ESCAPE '!' OR [\s\S]+?ESCAPE '!'\s*\)/);
+    expect(query.parameters).toEqual(['say', 'odtu', 'orta dogu teknik universitesi', 60, 0]);
+  });
+
+  it('applies the same alias expansion to favorites-scoped search', () => {
+    const query = buildFavoriteProgramIdsQuery(
+      { scoreType: 'ea', language: 'tr', search: 'pdr' },
+      ['3001'],
+    );
+
+    expect(query.parameters).toEqual(['ea', 'pdr', 'rehberlik ve psikolojik danısmanlık', '3001']);
+  });
+
+  it('keeps the EN search path single-pattern (aliases are TR-only)', () => {
+    const query = buildProgramListQuery(
+      { scoreType: 'say', language: 'en', search: 'ODTÜ' },
+      60,
+      0,
+    );
+
+    expect((query.sql.match(/LIKE/g) ?? []).length).toBe(1);
+    expect(query.parameters).toEqual(['say', 'odtu', 60, 0]);
+  });
+
+  it('escapes LIKE metacharacters in every expanded pattern', () => {
+    const query = buildProgramListQuery(
+      { scoreType: 'say', language: 'tr', search: 'YBS_%' },
+      60,
+      0,
+    );
+
+    // Not an alias (suffix breaks the whole-query match) → single escaped literal.
+    expect(query.parameters).toEqual(['say', 'ybs!_!%', 60, 0]);
+  });
+
   it('uses only the selected locale column for city facets', () => {
     expect(buildProgramCitiesQuery('tr').sql).toContain('p.city AS city');
     expect(buildProgramCitiesQuery('en').sql).toContain('p.city_en AS city');
