@@ -20,17 +20,14 @@ import {
   upsertExam,
   upsertTopicProgress,
 } from '@/db/repository';
-import type { ExamRecord, TopicStatus, UserDataSnapshot } from '@/db/types';
+import type { ExamRecord, UserDataSnapshot } from '@/db/types';
 import { useTheme } from '@/theme/useTheme';
+import { withStartupPhase } from '@/utils/startupDiagnostics';
 
 type AppDataContextValue = UserDataSnapshot & {
   ready: boolean;
   refresh: () => Promise<void>;
-  setTopicProgress: (
-    topicId: string,
-    status: TopicStatus,
-    confidence: number | null,
-  ) => Promise<void>;
+  setTopicProgress: (topicId: string, percent: number) => Promise<void>;
   saveExam: (exam: ExamRecord) => Promise<void>;
   removeExam: (id: string) => Promise<void>;
   setFavorite: (programId: string, favorite: boolean) => Promise<void>;
@@ -47,32 +44,44 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [loadError, setLoadError] = useState<Error | null>(null);
   const [retrying, setRetrying] = useState(false);
   const mutationQueue = useRef<Promise<void>>(Promise.resolve());
+  const mounted = useRef(true);
+  const loadGeneration = useRef(0);
   const { t } = useTranslation();
   const { colors, radii, typography } = useTheme();
 
   const refresh = useCallback(async () => {
-    const next = await loadUserData();
-    setData(next);
-    setReady(true);
-    setLoadError(null);
+    const generation = ++loadGeneration.current;
+    try {
+      const next = await withStartupPhase('user-data.load', () => loadUserData());
+      if (!mounted.current || generation !== loadGeneration.current) return;
+      setData(next);
+      setReady(true);
+      setLoadError(null);
+    } catch (error) {
+      if (mounted.current && generation === loadGeneration.current) {
+        setLoadError(error instanceof Error ? error : new Error(String(error)));
+      }
+      throw error;
+    }
   }, []);
 
   useEffect(() => {
-    let active = true;
-    void loadUserData().then(
+    mounted.current = true;
+    const generation = ++loadGeneration.current;
+    void withStartupPhase('user-data.load', () => loadUserData()).then(
       (next) => {
-        if (!active) return;
+        if (!mounted.current || generation !== loadGeneration.current) return;
         setData(next);
         setReady(true);
         setLoadError(null);
       },
       (error: unknown) => {
-        if (!active) return;
+        if (!mounted.current || generation !== loadGeneration.current) return;
         setLoadError(error instanceof Error ? error : new Error(String(error)));
       },
     );
     return () => {
-      active = false;
+      mounted.current = false;
     };
   }, []);
 
@@ -82,8 +91,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setLoadError(null);
     try {
       await refresh();
-    } catch (error) {
-      setLoadError(error instanceof Error ? error : new Error(String(error)));
+    } catch {
+      // refresh() records the current generation's error for the non-blocking banner.
     } finally {
       setRetrying(false);
     }
@@ -105,9 +114,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       ...data,
       ready,
       refresh,
-      setTopicProgress: (topicId, status, confidence) =>
+      setTopicProgress: (topicId, percent) =>
         enqueueMutation(async () => {
-          await upsertTopicProgress(topicId, status, confidence);
+          await upsertTopicProgress(topicId, percent);
           await refresh();
         }),
       saveExam: (exam) =>
@@ -139,47 +148,48 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [data, enqueueMutation, ready, refresh],
   );
 
-  if (!ready) {
-    if (!loadError) {
-      return (
-        <View
-          accessibilityLabel={t('common.loading')}
-          accessibilityRole="progressbar"
-          style={[styles.loadState, { backgroundColor: colors.background }]}
-        >
-          <ActivityIndicator color={colors.brand} size="large" />
-        </View>
-      );
-    }
-    return (
-      <View style={[styles.loadState, { backgroundColor: colors.background }]}>
-        <Text
-          accessibilityLiveRegion="assertive"
-          style={[typography.body, styles.loadMessage, { color: colors.label }]}
-        >
-          {t('common.dataLoadFailed')}
-        </Text>
-        <Pressable
-          accessibilityLabel={t('common.retry')}
-          accessibilityRole="button"
-          accessibilityState={{ disabled: retrying }}
-          disabled={retrying}
-          onPress={() => void retryInitialLoad()}
-          style={({ pressed }) => [
-            styles.retryButton,
-            { backgroundColor: colors.brand, borderRadius: radii.button },
-            pressed && styles.pressed,
-            retrying && styles.disabled,
-          ]}
-        >
-          {retrying ? <ActivityIndicator color={colors.onBrand} /> : null}
-          <Text style={[typography.headline, { color: colors.onBrand }]}>{t('common.retry')}</Text>
-        </Pressable>
+  return (
+    <AppDataContext.Provider value={value}>
+      <View style={[styles.providerRoot, { backgroundColor: colors.background }]}>
+        {loadError ? (
+          <View
+            accessibilityLiveRegion="assertive"
+            style={[
+              styles.errorBanner,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.danger,
+                borderRadius: radii.button,
+              },
+            ]}
+          >
+            <Text style={[typography.body, styles.loadMessage, { color: colors.label }]}>
+              {t('common.dataLoadFailed')}
+            </Text>
+            <Pressable
+              accessibilityLabel={t('common.retry')}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: retrying }}
+              disabled={retrying}
+              onPress={() => void retryInitialLoad()}
+              style={({ pressed }) => [
+                styles.retryButton,
+                { backgroundColor: colors.brand, borderRadius: radii.button },
+                pressed && styles.pressed,
+                retrying && styles.disabled,
+              ]}
+            >
+              {retrying ? <ActivityIndicator color={colors.onBrand} size="small" /> : null}
+              <Text style={[typography.headline, { color: colors.onBrand }]}>
+                {t('common.retry')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
+        <View style={styles.providerContent}>{children}</View>
       </View>
-    );
-  }
-
-  return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
+    </AppDataContext.Provider>
+  );
 }
 
 export function useAppData() {
@@ -189,22 +199,25 @@ export function useAppData() {
 }
 
 const styles = StyleSheet.create({
-  loadState: {
+  providerRoot: { flex: 1 },
+  providerContent: { flex: 1 },
+  errorBanner: {
     alignItems: 'center',
-    flex: 1,
+    borderWidth: 1,
+    flexDirection: 'row',
     gap: 18,
-    justifyContent: 'center',
-    padding: 24,
+    marginHorizontal: 12,
+    marginTop: 8,
+    padding: 12,
   },
-  loadMessage: { maxWidth: 420, textAlign: 'center' },
+  loadMessage: { flex: 1, minWidth: 0 },
   retryButton: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: 8,
     justifyContent: 'center',
-    minHeight: 48,
-    minWidth: 160,
-    paddingHorizontal: 18,
+    minHeight: 40,
+    paddingHorizontal: 14,
   },
   pressed: { opacity: 0.66 },
   disabled: { opacity: 0.45 },

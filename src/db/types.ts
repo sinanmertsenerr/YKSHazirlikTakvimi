@@ -4,6 +4,7 @@ export type TopicProgressRecord = {
   topicId: string;
   status: TopicStatus;
   confidence: number | null;
+  percent: number;
   updatedAt: number;
 };
 

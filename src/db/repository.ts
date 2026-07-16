@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
-import { openDatabaseSync } from 'expo-sqlite';
+import { openDatabaseSync, type SQLiteDatabase } from 'expo-sqlite';
 
 import {
   activityLog,
@@ -10,26 +10,33 @@ import {
   schema,
   topicProgress,
 } from './schema';
-import { countsAsProgressActivity, istanbulDay } from './activity';
-import type { ExamRecord, TopicProgressRecord, TopicStatus, UserDataSnapshot } from './types';
+import { countsAsProgressActivity, istanbulDay, percentToStatus } from './activity';
+import type {
+  ExamRecord,
+  ExamSectionRecord,
+  TopicProgressRecord,
+  TopicStatus,
+  UserDataSnapshot,
+} from './types';
 
 export { istanbulDay } from './activity';
 
-const sqlite = openDatabaseSync('yks-user.db');
-sqlite.execSync('PRAGMA journal_mode = WAL;');
-
 /**
  * SQLite cannot ALTER a CHECK constraint in place, and `CREATE TABLE IF NOT EXISTS` never
- * re-runs on existing installs. Version 1 rebuilds `deneme` so its exam CHECK admits 'ydt'.
+ * re-runs on existing installs, so schema changes go through here. Every step guards itself on
+ * the stored table SQL, so running from any prior version is safe.
+ * - v1 rebuilds `deneme` so its exam CHECK admits 'ydt'.
+ * - v2 adds the additive `percent` column to `topic_progress` (status is now derived from it)
+ *   and backfills it from the existing status.
  */
-const USER_DB_VERSION = 1;
-function migrateUserDatabase(): void {
+const USER_DB_VERSION = 2;
+function migrateUserDatabase(sqlite: SQLiteDatabase): void {
   const versionRow = sqlite.getFirstSync<{ user_version: number }>('PRAGMA user_version');
   if ((versionRow?.user_version ?? 0) >= USER_DB_VERSION) return;
-  const existing = sqlite.getFirstSync<{ sql: string }>(
+  const denemeTable = sqlite.getFirstSync<{ sql: string }>(
     "SELECT sql FROM sqlite_master WHERE type='table' AND name='deneme'",
   );
-  if (existing && !existing.sql.includes("'ydt'")) {
+  if (denemeTable && !denemeTable.sql.includes("'ydt'")) {
     sqlite.execSync(`
       PRAGMA foreign_keys = OFF;
       BEGIN;
@@ -46,52 +53,121 @@ function migrateUserDatabase(): void {
       COMMIT;
     `);
   }
+  const progressTable = sqlite.getFirstSync<{ sql: string }>(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='topic_progress'",
+  );
+  if (progressTable && !progressTable.sql.includes('percent')) {
+    sqlite.execSync(`
+      BEGIN;
+      ALTER TABLE topic_progress
+        ADD COLUMN percent INTEGER NOT NULL DEFAULT 0 CHECK(percent BETWEEN 0 AND 100);
+      UPDATE topic_progress SET percent = CASE status
+        WHEN 'done' THEN 100
+        WHEN 'working' THEN 50
+        ELSE 0
+      END;
+      COMMIT;
+    `);
+  } else if (progressTable) {
+    // Repair pass for databases stranded by the pre-transactional version of this
+    // migration: column added but backfill never ran (we only get here while
+    // user_version < USER_DB_VERSION). status 'working'/'done' with percent 0 cannot
+    // be produced by the percent-based writer, so the backfill is safe to re-apply.
+    sqlite.execSync(`
+      UPDATE topic_progress SET percent = CASE status
+        WHEN 'done' THEN 100
+        WHEN 'working' THEN 50
+        ELSE 0
+      END
+      WHERE percent = 0 AND status != 'none';
+    `);
+  }
   sqlite.execSync(`PRAGMA user_version = ${USER_DB_VERSION};`);
 }
-migrateUserDatabase();
 
-sqlite.execSync(`
-  PRAGMA foreign_keys = ON;
-  CREATE TABLE IF NOT EXISTS topic_progress (
-    topic_id TEXT PRIMARY KEY,
-    status TEXT NOT NULL DEFAULT 'none' CHECK(status IN ('none','working','done')),
-    confidence INTEGER CHECK(confidence IS NULL OR confidence BETWEEN 1 AND 5),
-    updated_at INTEGER NOT NULL
-  );
-  CREATE TABLE IF NOT EXISTS deneme (
-    id TEXT PRIMARY KEY,
-    date INTEGER NOT NULL,
-    exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt','ydt')),
-    publisher TEXT,
-    notes TEXT
-  );
-  CREATE TABLE IF NOT EXISTS deneme_net (
-    deneme_id TEXT NOT NULL REFERENCES deneme(id) ON DELETE CASCADE,
-    section_id TEXT NOT NULL,
-    correct INTEGER NOT NULL CHECK(correct >= 0),
-    wrong INTEGER NOT NULL CHECK(wrong >= 0),
-    blank INTEGER NOT NULL CHECK(blank >= 0),
-    PRIMARY KEY (deneme_id, section_id)
-  );
-  CREATE TABLE IF NOT EXISTS favorite_program (
-    program_id TEXT PRIMARY KEY,
-    sort_order INTEGER NOT NULL,
-    added_at INTEGER NOT NULL
-  );
-  CREATE TABLE IF NOT EXISTS activity_log (
-    id TEXT PRIMARY KEY,
-    day TEXT NOT NULL,
-    type TEXT NOT NULL CHECK(type IN ('progress','exam')),
-    questions INTEGER NOT NULL DEFAULT 0,
-    topic_id TEXT,
-    created_at INTEGER NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS ix_activity_day ON activity_log(day);
-`);
+function createUserRepository() {
+  const sqlite = openDatabaseSync('yks-user.db');
+  try {
+    sqlite.execSync('PRAGMA journal_mode = WAL;');
+    migrateUserDatabase(sqlite);
+    sqlite.execSync(`
+      PRAGMA foreign_keys = ON;
+      CREATE TABLE IF NOT EXISTS topic_progress (
+        topic_id TEXT PRIMARY KEY,
+        status TEXT NOT NULL DEFAULT 'none' CHECK(status IN ('none','working','done')),
+        confidence INTEGER CHECK(confidence IS NULL OR confidence BETWEEN 1 AND 5),
+        percent INTEGER NOT NULL DEFAULT 0 CHECK(percent BETWEEN 0 AND 100),
+        updated_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS deneme (
+        id TEXT PRIMARY KEY,
+        date INTEGER NOT NULL,
+        exam TEXT NOT NULL CHECK(exam IN ('tyt','ayt','ydt')),
+        publisher TEXT,
+        notes TEXT
+      );
+      CREATE TABLE IF NOT EXISTS deneme_net (
+        deneme_id TEXT NOT NULL REFERENCES deneme(id) ON DELETE CASCADE,
+        section_id TEXT NOT NULL,
+        correct INTEGER NOT NULL CHECK(correct >= 0),
+        wrong INTEGER NOT NULL CHECK(wrong >= 0),
+        blank INTEGER NOT NULL CHECK(blank >= 0),
+        PRIMARY KEY (deneme_id, section_id)
+      );
+      CREATE TABLE IF NOT EXISTS favorite_program (
+        program_id TEXT PRIMARY KEY,
+        sort_order INTEGER NOT NULL,
+        added_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS activity_log (
+        id TEXT PRIMARY KEY,
+        day TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('progress','exam')),
+        questions INTEGER NOT NULL DEFAULT 0,
+        topic_id TEXT,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS ix_activity_day ON activity_log(day);
+      CREATE INDEX IF NOT EXISTS ix_activity_created_at ON activity_log(created_at DESC);
+    `);
+    return { sqlite, db: drizzle(sqlite, { schema }) };
+  } catch (error) {
+    try {
+      sqlite.closeSync();
+    } catch {
+      // The initialization error remains authoritative even if closing the failed handle also fails.
+    }
+    throw error;
+  }
+}
 
-const db = drizzle(sqlite, { schema });
+type UserRepository = ReturnType<typeof createUserRepository>;
+let userRepository: UserRepository | null = null;
+
+function getUserRepository(): UserRepository {
+  if (!userRepository) userRepository = createUserRepository();
+  return userRepository;
+}
+
+/** Explicit bootstrap hook; normal callers initialize lazily through their first operation. */
+export function initializeUserDatabase(): void {
+  getUserRepository();
+}
+
+export function groupExamSectionsByExamId(
+  rows: (ExamSectionRecord & { examId: string })[],
+): Map<string, (ExamSectionRecord & { examId: string })[]> {
+  const grouped = new Map<string, (ExamSectionRecord & { examId: string })[]>();
+  for (const row of rows) {
+    const current = grouped.get(row.examId);
+    if (current) current.push(row);
+    else grouped.set(row.examId, [row]);
+  }
+  return grouped;
+}
 
 export async function loadUserData(): Promise<UserDataSnapshot> {
+  const { db } = getUserRepository();
   const [progress, examRows, netRows, favoriteRows, activities] = await Promise.all([
     db.select().from(topicProgress),
     db.select().from(mockExam).orderBy(desc(mockExam.date)),
@@ -99,13 +175,14 @@ export async function loadUserData(): Promise<UserDataSnapshot> {
     db.select().from(favoriteProgram).orderBy(asc(favoriteProgram.sortOrder)),
     db.select().from(activityLog).orderBy(desc(activityLog.createdAt)),
   ]);
+  const sectionsByExamId = groupExamSectionsByExamId(netRows);
   const exams: ExamRecord[] = examRows.map((exam) => ({
     id: exam.id,
     date: exam.date,
     exam: exam.exam,
     publisher: exam.publisher ?? '',
     notes: exam.notes ?? '',
-    sections: netRows.filter((net) => net.examId === exam.id),
+    sections: sectionsByExamId.get(exam.id) ?? [],
   }));
   return {
     progress,
@@ -117,22 +194,24 @@ export async function loadUserData(): Promise<UserDataSnapshot> {
 
 export async function upsertTopicProgress(
   topicId: string,
-  status: TopicStatus,
-  confidence: number | null,
+  percent: number,
 ): Promise<TopicProgressRecord> {
+  const { sqlite } = getUserRepository();
   const updatedAt = Date.now();
-  const record = { topicId, status, confidence, updatedAt };
+  const status = percentToStatus(percent);
+  const record: TopicProgressRecord = { topicId, status, confidence: null, percent, updatedAt };
   const day = istanbulDay(updatedAt);
   const activityId = `progress:${topicId}:${day}`;
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     await transaction.runAsync(
-      `INSERT INTO topic_progress (topic_id, status, confidence, updated_at)
-       VALUES (?, ?, ?, ?)
+      `INSERT INTO topic_progress (topic_id, status, confidence, percent, updated_at)
+       VALUES (?, ?, ?, ?, ?)
        ON CONFLICT(topic_id) DO UPDATE SET status=excluded.status,
-         confidence=excluded.confidence, updated_at=excluded.updated_at`,
+         confidence=excluded.confidence, percent=excluded.percent, updated_at=excluded.updated_at`,
       topicId,
       status,
-      confidence,
+      null,
+      percent,
       updatedAt,
     );
     if (countsAsProgressActivity(status)) {
@@ -154,6 +233,7 @@ export async function upsertTopicProgress(
 }
 
 export async function upsertExam(record: ExamRecord): Promise<void> {
+  const { sqlite } = getUserRepository();
   const now = Date.now();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     await transaction.runAsync(
@@ -198,6 +278,7 @@ export async function upsertExam(record: ExamRecord): Promise<void> {
 }
 
 export async function removeExam(id: string): Promise<void> {
+  const { sqlite } = getUserRepository();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     await transaction.runAsync('DELETE FROM deneme WHERE id = ?', id);
     await transaction.runAsync('DELETE FROM activity_log WHERE id = ?', `exam:${id}`);
@@ -205,6 +286,7 @@ export async function removeExam(id: string): Promise<void> {
 }
 
 export async function setFavorite(programId: string, favorite: boolean): Promise<void> {
+  const { db, sqlite } = getUserRepository();
   if (!favorite) {
     await db.delete(favoriteProgram).where(eq(favoriteProgram.programId, programId));
     return;
@@ -221,6 +303,7 @@ export async function setFavorite(programId: string, favorite: boolean): Promise
 }
 
 export async function reorderFavorites(ids: string[]): Promise<void> {
+  const { sqlite } = getUserRepository();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     for (const [index, id] of ids.entries()) {
       await transaction.runAsync(
@@ -233,6 +316,7 @@ export async function reorderFavorites(ids: string[]): Promise<void> {
 }
 
 export async function replaceUserData(snapshot: UserDataSnapshot): Promise<void> {
+  const { sqlite } = getUserRepository();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     await transaction.execAsync(`
       DELETE FROM activity_log;
@@ -243,10 +327,11 @@ export async function replaceUserData(snapshot: UserDataSnapshot): Promise<void>
     `);
     for (const progress of snapshot.progress) {
       await transaction.runAsync(
-        'INSERT INTO topic_progress (topic_id,status,confidence,updated_at) VALUES (?,?,?,?)',
+        'INSERT INTO topic_progress (topic_id,status,confidence,percent,updated_at) VALUES (?,?,?,?,?)',
         progress.topicId,
         progress.status,
         progress.confidence,
+        progress.percent,
         progress.updatedAt,
       );
     }
@@ -297,6 +382,7 @@ export async function clearUserData() {
 }
 
 export async function loadExamById(id: string): Promise<ExamRecord | null> {
+  const { db } = getUserRepository();
   const rows = await db.select().from(mockExam).where(eq(mockExam.id, id)).limit(1);
   const exam = rows[0];
   if (!exam) return null;
@@ -312,6 +398,7 @@ export async function loadExamById(id: string): Promise<ExamRecord | null> {
 }
 
 export async function removeOrphanedFavorites(validProgramIds: string[]) {
+  const { db } = getUserRepository();
   const favorites = await db.select().from(favoriteProgram);
   const orphaned = favorites
     .filter((favorite) => !validProgramIds.includes(favorite.programId))
@@ -322,6 +409,7 @@ export async function removeOrphanedFavorites(validProgramIds: string[]) {
 }
 
 export async function hasProgress(topicId: string, status: TopicStatus) {
+  const { db } = getUserRepository();
   const result = await db
     .select({ topicId: topicProgress.topicId })
     .from(topicProgress)

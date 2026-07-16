@@ -5,7 +5,12 @@ jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn() }));
 jest.mock('expo-file-system', () => ({ File: jest.fn(), Paths: { cache: 'cache' } }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
 
-import { BackupValidationError, parseBackupDocument, parseBackupText } from './backup';
+import {
+  BackupValidationError,
+  createBackupSnapshot,
+  parseBackupDocument,
+  parseBackupText,
+} from './backup';
 
 const validBackup = {
   schemaVersion: 1,
@@ -27,7 +32,13 @@ const validBackup = {
   },
   userData: {
     progress: [
-      { topicId: 'paragraf', status: 'working', confidence: 3, updatedAt: 1_700_000_000_000 },
+      {
+        topicId: 'paragraf',
+        status: 'working',
+        confidence: 3,
+        percent: 50,
+        updatedAt: 1_700_000_000_000,
+      },
     ],
     exams: [],
     favorites: ['10001'],
@@ -38,6 +49,62 @@ const validBackup = {
 describe('backup validation', () => {
   it('returns a typed snapshot for a valid versioned backup', () => {
     expect(parseBackupText(JSON.stringify(validBackup))).toEqual(validBackup);
+  });
+
+  it('never exports device-local pack telemetry or a persisted network error', () => {
+    const snapshot = createBackupSnapshot(
+      {
+        progress: [
+          {
+            topicId: 'paragraf',
+            status: 'working',
+            confidence: 3,
+            percent: 50,
+            updatedAt: 1_700_000_000_000,
+          },
+        ],
+        exams: [],
+        favorites: ['10001'],
+        activities: [],
+      },
+      {
+        language: 'tr',
+        theme: 'system',
+        examYear: 2027,
+        examYearMode: 'automatic',
+        targetScoreType: 'say',
+        targetNet: 95,
+        diplomaNote: 80,
+        notificationPrefs: {
+          dailyEnabled: true,
+          dateAlertsEnabled: true,
+          hour: 19,
+          minute: 0,
+        },
+        activePackVersion: '2026.07.4',
+        lastPackCheckTs: 3000,
+        lastPackSuccessTs: 2000,
+        lastPackFailureTs: 3000,
+        lastPackError: 'private device transport detail',
+      },
+      new Date(validBackup.exportedAt),
+    );
+    expect(snapshot.settings).toEqual(validBackup.settings);
+    expect(JSON.stringify(snapshot)).not.toContain('private device transport detail');
+    expect(snapshot).not.toHaveProperty('settings.activePackVersion');
+    expect(snapshot).not.toHaveProperty('settings.lastPackFailureTs');
+  });
+
+  it('derives percent from status for backups written before the slider', () => {
+    const legacy = {
+      ...validBackup,
+      userData: {
+        ...validBackup.userData,
+        progress: [{ topicId: 'paragraf', status: 'done', confidence: null, updatedAt: 1 }],
+      },
+    };
+    const parsed = parseBackupText(JSON.stringify(legacy));
+    expect(parsed.userData.progress[0]?.percent).toBe(100);
   });
 
   it('rejects unsupported versions before any caller mutation', () => {

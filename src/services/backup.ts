@@ -5,6 +5,7 @@ import * as Sharing from 'expo-sharing';
 import { z } from 'zod';
 
 import { examSections } from '@/data/examStructure';
+import { percentToStatus } from '@/db/activity';
 import type { UserDataSnapshot } from '@/db/types';
 import { getSettingsSnapshot, type SettingsSnapshot } from '@/stores/settings';
 
@@ -37,9 +38,20 @@ const topicProgressSchema = z
     topicId: z.string().trim().min(1).max(200),
     status: z.enum(['none', 'working', 'done']),
     confidence: z.number().int().min(1).max(5).nullable(),
+    percent: z.number().int().min(0).max(100).optional(),
     updatedAt: z.number().int().nonnegative(),
   })
-  .strict();
+  .strict()
+  // Backups written before the percent slider omit it; derive it from status so old files
+  // still import cleanly (done → 100, working → 50, none → 0). When percent IS present it
+  // is the source of truth, so status is re-derived from it — a file carrying an
+  // inconsistent pair (e.g. status 'done', percent 30) would otherwise make the screens
+  // that read status disagree with the ones that derive from percent.
+  .transform((record) => {
+    const percent =
+      record.percent ?? (record.status === 'done' ? 100 : record.status === 'working' ? 50 : 0);
+    return { ...record, percent, status: percentToStatus(percent) };
+  });
 
 const examSectionSchema = z
   .object({
@@ -184,7 +196,7 @@ export class BackupValidationError extends Error {
   }
 }
 
-function toBackupSnapshot(
+export function createBackupSnapshot(
   userData: UserDataSnapshot,
   settings: SettingsSnapshot,
   now = new Date(),
@@ -193,6 +205,9 @@ function toBackupSnapshot(
     activePackVersion: _activePackVersion,
     examYearMode: _examYearMode,
     lastPackCheckTs: _lastPackCheckTs,
+    lastPackSuccessTs: _lastPackSuccessTs,
+    lastPackFailureTs: _lastPackFailureTs,
+    lastPackError: _lastPackError,
     ...userSettings
   } = settings;
   return backupV1Schema.parse({
@@ -221,7 +236,7 @@ export async function exportUserBackup(
   userData: UserDataSnapshot,
   settings: SettingsSnapshot = getSettingsSnapshot(),
 ): Promise<{ file: File; snapshot: BackupSnapshot }> {
-  const snapshot = toBackupSnapshot(userData, settings);
+  const snapshot = createBackupSnapshot(userData, settings);
   const contents = `${JSON.stringify(snapshot, null, 2)}\n`;
   if (new TextEncoder().encode(contents).byteLength > MAX_BACKUP_BYTES) {
     throw new Error('The backup is larger than 10 MB and cannot be exported safely.');

@@ -15,3 +15,10 @@ export function istanbulDay(timestamp = Date.now()) {
 export function countsAsProgressActivity(status: TopicStatus): boolean {
   return status === 'working' || status === 'done';
 }
+
+// Status is derived from the single 0–100 percent: 100 = done, any progress = working, 0 = none.
+export function percentToStatus(percent: number): TopicStatus {
+  if (percent >= 100) return 'done';
+  if (percent > 0) return 'working';
+  return 'none';
+}

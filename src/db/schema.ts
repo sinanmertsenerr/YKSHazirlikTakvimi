@@ -6,6 +6,7 @@ export const topicProgress = sqliteTable('topic_progress', {
     .notNull()
     .default('none'),
   confidence: integer('confidence'),
+  percent: integer('percent').notNull().default(0),
   updatedAt: integer('updated_at').notNull(),
 });
 
