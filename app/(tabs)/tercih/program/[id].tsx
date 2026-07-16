@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -36,7 +36,7 @@ async function openProgramSource(source: string) {
 
 export default function ProgramDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { program, loading } = useProgram(id);
+  const { program, loading, error, retry } = useProgram(id);
   const { t, i18n } = useTranslation();
   const { colors, typography } = useTheme();
   const { favorites, setFavorite } = useAppData();
@@ -46,6 +46,19 @@ export default function ProgramDetailScreen() {
       <Screen>
         <AppHeader back title={t('preference.programs')} />
         <ActivityIndicator color={colors.brand} size="large" style={styles.loading} />
+      </Screen>
+    );
+  }
+  if (error) {
+    return (
+      <Screen>
+        <AppHeader back title={t('preference.programs')} />
+        <EmptyState
+          action={{ title: t('common.retry'), onPress: retry }}
+          body={t('preference.programLoadFailed')}
+          icon="error-outline"
+          title={t('preference.programs')}
+        />
       </Screen>
     );
   }
@@ -77,7 +90,11 @@ export default function ProgramDetailScreen() {
       </View>
       <Button
         icon={favorite ? 'star' : 'star-border'}
-        onPress={() => void setFavorite(program.id, !favorite)}
+        onPress={() =>
+          void setFavorite(program.id, !favorite).catch(() =>
+            Alert.alert(t('preference.programs'), t('preference.favoriteSaveFailed')),
+          )
+        }
         title={favorite ? t('preference.unfavorite') : t('preference.favorite')}
         variant={favorite ? 'secondary' : 'primary'}
       />
@@ -125,7 +142,11 @@ export default function ProgramDetailScreen() {
           </View>
         </View>
         <Button
-          onPress={() => void openProgramSource(program.source!)}
+          onPress={() =>
+            void openProgramSource(program.source!).catch(() =>
+              Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
+            )
+          }
           title={t('common.officialSource')}
           variant="secondary"
         />
