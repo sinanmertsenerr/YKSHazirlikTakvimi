@@ -99,6 +99,15 @@ describe('program SQLite query construction', () => {
     expect(query.parameters).toEqual(['say', 'ybs!_!%', 60, 0]);
   });
 
+  it('ranks by the most recent year with a PUBLISHED rank (pending years never sink a program)', () => {
+    const query = buildProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0);
+
+    // The walk-back predicate is what keeps a program whose current-year cutoff is not
+    // yet announced sorted by its newest ranked year instead of below every ranked row.
+    expect(query.sql).toContain('py_latest.min_rank IS NOT NULL');
+    expect(query.sql).toContain('ORDER BY latest.min_rank IS NULL, latest.min_rank, p.id');
+  });
+
   it('uses only the selected locale column for city facets', () => {
     expect(buildProgramCitiesQuery('tr').sql).toContain('p.city AS city');
     expect(buildProgramCitiesQuery('en').sql).toContain('p.city_en AS city');

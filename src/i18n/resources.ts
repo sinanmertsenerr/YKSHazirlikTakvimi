@@ -195,6 +195,12 @@ export const resources = {
           'Şehir ve dil seçenekleri açılamadı. Program listesini kullanmaya devam edebilir veya yeniden deneyebilirsin.',
         years: 'Son yıllar',
         quota: 'Kontenjan',
+        cutoffPending: 'Taban puan/sıralama henüz açıklanmadı',
+        talentDataPending:
+          'Özel yetenekle öğrenci alan programlar, YÖK Atlas bu yılın kılavuz verisini yayımladığında burada otomatik görünecek.',
+        talentExam: 'Özel yetenek sınavı ile öğrenci alır',
+        talentExamNotice:
+          'Bu program merkezî yerleştirmeyle değil, TYT puanı ve üniversitenin kendi özel yetenek sınavıyla öğrenci alır. Başvuru şartları ve sınav takvimi için üniversitenin kılavuzunu inceleyin.',
         favorite: 'Favoriye ekle',
         unfavorite: 'Favoriden çıkar',
         favoriteSaveFailed:
@@ -450,6 +456,12 @@ export const resources = {
           'City and language options could not be opened. You can keep using the program list or try again.',
         years: 'Recent years',
         quota: 'Quota',
+        cutoffPending: 'Cutoff score/rank not yet published',
+        talentDataPending:
+          'Talent-exam programs will appear here automatically once YÖK Atlas publishes this year’s guide data.',
+        talentExam: 'Admits students through a talent exam',
+        talentExamNotice:
+          'This program admits students through the university’s own talent exam together with a TYT score, not through central placement. Check the university’s guide for application requirements and the exam schedule.',
         favorite: 'Add favorite',
         unfavorite: 'Remove favorite',
         favoriteSaveFailed:

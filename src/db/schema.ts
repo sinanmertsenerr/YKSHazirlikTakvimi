@@ -56,7 +56,8 @@ export const program = sqliteTable('program', {
   cityTr: text('city_tr').notNull(),
   cityEn: text('city_en').notNull(),
   type: text('type', { enum: ['devlet', 'vakif', 'kibris'] }).notNull(),
-  scoreType: text('score_type', { enum: ['say', 'ea', 'soz', 'tyt', 'dil'] }).notNull(),
+  // Mirror only — the real pack DDL lives in scripts/build-programs.ts (source of truth).
+  scoreType: text('score_type', { enum: ['say', 'ea', 'soz', 'tyt', 'dil', 'yetenek'] }).notNull(),
   scholarship: text('scholarship'),
   language: text('language'),
   verified: integer('verified', { mode: 'boolean' }).notNull().default(false),

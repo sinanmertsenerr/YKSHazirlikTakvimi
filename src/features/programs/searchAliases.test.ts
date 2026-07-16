@@ -25,6 +25,18 @@ describe('program search alias expansion', () => {
     expect(expandProgramSearch('odtü bilgisayar')).toEqual(['odtu bilgisayar']);
   });
 
+  it('expands BESYO to all five sports families under the raised cap', () => {
+    expect(MAX_ALIAS_EXPANSIONS).toBe(5);
+    expect(expandProgramSearch('besyo')).toEqual([
+      'besyo',
+      'spor yoneticiligi',
+      'rekreasyon',
+      'beden egitimi',
+      'antrenorluk',
+      'egzersiz ve spor',
+    ]);
+  });
+
   it('returns no patterns for blank input', () => {
     expect(expandProgramSearch('')).toEqual([]);
     expect(expandProgramSearch('   ')).toEqual([]);

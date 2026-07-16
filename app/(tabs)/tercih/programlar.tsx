@@ -25,7 +25,12 @@ import {
 } from '@/components/ui';
 import type { Program } from '@/data/content';
 import { defaultProgramFilters, type ProgramFilters } from '@/features/programs/filters';
-import { programScholarshipLabelKey, programTypeLabelKey } from '@/features/programs/labels';
+import {
+  PROGRAM_SCORE_TYPES,
+  programScholarshipLabelKey,
+  programScoreTypeChipLabel,
+  programTypeLabelKey,
+} from '@/features/programs/labels';
 import { ProgramFilterSheet } from '@/features/programs/ProgramFilterSheet';
 import { useProgramFacets, usePrograms } from '@/features/programs/usePrograms';
 import { useAppData } from '@/providers/AppDataProvider';
@@ -126,9 +131,19 @@ export default function ProgramsScreen() {
   // while the actual list data only updates after usePrograms' 250 ms debounce.
   const renderProgram = useCallback(
     ({ item }: { item: Program }) => {
+      // The card shows the same year the list is sorted by: the most recent year with a
+      // published cutoff. When no year has one yet (e.g. a brand-new program), fall back
+      // to the newest year and say the cutoff is pending instead of printing bare dashes.
       let latest = item.years[0];
+      let ranked: (typeof item.years)[number] | undefined;
       for (const year of item.years) {
         if (!latest || year.year > latest.year) latest = year;
+        if (
+          (year.minScore !== null || year.minRank !== null) &&
+          (!ranked || year.year > ranked.year)
+        ) {
+          ranked = year;
+        }
       }
       const favorite = favoriteSet.has(item.id);
       return (
@@ -152,14 +167,21 @@ export default function ProgramsScreen() {
                   {item.scholarship ? ` · ${t(programScholarshipLabelKey(item.scholarship))}` : ''}
                   {item.language ? ` · ${item.language[language]}` : ''}
                 </Text>
-                <Text style={[typography.footnote, { color: colors.secondaryLabel, marginTop: 4 }]}>
-                  {latest?.year ?? '—'}:{' '}
-                  <Text style={{ color: colors.label, fontWeight: '700' }}>
-                    {latest?.minScore
-                      ? `${formatNumber(latest.minScore, language, 1)} ${t('common.points')}`
-                      : '—'}{' '}
-                    · {latest?.minRank ? formatNumber(latest.minRank, language, 0) : '—'}
-                  </Text>
+                <Text
+                  numberOfLines={2}
+                  style={[typography.footnote, { color: colors.secondaryLabel, marginTop: 4 }]}
+                >
+                  {(ranked ?? latest)?.year ?? '—'}:{' '}
+                  {ranked ? (
+                    <Text style={{ color: colors.label, fontWeight: '700' }}>
+                      {ranked.minScore
+                        ? `${formatNumber(ranked.minScore, language, 1)} ${t('common.points')}`
+                        : '—'}{' '}
+                      · {ranked.minRank ? formatNumber(ranked.minRank, language, 0) : '—'}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: colors.label }}>{t('preference.cutoffPending')}</Text>
+                  )}
                 </Text>
               </View>
               <View style={styles.actions}>
@@ -246,6 +268,14 @@ export default function ProgramsScreen() {
               icon="error-outline"
               title={t('preference.programs')}
             />
+          ) : scoreType === 'yetenek' && !query && activeFilterCount === 0 ? (
+            // Honest empty state: TABLO 5 is legitimately empty until YÖK Atlas loads
+            // each year's kılavuz; the weekly pack refresh picks it up automatically.
+            <EmptyState
+              body={t('preference.talentDataPending')}
+              icon="hourglass-empty"
+              title={t('preference.talentExam')}
+            />
           ) : (
             <EmptyState
               body={t('preference.sampleData')}
@@ -277,27 +307,21 @@ export default function ProgramsScreen() {
               subtitle={t('preference.officialProgramData')}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filters}>
-              {(['tyt', 'say', 'ea', 'soz', 'dil'] as const).map((value) => (
+              {PROGRAM_SCORE_TYPES.map((value) => (
                 <Chip
                   backgroundColor={scoreType === value ? colors.brand : colors.surface}
                   color={scoreType === value ? colors.onBrand : colors.label}
                   key={value}
                   onPress={() => {
                     setScoreType(value);
-                    // 'tyt' is an önlisans browse mode, not a target-track preference;
-                    // writing it into settings would leak into ayarlar/backup, which
-                    // only model the four lisans tracks.
-                    if (value !== 'tyt') setStoredScoreType(value);
+                    // 'tyt' (önlisans) and 'yetenek' (talent-exam) are browse modes, not
+                    // target-track preferences; writing them into settings would leak
+                    // into ayarlar/backup, which only model the four lisans tracks.
+                    if (value !== 'tyt' && value !== 'yetenek') setStoredScoreType(value);
                   }}
                   selected={scoreType === value}
                 >
-                  {value === 'soz'
-                    ? 'SÖZ'
-                    : value === 'dil'
-                      ? language === 'en'
-                        ? 'LANG'
-                        : 'DİL'
-                      : value.toUpperCase()}
+                  {programScoreTypeChipLabel(value, language)}
                 </Chip>
               ))}
             </ScrollView>

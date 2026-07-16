@@ -28,6 +28,15 @@ test('scheduled health checks cover Pages, news integrity, publisher recency, an
   assert.match(workflow, /uses: \.\/\.github\/workflows\/notify-issue\.yml/);
 });
 
+test('scheduled health checks verify the published program pack independently of news', async () => {
+  const workflow = await repositoryFile('.github/workflows/content-health.yml');
+  assert.match(workflow, /\.files\.programs\.path/);
+  assert.match(workflow, /\.files\.programs\.bytes/);
+  assert.match(workflow, /\.files\.programs\.sha256/);
+  assert.match(workflow, /"\$pack_base\/\$programs_path"/);
+  assert.match(workflow, /sha256sum "\$programs"/);
+});
+
 test('deployment runbook records the default-branch and independent-monitor prerequisites', async () => {
   const deployment = await repositoryFile('docs/DEPLOYMENT.md');
   assert.match(deployment, /must both exist on the repository's\s+default branch/);

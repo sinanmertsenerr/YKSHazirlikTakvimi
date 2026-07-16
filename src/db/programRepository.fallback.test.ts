@@ -99,4 +99,33 @@ describe('web fallback search parity with the SQL path', () => {
     const page = await queryProgramPage({ scoreType: 'ea', language: 'tr', search: 'bilgisayar' });
     expect(page.programs.map((program) => program.id)).toEqual(['2']);
   });
+
+  it('ranks by the most recent PUBLISHED rank, matching the SQL walk-back', async () => {
+    const content = jest.requireMock('@/data/content') as { programsPack: { programs: Program[] } };
+    const year = makeProgram({ id: 'template' }).years[0]!;
+    content.programsPack.programs = [
+      // Regression for the "3 of 4 BESYO programs sink past page 1" bug: a pending
+      // current-year cutoff must fall back to the newest ranked year, not to the bottom.
+      makeProgram({
+        id: 'pending-2025',
+        years: [
+          { ...year, year: 2025, minScore: null, minRank: null },
+          { ...year, year: 2024, minScore: 380, minRank: 30_000 },
+        ],
+      }),
+      makeProgram({ id: 'ranked-2025', years: [{ ...year, year: 2025, minRank: 62_000 }] }),
+      makeProgram({
+        id: 'never-ranked',
+        years: [{ ...year, year: 2025, minScore: null, minRank: null }],
+      }),
+    ];
+    const { queryProgramPage } = require('./programRepository') as
+      typeof import('./programRepository');
+    const page = await queryProgramPage({ scoreType: 'ea', language: 'tr' });
+    expect(page.programs.map((program) => program.id)).toEqual([
+      'pending-2025',
+      'ranked-2025',
+      'never-ranked',
+    ]);
+  });
 });

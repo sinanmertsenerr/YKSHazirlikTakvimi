@@ -1368,7 +1368,11 @@ const programSchema = z
     name: localizedTextSchema,
     city: localizedTextSchema,
     type: z.enum(['devlet', 'vakif', 'kibris']),
-    scoreType: z.enum(['say', 'ea', 'soz', 'tyt', 'dil']),
+    // 'yetenek' = özel yetenek (talent-exam) admission from YÖK Atlas TABLO 5: these
+    // programs have no central cutoff (minScore/minRank stay null); older app binaries
+    // reject the value at runtime validation and simply never show such rows — the
+    // intended forward-compat behavior, so the shared CURRENT_SCHEMA_VERSION never bumps.
+    scoreType: z.enum(['say', 'ea', 'soz', 'tyt', 'dil', 'yetenek']),
     scholarship: z.enum(['burslu', '%25', '%50', 'ucretli']).nullable(),
     language: localizedTextSchema.nullable(),
     ...programVerificationShape,
