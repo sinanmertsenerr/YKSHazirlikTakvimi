@@ -1,5 +1,32 @@
 # Content changelog
 
+## 2026-07-16 — Özel yetenek (TABLO 5) programları uçtan uca; sıralama ve BESYO araması düzeltildi
+
+- Program şemasına 6. puan türü eklendi: `yetenek` (özel yetenek sınavı ile alan programlar,
+  ÖSYM TABLO 5). Bilinçli tasarım: `admission` kolonu YERİNE enum değeri — eski uygulama
+  binary'leri değeri runtime doğrulamasında düşürür ve bu satırları hiç göstermez (sızıntı yok),
+  paylaşılan `CURRENT_SCHEMA_VERSION` hiç zıplamaz (zıplasaydı eski binary'ler tüm pack
+  güncellemelerini sonsuza dek reddederdi).
+- Importer artık YÖK Atlas'ın üçüncü sihirbaz seviyesini de tarıyor: `birimTuruId: 48`
+  ("ÖZEL YETENEK", canlı doğrulandı 2026-07-16; SPA bundle canary token'ı sözleşme denetimine
+  eklendi). Seviye şu an 0 satır dönüyor (`yil: 2026` — TABLO 5 her yılın kılavuzuyla yüklenir;
+  2025 kılavuzu 30 Temmuz'da yayımlanmıştı) ve boş sweep bilinçli olarak başarı sayılıyor
+  (`allowEmpty`). İlk gerçek veri geldiğinde haftalık cron otomatik alır; ilk dolu import'un
+  provenance artefaktını `workflow_dispatch` ile insan gözüyle denetlemek önerilir.
+- Liste sıralaması düzeltildi: sıralama anahtarı artık "en son yılın sıralaması" değil "sıralaması
+  YAYIMLANMIŞ en son yıl". Güncel yılı henüz açıklanmamış programlar (ör. 4 Beden Eğitimi ve Spor
+  Öğretmenliği programının 3'ü) artık listenin dibine gömülmüyor; kart, sıralamayı kazanan yılın
+  değerlerini o yılın etiketiyle gösteriyor, hiç verisi olmayanlar "henüz açıklanmadı" diyor.
+- BESYO araması genişletildi: alias tavanı 3→5; `Antrenörlük` ve `Egzersiz ve Spor` eklendi
+  (canlı fixture kanıtlı: 1 + 3 eşleşme).
+- CI'ya §9.1 semantik kapsam eşikleri eklendi (`validate:pack`): toplam ve puan türü başına
+  ERROR tabanları (2025 snapshot'ının ~%25-30 altı), spor ailesi ve güncel yıl doluluk WARN'ları;
+  `yetenek` tabanı 0 (ilk gerçek TABLO 5 import'undan sonra yükseltilecek — TODO işaretli).
+  `content-health` artık yayımlanan `programs.db`'nin bütünlüğünü de bağımsız doğruluyor.
+- Geri alma tarifi: bozuk bir program yayını, önceki fixture'ın DAHA YENİ bir `packVersion` ile
+  yeniden yayımlanmasıyla geri alınır (istemciler yalnız kesin-daha-yeni sürümü kurar; eski sürüm
+  numarası tekrar servis edilemez).
+
 ## 2026-07-15 — Future MEB editions ingest without a code change; honest 2026 UI
 
 - Loosened the OGM registry schema so a future MEB edition (same content ids, a 2018-2026 span,

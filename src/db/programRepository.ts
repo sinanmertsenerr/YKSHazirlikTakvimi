@@ -473,6 +473,12 @@ async function hydratePrograms(
 
   const programs = rows.flatMap((row) => {
     const program = mapProgram(row, yearsByProgram.get(row.id) ?? []);
+    if (!program && __DEV__) {
+      // A drop on a CURRENT binary means the pack and the runtime schema drifted (old
+      // binaries dropping newer categories is by design and never reaches this code).
+      // hasMore stays SQL-side on purpose: offset pagination needs the pre-drop count.
+      console.warn(`Program row ${row.id} failed runtime validation and was dropped`);
+    }
     return program ? [program] : [];
   });
   if (!orderedIds) return programs;
@@ -504,6 +510,21 @@ async function queryFavoritePage(
     programs: await hydratePrograms(database, rows, visibleIds),
     hasMore,
   };
+}
+
+// Parity with the SQL walk-back in buildProgramListQuery: rank by the most recent year
+// that has a PUBLISHED min_rank (fixture years are newest-first, but this doesn't rely
+// on that ordering); programs with no ranked year at all sort last.
+function latestRankedMinRank(program: Program): number {
+  let bestYear = Number.NEGATIVE_INFINITY;
+  let bestRank = Number.MAX_SAFE_INTEGER;
+  for (const year of program.years) {
+    if (year.minRank !== null && year.year > bestYear) {
+      bestYear = year.year;
+      bestRank = year.minRank;
+    }
+  }
+  return bestRank;
 }
 
 function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): ProgramPage {
@@ -544,8 +565,7 @@ function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): P
         return (favoriteOrder.get(left.id) ?? 0) - (favoriteOrder.get(right.id) ?? 0);
       }
       return (
-        (left.years[0]?.minRank ?? Number.MAX_SAFE_INTEGER) -
-          (right.years[0]?.minRank ?? Number.MAX_SAFE_INTEGER) || left.id.localeCompare(right.id)
+        latestRankedMinRank(left) - latestRankedMinRank(right) || left.id.localeCompare(right.id)
       );
     });
   return {

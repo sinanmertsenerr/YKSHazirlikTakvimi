@@ -12,10 +12,12 @@ import {
 import {
   buildYokAtlasFixture,
   fetchAllYokAtlasPrograms,
+  fetchAllYokAtlasTalentPrograms,
   stabilizeYokAtlasFixture,
   YOK_ATLAS_API_URL,
   YOK_ATLAS_DETAIL_BASE_URL,
   YOK_ATLAS_LEVELS,
+  YOK_ATLAS_TALENT_LEVEL,
 } from './lib/yok-atlas.ts';
 
 const YOK_ATLAS_APP_URL = 'https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php';
@@ -101,6 +103,10 @@ async function discoverAndVerifySpaBundle(
     'basariSirasi2',
     'basariSirasi3',
     '["gk".concat',
+    // Özel yetenek canary (live-verified 2026-07-16): the wizard's level selector must
+    // keep offering birimTuruId 48. Matched without the leading Ö so both raw-UTF-8 and
+    // \xd6-escaped bundle encodings pass.
+    'ZEL YETENEK",value:48',
   ];
   const missing = requiredContractEvidence.filter((token) => !bundle.includes(token));
   if (missing.length) {
@@ -199,7 +205,20 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
     fetchImpl: options.fetchImpl,
     onProgress: (message) => console.log(message),
   });
-  const { fixture: candidateFixture, statistics } = buildYokAtlasFixture(fetched.rows, verifiedAt);
+  // Same straight-line throw chain as the merkezi sweep: a talent-level failure aborts
+  // the WHOLE import before anything is written — no partial fixture can ever publish.
+  // (An EMPTY talent level is a success, not a failure; see fetchAllYokAtlasTalentPrograms.)
+  const talent = await fetchAllYokAtlasTalentPrograms({
+    pageSize: options.pageSize,
+    requestDelayMs: options.requestDelayMs,
+    fetchImpl: options.fetchImpl,
+    onProgress: (message) => console.log(message),
+  });
+  const { fixture: candidateFixture, statistics } = buildYokAtlasFixture(
+    fetched.rows,
+    verifiedAt,
+    talent.rows,
+  );
   const existingFixtureJson = await readTextFileIfExists(options.outputPath);
   const { fixture, fixtureJson, reusedExistingBytes } = prepareStableProgramsFixture(
     candidateFixture,
@@ -221,20 +240,24 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       detailBaseUrl: YOK_ATLAS_DETAIL_BASE_URL,
       snapshotSource: fetched.statistics.snapshotSource,
       snapshotYear: fetched.statistics.snapshotYear,
+      // TABLO 5 runs on its own kılavuz cycle; its snapshot year is independent of the
+      // merkezi levels' year and may lead it around each year's guide publication.
+      talentSnapshotYear: talent.statistics.snapshotYear,
       spaBundle: bundle,
     },
     selection: {
       // One sweep per program level; TYT is the önlisans placement score, the other four
       // sweep lisans. Kept as data (not prose) so the audit trail names the exact API filters.
-      levels: YOK_ATLAS_LEVELS,
+      levels: [...YOK_ATLAS_LEVELS, YOK_ATLAS_TALENT_LEVEL],
       supportedUniversityTypes: ['DEVLET', 'VAKIF', 'KKTC'],
       localePolicy: 'source-only',
     },
     pagination: {
       pageSize: options.pageSize,
       delayMs: options.requestDelayMs,
-      requestCount: fetched.statistics.requestCount,
+      requestCount: fetched.statistics.requestCount + talent.statistics.requestCount,
       totalsByScoreType: fetched.statistics.totalsByScoreType,
+      talentRows: talent.statistics.rowCount,
     },
     fieldMappings: {
       currentYear: {
@@ -252,10 +275,14 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
         'null — no proven year-by-year placed-count field is imported; values are never inferred',
       unsupportedScholarship:
         'null — source label remains visible in birimAdi and is counted below; no lossy category mapping',
+      talent:
+        "scoreType 'yetenek' — TABLO 5 rows regardless of source puanTuru label; central cutoffs stay null (admission is TYT threshold + university talent exam)",
     },
     result: {
       receivedRows: statistics.receivedRows,
+      receivedTalentRows: statistics.receivedTalentRows,
       importedPrograms: statistics.importedPrograms,
+      importedTalentPrograms: statistics.importedTalentPrograms,
       programYears,
       skippedPrograms,
       skippedByUniversityType: statistics.skippedByUniversityType,
@@ -280,6 +307,7 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
   console.log(
     `${options.dryRun ? 'Validated' : reusedExistingBytes ? 'Audited' : 'Imported'} ${statistics.importedPrograms} official programs ` +
       `and ${programYears} program-year rows from the ${fetched.statistics.snapshotYear} YÖK Atlas snapshot` +
+      ` (özel yetenek: ${statistics.importedTalentPrograms} of ${statistics.receivedTalentRows} rows, ${talent.statistics.snapshotYear} snapshot)` +
       `${skippedPrograms ? `; skipped ${skippedPrograms} unsupported foreign-type rows` : ''}.`,
   );
 }

@@ -10,11 +10,12 @@ import { trSearch } from '@/utils/format';
 // cross-verified on the web (≥2 independent sources; official university/YÖK sites +
 // tercih guides) AND counted in the live fixture — hit counts noted per line. 'AÜ' was
 // deliberately excluded: ambiguous across ≥5 universities in real usage. BESYO is an
-// institution type, not a program; it expands to its three largest centrally-placed
-// program families (Antrenörlük=1 and Egzersiz ve Spor=3 hits dropped by the cap).
+// institution type, not a program; it expands to every centrally-placed program family
+// hosted by BESYO faculties (talent-exam BESYO programs arrive separately under the
+// 'yetenek' score type once YÖK Atlas publishes TABLO 5 data).
 const RAW_ALIASES: Record<string, readonly string[]> = {
   // Bölümler
-  BESYO: ['Spor Yöneticiliği', 'Rekreasyon', 'Beden Eğitimi'], // 112 + 27 + 4
+  BESYO: ['Spor Yöneticiliği', 'Rekreasyon', 'Beden Eğitimi', 'Antrenörlük', 'Egzersiz ve Spor'], // 112 + 27 + 4 + 1 + 3
   BÖTE: ['Bilgisayar ve Öğretim Teknolojileri'], // 14
   EEM: ['Elektrik-Elektronik Mühendisliği'], // 259
   MBG: ['Moleküler Biyoloji ve Genetik'], // 112
@@ -45,10 +46,10 @@ const RAW_ALIASES: Record<string, readonly string[]> = {
   YTÜ: ['Yıldız Teknik Üniversitesi'], // 62
 };
 
-// 1 literal term + up to 3 expansions = at most 4 LIKE branches per query. Measured cost
+// 1 literal term + up to 5 expansions = at most 6 LIKE branches per query. Measured cost
 // is ~17 ms per branch on the largest score-type partition (9,155 rows, desktop CPU), so
-// 4 branches stays comfortably inside the 250 ms search debounce even on slower phones.
-export const MAX_ALIAS_EXPANSIONS = 3;
+// 6 branches (~102 ms) still fits inside the 250 ms search debounce even on slower phones.
+export const MAX_ALIAS_EXPANSIONS = 5;
 
 // Alias KEYS additionally fold ı→i so ASCII typing matches: trSearch('IIBF') → 'ııbf'
 // while trSearch('İİBF') → 'iibf'. The fold applies only to dictionary-key lookup —

@@ -81,7 +81,11 @@ Official undergraduate program data is refreshed with
 `npm run import:programs -- --expected-year <year>`. The importer uses only the public YÖK Atlas
 preference-guide API, pins the expected snapshot year, paginates sequentially with a delay, retries
 transient failures, enforces response-size and record-count guards, and atomically replaces the
-fixture only after the complete snapshot passes Zod validation. `programs.provenance.json` records
+fixture only after the complete snapshot passes Zod validation. Besides the merkezi levels
+(lisans 46, önlisans 47) it sweeps the özel yetenek level (birimTuruId 48, ÖSYM TABLO 5) into the
+`yetenek` score type; that level legitimately returns zero rows until each year's kılavuz loads
+(an empty sweep is audited in provenance, never treated as a failure), its snapshot year is
+independent of the merkezi year, and talent rows never carry central cutoffs. `programs.provenance.json` records
 the API and application-bundle hashes, field mappings, counts, skipped source categories, and the
 verification timestamp. Program labels are not machine-translated; the official Turkish source
 text is retained in both locales. Run `npm run build:programs` after importing.

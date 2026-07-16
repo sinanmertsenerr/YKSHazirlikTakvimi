@@ -15,7 +15,11 @@ import {
   SectionTitle,
 } from '@/components/ui';
 import { useProgram } from '@/features/programs/usePrograms';
-import { programScholarshipLabelKey, programTypeLabelKey } from '@/features/programs/labels';
+import {
+  programScholarshipLabelKey,
+  programScoreTypeChipLabel,
+  programTypeLabelKey,
+} from '@/features/programs/labels';
 import { useAppData } from '@/providers/AppDataProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatNumber } from '@/utils/format';
@@ -74,12 +78,15 @@ export default function ProgramDetailScreen() {
     );
   }
   const favorite = favorites.includes(program.id);
+  // Captured as a const so the narrowed non-null type survives into the press callback;
+  // publishable rows always carry a source today, but the schema honestly allows null.
+  const source = program.source;
   return (
     <Screen>
       <AppHeader back title={program.name[language]} subtitle={program.university[language]} />
       <View style={styles.chips}>
         <Chip backgroundColor={colors.brandSoft} color={colors.brand}>
-          {program.scoreType.toUpperCase()}
+          {programScoreTypeChipLabel(program.scoreType, language)}
         </Chip>
         <Chip>{program.city[language]}</Chip>
         <Chip>{t(programTypeLabelKey(program.type))}</Chip>
@@ -88,6 +95,19 @@ export default function ProgramDetailScreen() {
         ) : null}
         {program.language ? <Chip>{program.language[language]}</Chip> : null}
       </View>
+      {program.scoreType === 'yetenek' ? (
+        <Card>
+          <View style={styles.sourceRow}>
+            <MaterialIcons color={colors.brand} name="info-outline" size={24} />
+            <View style={styles.grow}>
+              <Text style={[typography.headline, { color: colors.label }]}>
+                {t('preference.talentExam')}
+              </Text>
+              <Footnote>{t('preference.talentExamNotice')}</Footnote>
+            </View>
+          </View>
+        </Card>
+      ) : null}
       <Button
         icon={favorite ? 'star' : 'star-border'}
         onPress={() =>
@@ -112,15 +132,23 @@ export default function ProgramDetailScreen() {
                 {year.year}
               </Text>
               <View style={styles.grow}>
-                <Text style={[typography.footnote, { color: colors.label }]}>
-                  {' '}
-                  {year.minScore
-                    ? `${formatNumber(year.minScore, language, 1)} ${t('common.points')}`
-                    : '—'}
-                </Text>
-                <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
-                  {year.minRank ? formatNumber(year.minRank, language, 0) : '—'}
-                </Text>
+                {year.minScore === null && year.minRank === null ? (
+                  <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+                    {t('preference.cutoffPending')}
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={[typography.footnote, { color: colors.label }]}>
+                      {' '}
+                      {year.minScore
+                        ? `${formatNumber(year.minScore, language, 1)} ${t('common.points')}`
+                        : '—'}
+                    </Text>
+                    <Text style={[typography.footnote, { color: colors.secondaryLabel }]}>
+                      {year.minRank ? formatNumber(year.minRank, language, 0) : '—'}
+                    </Text>
+                  </>
+                )}
               </View>
               <Text
                 numberOfLines={1}
@@ -141,15 +169,17 @@ export default function ProgramDetailScreen() {
             <Footnote>{t('preference.officialProgramData')}</Footnote>
           </View>
         </View>
-        <Button
-          onPress={() =>
-            void openProgramSource(program.source!).catch(() =>
-              Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
-            )
-          }
-          title={t('common.officialSource')}
-          variant="secondary"
-        />
+        {source ? (
+          <Button
+            onPress={() =>
+              void openProgramSource(source).catch(() =>
+                Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
+              )
+            }
+            title={t('common.officialSource')}
+            variant="secondary"
+          />
+        ) : null}
       </Card>
     </Screen>
   );

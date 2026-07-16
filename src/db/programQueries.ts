@@ -147,9 +147,13 @@ export function buildProgramListQuery(
          SELECT max(py_latest.year)
          FROM program_year py_latest
          WHERE py_latest.program_id = p.id
+           AND py_latest.min_rank IS NOT NULL
            AND ${publishableYearPredicate('py_latest')}
        )
       WHERE ${where.clauses.join('\n        AND ')}
+      -- "latest" is the most recent publishable year WITH a published rank: a program
+      -- whose current-year cutoff is still unannounced sorts by its newest ranked year
+      -- instead of sinking below every ranked program; rankless programs stay last.
       ORDER BY latest.min_rank IS NULL, latest.min_rank, p.id
       LIMIT ? OFFSET ?
     `,

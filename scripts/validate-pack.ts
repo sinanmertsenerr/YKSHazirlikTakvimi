@@ -339,6 +339,28 @@ function checkRankTables(rankTables: RankTablesDocument, report: MutableReport):
   }
 }
 
+// §9.1 semantic coverage gates — a silent upstream shrink (an entire category or level
+// vanishing from a YÖK Atlas re-import) must fail the publish rather than ship. ERROR
+// floors sit ~25-30% below the 2025 snapshot counts (say 5.6k, ea 3.9k, soz 1.9k,
+// tyt 9.2k, dil 664) so ordinary yearly drift passes while a structural regression
+// cannot. WARN thresholds surface softer coverage erosion without blocking the pipeline.
+const PROGRAM_COUNT_ERROR_FLOORS = {
+  say: 4000,
+  ea: 3000,
+  soz: 1400,
+  tyt: 7000,
+  dil: 400,
+  // TODO(yetenek): raise above zero once the first real TABLO 5 import lands (the level
+  // is empty until YÖK Atlas loads each year's kılavuz — cold-start floor by design).
+  yetenek: 0,
+} as const satisfies Record<ProgramsFixture['programs'][number]['scoreType'], number>;
+const TOTAL_PROGRAM_ERROR_FLOOR = 15_000;
+const SPORTS_FAMILY_WARN_FLOOR = 100;
+// Matched against toLocaleLowerCase('tr-TR') output; no /i flag on purpose (Turkish İ/ı
+// case folding makes ASCII-insensitive matching unreliable for these names).
+const SPORTS_FAMILY_PATTERN = /beden eğitimi|spor|antrenör|rekreasyon|egzersiz/;
+const CURRENT_YEAR_RANK_FILL_WARN_RATIO = 0.7;
+
 function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport): void {
   for (const duplicate of duplicateValues(programs.programs.map((program) => program.id))) {
     report.errors.push(`programsFixture.programs: duplicate program id ${duplicate}`);
@@ -370,7 +392,66 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
           `programsFixture.${program.id}.${year.year}: placed ${year.placed} cannot exceed quota ${year.quota}`,
         );
       }
+      // Talent-exam admission has no central cutoff; a populated one signals the source
+      // started returning unexpected data for TABLO 5 rows (warn, human review decides).
+      if (program.scoreType === 'yetenek' && (year.minScore !== null || year.minRank !== null)) {
+        report.warnings.push(
+          `programsFixture.${program.id}.${year.year}: talent-exam programs should not carry central cutoffs`,
+        );
+      }
     }
+  }
+
+  const countsByScoreType = new Map<string, number>();
+  let sportsFamilyCount = 0;
+  let latestYear = 0;
+  for (const program of programs.programs) {
+    countsByScoreType.set(program.scoreType, (countsByScoreType.get(program.scoreType) ?? 0) + 1);
+    if (SPORTS_FAMILY_PATTERN.test(program.name.tr.toLocaleLowerCase('tr-TR'))) {
+      sportsFamilyCount += 1;
+    }
+    for (const year of program.years) {
+      if (year.year > latestYear) latestYear = year.year;
+    }
+  }
+
+  if (programs.programs.length < TOTAL_PROGRAM_ERROR_FLOOR) {
+    report.errors.push(
+      `programsFixture: ${programs.programs.length} programs is below the ${TOTAL_PROGRAM_ERROR_FLOOR} coverage floor`,
+    );
+  }
+  for (const [scoreType, floor] of Object.entries(PROGRAM_COUNT_ERROR_FLOORS)) {
+    const count = countsByScoreType.get(scoreType) ?? 0;
+    if (count < floor) {
+      report.errors.push(
+        `programsFixture: ${scoreType} has ${count} programs, below the ${floor} coverage floor`,
+      );
+    }
+  }
+  if (sportsFamilyCount < SPORTS_FAMILY_WARN_FLOOR) {
+    report.warnings.push(
+      `programsFixture: only ${sportsFamilyCount} sports-family programs (floor ${SPORTS_FAMILY_WARN_FLOOR}) — check whether a YÖK Atlas re-import dropped a category`,
+    );
+  }
+
+  // Current-year cutoff fill among centrally-placed programs (talent rows are all-null
+  // by design and would dilute the signal). 2025 baseline: ~84% filled.
+  let currentYearPrograms = 0;
+  let currentYearRanked = 0;
+  for (const program of programs.programs) {
+    if (program.scoreType === 'yetenek') continue;
+    const row = program.years.find((year) => year.year === latestYear);
+    if (!row) continue;
+    currentYearPrograms += 1;
+    if (row.minRank !== null) currentYearRanked += 1;
+  }
+  if (
+    currentYearPrograms > 0 &&
+    currentYearRanked / currentYearPrograms < CURRENT_YEAR_RANK_FILL_WARN_RATIO
+  ) {
+    report.warnings.push(
+      `programsFixture: only ${currentYearRanked}/${currentYearPrograms} centrally-placed programs carry a ${latestYear} min_rank (< ${Math.round(CURRENT_YEAR_RANK_FILL_WARN_RATIO * 100)}%) — source may be mid-publication`,
+    );
   }
 }
 

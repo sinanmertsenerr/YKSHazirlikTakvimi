@@ -21,6 +21,19 @@ export const YOK_ATLAS_LEVELS = [
   { level: 'lisans', birimTuruId: 46, scoreTypes: ['SAY', 'EA', 'SÖZ', 'DİL'] },
   { level: 'onlisans', birimTuruId: 47, scoreTypes: ['TYT'] },
 ] as const;
+// Özel yetenek (talent-exam, ÖSYM TABLO 5) programs live behind a third selector.
+// Verified live 2026-07-16: the SPA bundle lists {label:"ÖZEL YETENEK",value:48} beside
+// 46/47 and the search API accepts birimTuruId 48 with puanTuru null. The level is
+// swept OUTSIDE YOK_ATLAS_LEVELS because none of the merkezi invariants hold for it:
+// rows have no per-scoreType partitioning, no central cutoffs, and an INDEPENDENT
+// snapshot year (observed 2026 while merkezi still served 2025). allowEmpty: the level
+// returns 0 rows until each year's kılavuz loads — an empty sweep is the expected
+// steady state, never an import failure.
+export const YOK_ATLAS_TALENT_LEVEL = {
+  level: 'ozelyetenek',
+  birimTuruId: 48,
+  allowEmpty: true,
+} as const;
 
 const numberLikeSchema = z.union([
   z.number().finite(),
@@ -55,8 +68,17 @@ export const yokAtlasRowSchema = z.object({
   basariSirasi3: nullableNumberLikeSchema,
 });
 
+// TABLO 5 rows have no proven cutoff contract yet (the level stays empty until the
+// yearly kılavuz loads): only identity fields are required, puanTuru is free-form, and
+// any surprise shape aborts the import loudly instead of publishing guessed data.
+export const yokAtlasTalentRowSchema = yokAtlasRowSchema.extend({
+  puanTuru: z.string().trim().min(1).nullish(),
+});
+
+// The page envelope is shared across levels; row validation happens per level because
+// merkezi rows carry the strict 5-value puanTuru enum while TABLO 5 rows do not.
 const yokAtlasPageSchema = z.object({
-  content: z.array(yokAtlasRowSchema),
+  content: z.array(z.unknown()),
   number: z.int().nonnegative(),
   numberOfElements: z.int().nonnegative(),
   size: z.int().positive(),
@@ -67,11 +89,14 @@ const yokAtlasPageSchema = z.object({
 });
 
 export type YokAtlasRow = z.infer<typeof yokAtlasRowSchema>;
+export type YokAtlasTalentRow = z.infer<typeof yokAtlasTalentRowSchema>;
 export type YokAtlasScoreType = (typeof YOK_ATLAS_SCORE_TYPES)[number];
 
 export type ImportStatistics = {
   receivedRows: number;
+  receivedTalentRows: number;
   importedPrograms: number;
+  importedTalentPrograms: number;
   skippedByUniversityType: Record<string, number>;
   omittedScholarshipLabels: Record<string, number>;
 };
@@ -81,6 +106,13 @@ export type FetchStatistics = {
   snapshotYear: number;
   snapshotSource: 'snapshot';
   totalsByScoreType: Record<YokAtlasScoreType, number>;
+};
+
+export type TalentFetchStatistics = {
+  requestCount: number;
+  /** Reported even for an empty sweep — TABLO 5's snapshot year is independent of merkezi. */
+  snapshotYear: number;
+  rowCount: number;
 };
 
 export type FetchYokAtlasOptions = {
@@ -215,7 +247,7 @@ function incrementCounter(counter: Record<string, number>, key: string): void {
 }
 
 function makeYear(
-  row: YokAtlasRow,
+  row: YokAtlasTalentRow,
   year: number,
   suffix: '' | '1' | '2' | '3',
   source: string,
@@ -244,17 +276,32 @@ function makeYear(
   };
 }
 
-export function normalizeYokAtlasRow(
-  input: unknown,
-  verifiedAt: string,
-): {
+type NormalizedRowResult = {
   program: ProgramsFixture['programs'][number] | null;
   skippedUniversityType: string | null;
   omittedScholarshipLabel: string | null;
-} {
+};
+
+export function normalizeYokAtlasRow(input: unknown, verifiedAt: string): NormalizedRowResult {
   const row = yokAtlasRowSchema.parse(input);
   z.iso.datetime({ offset: true }).parse(verifiedAt);
+  return buildNormalizedProgram(row, toScoreType(row.puanTuru), verifiedAt);
+}
 
+/** TABLO 5 rows always map to the 'yetenek' score type regardless of any puanTuru label. */
+export function normalizeYokAtlasTalentRow(input: unknown, verifiedAt: string): NormalizedRowResult {
+  const row = yokAtlasTalentRowSchema.parse(input);
+  z.iso.datetime({ offset: true }).parse(verifiedAt);
+  return buildNormalizedProgram(row, 'yetenek', verifiedAt);
+}
+
+// YokAtlasRow is structurally assignable to YokAtlasTalentRow (its puanTuru enum
+// narrows the talent schema's free-form string), so one builder serves both levels.
+function buildNormalizedProgram(
+  row: YokAtlasTalentRow,
+  scoreType: ProgramsFixture['programs'][number]['scoreType'],
+  verifiedAt: string,
+): NormalizedRowResult {
   const idNumber = parseNonnegativeInteger(row.kilavuzKodu, 'kilavuzKodu');
   if (!idNumber) throw new Error('kilavuzKodu must be a positive integer');
   const id = String(idNumber);
@@ -292,7 +339,7 @@ export function normalizeYokAtlasRow(
       name: sourceOnly(row.birimAdi),
       city: sourceOnly(row.ilAdi),
       type,
-      scoreType: toScoreType(row.puanTuru),
+      scoreType,
       scholarship,
       language: row.ogrenimDiliAdi ? sourceOnly(row.ogrenimDiliAdi) : null,
       verified: true,
@@ -310,23 +357,28 @@ export function normalizeYokAtlasRow(
 export function buildYokAtlasFixture(
   rows: unknown[],
   verifiedAt: string,
+  talentRows: unknown[] = [],
 ): BuildYokAtlasFixtureResult {
   const programs = new Map<string, ProgramsFixture['programs'][number]>();
   const statistics: ImportStatistics = {
     receivedRows: rows.length,
+    receivedTalentRows: talentRows.length,
     importedPrograms: 0,
+    importedTalentPrograms: 0,
     skippedByUniversityType: {},
     omittedScholarshipLabels: {},
   };
 
-  for (const input of rows) {
-    const normalized = normalizeYokAtlasRow(input, verifiedAt);
+  // Merkezi and talent rows share one Map on purpose: ÖSYM YÖP codes are a single
+  // namespace across kılavuz tables, so a cross-level collision is snapshot corruption
+  // and must abort the whole import loudly, exactly like a same-level duplicate.
+  const addNormalizedRow = (normalized: NormalizedRowResult): void => {
     if (!normalized.program) {
       incrementCounter(
         statistics.skippedByUniversityType,
         normalized.skippedUniversityType ?? '<unknown>',
       );
-      continue;
+      return;
     }
     if (normalized.omittedScholarshipLabel) {
       incrementCounter(statistics.omittedScholarshipLabels, normalized.omittedScholarshipLabel);
@@ -337,13 +389,19 @@ export function buildYokAtlasFixture(
       );
     }
     programs.set(normalized.program.id, normalized.program);
-  }
+  };
+
+  for (const input of rows) addNormalizedRow(normalizeYokAtlasRow(input, verifiedAt));
+  for (const input of talentRows) addNormalizedRow(normalizeYokAtlasTalentRow(input, verifiedAt));
 
   const sortedPrograms = [...programs.values()].sort((left, right) =>
     left.id.localeCompare(right.id, 'en', { numeric: true }),
   );
   if (!sortedPrograms.length) throw new Error('YÖK Atlas import produced no supported programs');
   statistics.importedPrograms = sortedPrograms.length;
+  statistics.importedTalentPrograms = sortedPrograms.filter(
+    (program) => program.scoreType === 'yetenek',
+  ).length;
 
   const fixture = programsFixtureSchema.parse({
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -353,8 +411,8 @@ export function buildYokAtlasFixture(
       sample: false,
       source: YOK_ATLAS_API_URL,
       note: {
-        tr: 'YÖK Atlas kamuya açık tercih kılavuzu snapshot verisinden alınmış resmî lisans programlarıdır. İngilizce arayüzde kurum ve program adları kaynak dilinde korunur.',
-        en: 'Official undergraduate programs imported from the public YÖK Atlas preference-guide snapshot. Institution and program names remain in the source language.',
+        tr: 'YÖK Atlas kamuya açık tercih kılavuzu snapshot verisinden alınmış resmî yükseköğretim programlarıdır (merkezi yerleştirme ve özel yetenek). İngilizce arayüzde kurum ve program adları kaynak dilinde korunur.',
+        en: 'Official higher-education programs imported from the public YÖK Atlas preference-guide snapshot (central placement and talent-exam levels). Institution and program names remain in the source language.',
       },
     },
     programs: sortedPrograms,
@@ -364,7 +422,7 @@ export function buildYokAtlasFixture(
 }
 
 function makeSearchBody(
-  scoreType: YokAtlasScoreType,
+  scoreType: YokAtlasScoreType | null,
   birimTuruId: number,
   page: number,
   size: number,
@@ -405,12 +463,13 @@ function wait(milliseconds: number): Promise<void> {
 }
 
 async function fetchPage(
-  scoreType: YokAtlasScoreType,
+  scoreType: YokAtlasScoreType | null,
   birimTuruId: number,
   page: number,
   size: number,
   options: Required<Pick<FetchYokAtlasOptions, 'retries' | 'timeoutMs' | 'fetchImpl'>>,
 ) {
+  const label = scoreType ?? 'ÖZEL YETENEK';
   let lastError: unknown;
   for (let attempt = 0; attempt <= options.retries; attempt += 1) {
     try {
@@ -431,9 +490,7 @@ async function fetchPage(
         response.status === 429 ||
         response.status >= 500;
       if (!response.ok) {
-        const error = new Error(
-          `YÖK Atlas ${scoreType} page ${page} returned HTTP ${response.status}`,
-        );
+        const error = new Error(`YÖK Atlas ${label} page ${page} returned HTTP ${response.status}`);
         if (!retryable || attempt === options.retries) throw error;
         lastError = error;
         await wait(retryAfterMs(response) ?? Math.min(500 * 2 ** attempt, 5_000));
@@ -445,7 +502,7 @@ async function fetchPage(
       }
       const text = await response.text();
       if (text.length > 32 * 1024 * 1024) {
-        throw new Error(`YÖK Atlas ${scoreType} page ${page} exceeded the 32 MiB safety limit`);
+        throw new Error(`YÖK Atlas ${label} page ${page} exceeded the 32 MiB safety limit`);
       }
       return yokAtlasPageSchema.parse(JSON.parse(text) as unknown);
     } catch (error) {
@@ -515,7 +572,8 @@ export async function fetchAllYokAtlasPrograms(
             `YÖK Atlas snapshot year ${result.yil} did not match ${options.expectedYear ?? snapshotYear}`,
           );
         }
-        for (const row of result.content) {
+        for (const raw of result.content) {
+          const row = yokAtlasRowSchema.parse(raw);
           if (row.puanTuru !== scoreType) {
             throw new Error(`YÖK Atlas ${scoreType} query returned a ${row.puanTuru} row`);
           }
@@ -545,5 +603,89 @@ export async function fetchAllYokAtlasPrograms(
       snapshotSource: 'snapshot',
       totalsByScoreType,
     },
+  };
+}
+
+/**
+ * Sweeps the özel yetenek level (birimTuruId 48, puanTuru null — TABLO 5). Unlike the
+ * merkezi sweep this tolerates an EMPTY result (the level carries no rows until each
+ * year's kılavuz loads) and tracks its own snapshot year, which is independent of the
+ * merkezi levels' year. Every other failure mode still aborts loudly.
+ */
+export async function fetchAllYokAtlasTalentPrograms(
+  options: FetchYokAtlasOptions = {},
+): Promise<{ rows: YokAtlasTalentRow[]; statistics: TalentFetchStatistics }> {
+  const pageSize = options.pageSize ?? 500;
+  const requestDelayMs = options.requestDelayMs ?? 250;
+  if (!Number.isSafeInteger(pageSize) || pageSize < 10 || pageSize > 1_000) {
+    throw new Error('pageSize must be an integer from 10 through 1000');
+  }
+  if (!Number.isSafeInteger(requestDelayMs) || requestDelayMs < 0 || requestDelayMs > 10_000) {
+    throw new Error('requestDelayMs must be an integer from 0 through 10000');
+  }
+
+  const fetchOptions = {
+    retries: options.retries ?? 3,
+    timeoutMs: options.timeoutMs ?? 20_000,
+    fetchImpl: options.fetchImpl ?? fetch,
+  };
+  const rows: YokAtlasTalentRow[] = [];
+  let requestCount = 0;
+  let snapshotYear: number | null = null;
+  let expectedTotal: number | null = null;
+  let totalPages: number | null = null;
+
+  for (let page = 0; totalPages === null || page < totalPages; page += 1) {
+    if (requestCount > 100) throw new Error('YÖK Atlas import exceeded the 100-request guard');
+    if (requestCount && requestDelayMs) await wait(requestDelayMs);
+    options.onProgress?.(
+      `YÖK Atlas ÖZEL YETENEK: page ${page + 1}${totalPages ? `/${totalPages}` : ''}`,
+    );
+    const result = await fetchPage(
+      null,
+      YOK_ATLAS_TALENT_LEVEL.birimTuruId,
+      page,
+      pageSize,
+      fetchOptions,
+    );
+    requestCount += 1;
+
+    if (result.number !== page || result.numberOfElements !== result.content.length) {
+      throw new Error(`YÖK Atlas ÖZEL YETENEK page ${page} pagination metadata is inconsistent`);
+    }
+    if (result.totalElements > 25_000 || result.totalPages > 100) {
+      throw new Error('YÖK Atlas ÖZEL YETENEK response exceeded the snapshot safety limits');
+    }
+    if (expectedTotal === null) {
+      expectedTotal = result.totalElements;
+      totalPages = result.totalPages;
+    } else if (expectedTotal !== result.totalElements || totalPages !== result.totalPages) {
+      throw new Error('YÖK Atlas ÖZEL YETENEK snapshot changed during pagination');
+    }
+    if (snapshotYear === null) snapshotYear = result.yil;
+    if (snapshotYear !== result.yil) {
+      throw new Error(
+        `YÖK Atlas ÖZEL YETENEK snapshot year ${result.yil} did not match ${snapshotYear}`,
+      );
+    }
+    for (const raw of result.content) {
+      const row = yokAtlasTalentRowSchema.parse(raw);
+      const rowYear = parseNonnegativeInteger(row.yil, `${row.kilavuzKodu}.yil`);
+      if (rowYear !== result.yil) {
+        throw new Error(`YÖK Atlas row ${row.kilavuzKodu} has an unexpected year ${rowYear}`);
+      }
+      rows.push(row);
+    }
+  }
+
+  if (rows.length !== (expectedTotal ?? 0)) {
+    throw new Error(
+      `YÖK Atlas ÖZEL YETENEK returned ${rows.length} rows, expected ${expectedTotal ?? 0}`,
+    );
+  }
+  if (snapshotYear === null) throw new Error('YÖK Atlas ÖZEL YETENEK returned no snapshot year');
+  return {
+    rows,
+    statistics: { requestCount, snapshotYear, rowCount: rows.length },
   };
 }

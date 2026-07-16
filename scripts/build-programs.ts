@@ -41,7 +41,7 @@ function createSchema(database: DatabaseSync): void {
       city TEXT NOT NULL,
       city_en TEXT NOT NULL,
       type TEXT NOT NULL CHECK (type IN ('devlet', 'vakif', 'kibris')),
-      score_type TEXT NOT NULL CHECK (score_type IN ('say', 'ea', 'soz', 'tyt', 'dil')),
+      score_type TEXT NOT NULL CHECK (score_type IN ('say', 'ea', 'soz', 'tyt', 'dil', 'yetenek')),
       scholarship TEXT CHECK (scholarship IS NULL OR scholarship IN ('burslu', '%25', '%50', 'ucretli')),
       language TEXT,
       language_en TEXT,
