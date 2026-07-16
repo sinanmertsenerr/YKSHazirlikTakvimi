@@ -12,7 +12,15 @@ import {
 
 export const YOK_ATLAS_API_URL = 'https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search';
 export const YOK_ATLAS_DETAIL_BASE_URL = 'https://yokatlas.yok.gov.tr/detay';
-export const YOK_ATLAS_SCORE_TYPES = ['SAY', 'EA', 'SÖZ', 'DİL'] as const;
+export const YOK_ATLAS_SCORE_TYPES = ['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'] as const;
+// YÖK Atlas keeps the two program levels behind distinct birimTuruId selectors (lisans
+// wizard t4 posts 46, önlisans wizard t3 posts 47 — verified against the live search API:
+// puanTuru TYT alone and TYT+birimTuruId 47 both return the same snapshot totals). TYT is
+// the only önlisans placement score; the other four place lisans programs only.
+export const YOK_ATLAS_LEVELS = [
+  { level: 'lisans', birimTuruId: 46, scoreTypes: ['SAY', 'EA', 'SÖZ', 'DİL'] },
+  { level: 'onlisans', birimTuruId: 47, scoreTypes: ['TYT'] },
+] as const;
 
 const numberLikeSchema = z.union([
   z.number().finite(),
@@ -173,6 +181,7 @@ function toScoreType(value: YokAtlasScoreType): ProgramsFixture['programs'][numb
   if (value === 'SAY') return 'say';
   if (value === 'EA') return 'ea';
   if (value === 'DİL') return 'dil';
+  if (value === 'TYT') return 'tyt';
   return 'soz';
 }
 
@@ -354,14 +363,19 @@ export function buildYokAtlasFixture(
   return { fixture, statistics };
 }
 
-function makeSearchBody(scoreType: YokAtlasScoreType, page: number, size: number) {
+function makeSearchBody(
+  scoreType: YokAtlasScoreType,
+  birimTuruId: number,
+  page: number,
+  size: number,
+) {
   return {
     filters: {
       puanTuru: scoreType,
       universiteId: null,
       birimGrupId: null,
       ilKodu: null,
-      birimTuruId: 46,
+      birimTuruId,
       universiteTuru: null,
       bursOraniId: null,
       ogrenimTuruId: null,
@@ -392,6 +406,7 @@ function wait(milliseconds: number): Promise<void> {
 
 async function fetchPage(
   scoreType: YokAtlasScoreType,
+  birimTuruId: number,
   page: number,
   size: number,
   options: Required<Pick<FetchYokAtlasOptions, 'retries' | 'timeoutMs' | 'fetchImpl'>>,
@@ -407,7 +422,7 @@ async function fetchPage(
           'User-Agent':
             'YKSHazirlikTakvimi/1.0 (+https://github.com/sinanmertsener/YKSHazirlikTakvimi; static-content-importer)',
         },
-        body: JSON.stringify(makeSearchBody(scoreType, page, size)),
+        body: JSON.stringify(makeSearchBody(scoreType, birimTuruId, page, size)),
         signal: AbortSignal.timeout(options.timeoutMs),
       });
       const retryable =
@@ -464,57 +479,61 @@ export async function fetchAllYokAtlasPrograms(
   let requestCount = 0;
   let snapshotYear: number | null = null;
 
-  for (const scoreType of YOK_ATLAS_SCORE_TYPES) {
-    let expectedTotal: number | null = null;
-    let totalPages: number | null = null;
-    for (let page = 0; totalPages === null || page < totalPages; page += 1) {
-      if (requestCount > 100) throw new Error('YÖK Atlas import exceeded the 100-request guard');
-      if (requestCount && requestDelayMs) await wait(requestDelayMs);
-      options.onProgress?.(
-        `YÖK Atlas ${scoreType}: page ${page + 1}${totalPages ? `/${totalPages}` : ''}`,
-      );
-      const result = await fetchPage(scoreType, page, pageSize, fetchOptions);
-      requestCount += 1;
+  for (const { birimTuruId, scoreTypes } of YOK_ATLAS_LEVELS) {
+    for (const scoreType of scoreTypes) {
+      let expectedTotal: number | null = null;
+      let totalPages: number | null = null;
+      for (let page = 0; totalPages === null || page < totalPages; page += 1) {
+        if (requestCount > 100) throw new Error('YÖK Atlas import exceeded the 100-request guard');
+        if (requestCount && requestDelayMs) await wait(requestDelayMs);
+        options.onProgress?.(
+          `YÖK Atlas ${scoreType}: page ${page + 1}${totalPages ? `/${totalPages}` : ''}`,
+        );
+        const result = await fetchPage(scoreType, birimTuruId, page, pageSize, fetchOptions);
+        requestCount += 1;
 
-      if (result.number !== page || result.numberOfElements !== result.content.length) {
-        throw new Error(`YÖK Atlas ${scoreType} page ${page} pagination metadata is inconsistent`);
+        if (result.number !== page || result.numberOfElements !== result.content.length) {
+          throw new Error(
+            `YÖK Atlas ${scoreType} page ${page} pagination metadata is inconsistent`,
+          );
+        }
+        if (result.totalElements > 25_000 || result.totalPages > 100) {
+          throw new Error(`YÖK Atlas ${scoreType} response exceeded the snapshot safety limits`);
+        }
+        if (expectedTotal === null) {
+          expectedTotal = result.totalElements;
+          totalPages = result.totalPages;
+        } else if (expectedTotal !== result.totalElements || totalPages !== result.totalPages) {
+          throw new Error(`YÖK Atlas ${scoreType} snapshot changed during pagination`);
+        }
+        if (snapshotYear === null) snapshotYear = result.yil;
+        if (
+          snapshotYear !== result.yil ||
+          (options.expectedYear && result.yil !== options.expectedYear)
+        ) {
+          throw new Error(
+            `YÖK Atlas snapshot year ${result.yil} did not match ${options.expectedYear ?? snapshotYear}`,
+          );
+        }
+        for (const row of result.content) {
+          if (row.puanTuru !== scoreType) {
+            throw new Error(`YÖK Atlas ${scoreType} query returned a ${row.puanTuru} row`);
+          }
+          const rowYear = parseNonnegativeInteger(row.yil, `${row.kilavuzKodu}.yil`);
+          if (rowYear !== result.yil) {
+            throw new Error(`YÖK Atlas row ${row.kilavuzKodu} has an unexpected year ${rowYear}`);
+          }
+          rows.push(row);
+        }
       }
-      if (result.totalElements > 25_000 || result.totalPages > 100) {
-        throw new Error(`YÖK Atlas ${scoreType} response exceeded the snapshot safety limits`);
-      }
-      if (expectedTotal === null) {
-        expectedTotal = result.totalElements;
-        totalPages = result.totalPages;
-      } else if (expectedTotal !== result.totalElements || totalPages !== result.totalPages) {
-        throw new Error(`YÖK Atlas ${scoreType} snapshot changed during pagination`);
-      }
-      if (snapshotYear === null) snapshotYear = result.yil;
-      if (
-        snapshotYear !== result.yil ||
-        (options.expectedYear && result.yil !== options.expectedYear)
-      ) {
+      const scoreRowCount = rows.filter((row) => row.puanTuru === scoreType).length;
+      if (scoreRowCount !== expectedTotal) {
         throw new Error(
-          `YÖK Atlas snapshot year ${result.yil} did not match ${options.expectedYear ?? snapshotYear}`,
+          `YÖK Atlas ${scoreType} returned ${scoreRowCount} rows, expected ${expectedTotal}`,
         );
       }
-      for (const row of result.content) {
-        if (row.puanTuru !== scoreType) {
-          throw new Error(`YÖK Atlas ${scoreType} query returned a ${row.puanTuru} row`);
-        }
-        const rowYear = parseNonnegativeInteger(row.yil, `${row.kilavuzKodu}.yil`);
-        if (rowYear !== result.yil) {
-          throw new Error(`YÖK Atlas row ${row.kilavuzKodu} has an unexpected year ${rowYear}`);
-        }
-        rows.push(row);
-      }
+      totalsByScoreType[scoreType] = scoreRowCount;
     }
-    const scoreRowCount = rows.filter((row) => row.puanTuru === scoreType).length;
-    if (scoreRowCount !== expectedTotal) {
-      throw new Error(
-        `YÖK Atlas ${scoreType} returned ${scoreRowCount} rows, expected ${expectedTotal}`,
-      );
-    }
-    totalsByScoreType[scoreType] = scoreRowCount;
   }
 
   if (snapshotYear === null) throw new Error('YÖK Atlas returned no snapshot year');

@@ -15,7 +15,7 @@ import {
   stabilizeYokAtlasFixture,
   YOK_ATLAS_API_URL,
   YOK_ATLAS_DETAIL_BASE_URL,
-  YOK_ATLAS_SCORE_TYPES,
+  YOK_ATLAS_LEVELS,
 } from './lib/yok-atlas.ts';
 
 const YOK_ATLAS_APP_URL = 'https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php';
@@ -224,9 +224,9 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       spaBundle: bundle,
     },
     selection: {
-      level: 'lisans',
-      birimTuruId: 46,
-      scoreTypes: YOK_ATLAS_SCORE_TYPES,
+      // One sweep per program level; TYT is the önlisans placement score, the other four
+      // sweep lisans. Kept as data (not prose) so the audit trail names the exact API filters.
+      levels: YOK_ATLAS_LEVELS,
       supportedUniversityTypes: ['DEVLET', 'VAKIF', 'KKTC'],
       localePolicy: 'source-only',
     },

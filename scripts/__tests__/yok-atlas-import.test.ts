@@ -37,6 +37,13 @@ const officialRow = {
   basariSirasi3: 15_000,
 } as const;
 
+const onlisansRow = {
+  ...officialRow,
+  kilavuzKodu: 105590209,
+  birimAdi: 'Siber Güvenlik Analistliği ve Operatörlüğü',
+  puanTuru: 'TYT',
+} as const;
+
 test('normalizes only proven current and three-year historical fields', () => {
   const result = normalizeYokAtlasRow(officialRow, verifiedAt);
   assert.equal(result.program?.id, '123456789');
@@ -62,6 +69,12 @@ test('normalizes only proven current and three-year historical fields', () => {
     ],
   );
   assert.ok(result.program?.years.every((year) => year.verifiedAt === verifiedAt));
+});
+
+test('normalizes önlisans TYT rows into the tyt score type', () => {
+  const result = normalizeYokAtlasRow(onlisansRow, verifiedAt);
+  assert.equal(result.program?.scoreType, 'tyt');
+  assert.equal(result.program?.id, '105590209');
 });
 
 test('fails closed for university types that cannot be represented faithfully', () => {
@@ -173,9 +186,20 @@ test('a repeated import audits provenance separately while leaving fixture bytes
     }
     if (url === 'https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search') {
       const request = JSON.parse(String(init?.body)) as {
-        filters: { puanTuru: 'SAY' | 'EA' | 'SÖZ' };
+        filters: { puanTuru: 'SAY' | 'EA' | 'SÖZ' | 'DİL' | 'TYT'; birimTuruId: number };
       };
-      const content = request.filters.puanTuru === 'SAY' ? [officialRow] : [];
+      // The level selector must ride along with the score type: lisans sweeps post 46,
+      // the önlisans (TYT) sweep posts 47. A mismatch is a contract regression.
+      const expectedBirimTuruId = request.filters.puanTuru === 'TYT' ? 47 : 46;
+      if (request.filters.birimTuruId !== expectedBirimTuruId) {
+        return new Response('unexpected birimTuruId', { status: 400 });
+      }
+      const content =
+        request.filters.puanTuru === 'SAY'
+          ? [officialRow]
+          : request.filters.puanTuru === 'TYT'
+            ? [onlisansRow]
+            : [];
       return Response.json({
         content,
         number: 0,

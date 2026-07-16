@@ -1,13 +1,1 @@
-{
-  "schemaVersion": 2,
-  "examYear": 2026,
-  "availability": "unavailable",
-  "officialResultsDate": "2026-07-22",
-  "tables": [],
-  "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1",
-  "verifiedAt": "2026-07-14T20:04:17Z",
-  "reason": {
-    "tr": "2026-YKS sonuçları ve puan dağılımı henüz yayımlanmadı; doğrulanmış bir kişisel sıralama modeli bulunmadığı için sentetik puan-sıra noktaları sunulmuyor.",
-    "en": "The 2026 YKS results and score distribution have not been published, and no verified personal-rank model exists; synthetic score-rank points are therefore not provided."
-  }
-}
+{"schemaVersion":2,"examYear":2026,"availability":"unavailable","officialResultsDate":"2026-07-22","tables":[],"source":"https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1","verifiedAt":"2026-07-14T20:04:17Z","reason":{"tr":"2026-YKS sonuçları ve puan dağılımı henüz yayımlanmadı; doğrulanmış bir kişisel sıralama modeli bulunmadığı için sentetik puan-sıra noktaları sunulmuyor.","en":"The 2026 YKS results and score distribution have not been published, and no verified personal-rank model exists; synthetic score-rank points are therefore not provided."}}
