@@ -26,6 +26,10 @@ import {
 } from './lib/content-schemas.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
+  programsDetailsFixtureSchema,
+  type ProgramsDetailsFixture,
+} from './lib/yok-atlas-details.ts';
+import {
   osymBookletRegistrySchema,
   type OsymBookletRegistry,
 } from './lib/osym-booklet-registry.ts';
@@ -368,9 +372,9 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
   for (const program of programs.programs) {
     if (program.verified && program.source) {
       const source = new URL(program.source);
-      if (source.protocol !== 'https:' || !source.hostname.endsWith('yok.gov.tr')) {
+      if (source.protocol !== 'https:' || !isAllowedOfficialHost(source.hostname)) {
         report.errors.push(
-          `programsFixture.${program.id}.source: verified programs require an HTTPS YÖK source`,
+          `programsFixture.${program.id}.source: verified programs require an HTTPS YÖK/ÖSYM source`,
         );
       }
     }
@@ -381,15 +385,17 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
     for (const year of program.years) {
       if (year.verified && year.source) {
         const source = new URL(year.source);
-        if (source.protocol !== 'https:' || !source.hostname.endsWith('yok.gov.tr')) {
+        if (source.protocol !== 'https:' || !isAllowedOfficialHost(source.hostname)) {
           report.errors.push(
-            `programsFixture.${program.id}.${year.year}.source: verified years require an HTTPS YÖK source`,
+            `programsFixture.${program.id}.${year.year}.source: verified years require an HTTPS YÖK/ÖSYM source`,
           );
         }
       }
       if (year.quota !== null && year.placed !== null && year.placed > year.quota) {
-        report.errors.push(
-          `programsFixture.${program.id}.${year.year}: placed ${year.placed} cannot exceed quota ${year.quota}`,
+        // Official ÖSYM totals can exceed the genel kontenjan (ek yerleştirme / okul
+        // birincisi placements) — surfaced for review, never a build break.
+        report.warnings.push(
+          `programsFixture.${program.id}.${year.year}: placed ${year.placed} exceeds quota ${year.quota} (official ÖSYM totals)`,
         );
       }
       // Talent-exam admission has no central cutoff; a populated one signals the source
@@ -399,6 +405,15 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
           `programsFixture.${program.id}.${year.year}: talent-exam programs should not carry central cutoffs`,
         );
       }
+    }
+    // Only foreign programs may legitimately lack a city (the source publishes none);
+    // a domestic null city means a corrupted import.
+    if (
+      program.city === null &&
+      program.type !== 'yurtdisi-vakif' &&
+      program.type !== 'yurtdisi-kamu'
+    ) {
+      report.errors.push(`programsFixture.${program.id}: domestic program has no city`);
     }
   }
 
@@ -452,6 +467,107 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
     report.warnings.push(
       `programsFixture: only ${currentYearRanked}/${currentYearPrograms} centrally-placed programs carry a ${latestYear} min_rank (< ${Math.round(CURRENT_YEAR_RANK_FILL_WARN_RATIO * 100)}%) — source may be mid-publication`,
     );
+  }
+}
+
+// Cross-artifact coherence gates for the details fixture. NETS_MIN_ROWS_PER_YEAR sits
+// ~25% below the live archive floor (2023: 21.3k, 2024: 20.9k, 2025: 20.8k rows).
+const DETAILS_COVERAGE_ERROR_RATIO = 0.9;
+const DETAILS_COVERAGE_WARN_RATIO = 0.99;
+const NETS_MIN_ROWS_PER_YEAR = 15_000;
+const NETS_SCORE_MISMATCH_ERROR_RATIO = 0.01;
+
+function checkProgramDetailsFixture(
+  details: ProgramsDetailsFixture,
+  programs: ProgramsFixture | null,
+  report: MutableReport,
+): void {
+  for (const record of details.programs) {
+    // Category rows must carry at least one official number (the importer never emits
+    // fully empty rows; one here means the artifact was hand-edited or corrupted).
+    for (const category of record.quotaCategories) {
+      if (category.quota === null && category.placed === null) {
+        report.errors.push(
+          `programsDetails.${record.id}.${category.category}: category row carries no data`,
+        );
+      }
+    }
+  }
+
+  const netCountsByYear = new Map<number, number>();
+  for (const record of details.programs) {
+    for (const net of record.nets) {
+      netCountsByYear.set(net.year, (netCountsByYear.get(net.year) ?? 0) + 1);
+    }
+  }
+  for (const year of details.source.netYears) {
+    const count = netCountsByYear.get(year) ?? 0;
+    if (count === 0) {
+      // The snapshot year is legitimately empty between kılavuz load and placement.
+      report.warnings.push(`programsDetails: nets archive for ${year} is empty`);
+    } else if (count < NETS_MIN_ROWS_PER_YEAR) {
+      report.errors.push(
+        `programsDetails: nets archive for ${year} has ${count} rows, below the ${NETS_MIN_ROWS_PER_YEAR} floor`,
+      );
+    }
+  }
+
+  if (!programs) return;
+
+  // Coverage: the details fixture comes from the SAME sweep as the program fixture, so
+  // near-total attachment is the healthy state; erosion means the artifacts diverged.
+  const programIds = new Set(programs.programs.map((program) => program.id));
+  const covered = details.programs.filter((record) => programIds.has(record.id)).length;
+  const ratio = programIds.size ? covered / programIds.size : 0;
+  if (ratio < DETAILS_COVERAGE_ERROR_RATIO) {
+    report.errors.push(
+      `programsDetails: only ${covered}/${programIds.size} programs carry detail records (< ${Math.round(DETAILS_COVERAGE_ERROR_RATIO * 100)}%)`,
+    );
+  } else if (ratio < DETAILS_COVERAGE_WARN_RATIO) {
+    report.warnings.push(
+      `programsDetails: ${covered}/${programIds.size} programs carry detail records — the fixtures may come from different snapshots`,
+    );
+  }
+
+  // §9.1 cross-check: the nets tabanPuan and the wizard's per-year minScore describe the
+  // SAME official number through two independent endpoints; disagreement beyond float
+  // noise means one source shifted under us. (Wizard-side gaps — a year the wizard
+  // publishes no score for — are expected and not counted.)
+  const scoresByProgram = new Map<string, Map<number, number>>();
+  for (const program of programs.programs) {
+    const byYear = new Map<number, number>();
+    for (const year of program.years) {
+      if (year.minScore !== null) byYear.set(year.year, year.minScore);
+    }
+    scoresByProgram.set(program.id, byYear);
+  }
+  let comparable = 0;
+  let mismatched = 0;
+  const mismatchExamples: string[] = [];
+  for (const record of details.programs) {
+    const byYear = scoresByProgram.get(record.id);
+    if (!byYear) continue;
+    for (const net of record.nets) {
+      const wizardScore = byYear.get(net.year);
+      if (wizardScore === undefined || net.minScore === null) continue;
+      comparable += 1;
+      if (Math.abs(wizardScore - net.minScore) > 0.005) {
+        mismatched += 1;
+        if (mismatchExamples.length < 5) {
+          mismatchExamples.push(
+            `${record.id}.${net.year}: wizard ${wizardScore} vs nets ${net.minScore}`,
+          );
+        }
+      }
+    }
+  }
+  if (mismatched > 0) {
+    const line = `programsDetails: ${mismatched}/${comparable} nets tabanPuan values disagree with the wizard minScore (${mismatchExamples.join('; ')})`;
+    if (comparable > 0 && mismatched / comparable > NETS_SCORE_MISMATCH_ERROR_RATIO) {
+      report.errors.push(line);
+    } else {
+      report.warnings.push(line);
+    }
   }
 }
 
@@ -727,6 +843,16 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
       'scholarship',
       'language',
       'language_en',
+      'faculty',
+      'district',
+      'education_type',
+      'duration_years',
+      'program_group',
+      'tuition',
+      'accreditation',
+      'tyc',
+      'min_rank_requirement',
+      'staff_professor',
       'verified',
       'source',
       'verified_at',
@@ -780,7 +906,8 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
          OR length(trim(city)) = 0 OR verified NOT IN (0, 1)
          OR (verified = 1 AND (source IS NULL OR length(trim(source)) = 0 OR verified_at IS NULL
              OR datetime(verified_at) IS NULL))
-         OR (verified = 1 AND source NOT LIKE 'https://%.yok.gov.tr/%')
+         OR (verified = 1 AND source NOT LIKE 'https://%.yok.gov.tr/%'
+             AND source NOT LIKE 'https://%.osym.gov.tr/%')
          OR (verified = 0 AND verified_at IS NOT NULL)
          OR approximate NOT IN (0, 1) OR sample NOT IN (0, 1)
       LIMIT 10
@@ -800,13 +927,13 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
       WHERE year < 2018
          OR (quota IS NOT NULL AND quota < 0)
          OR (placed IS NOT NULL AND placed < 0)
-         OR (quota IS NOT NULL AND placed IS NOT NULL AND placed > quota)
          OR (min_score IS NOT NULL AND min_score <= 0)
          OR (min_rank IS NOT NULL AND min_rank <= 0)
          OR verified NOT IN (0, 1)
          OR (verified = 1 AND (source IS NULL OR length(trim(source)) = 0 OR verified_at IS NULL
              OR datetime(verified_at) IS NULL))
-         OR (verified = 1 AND source NOT LIKE 'https://%.yok.gov.tr/%')
+         OR (verified = 1 AND source NOT LIKE 'https://%.yok.gov.tr/%'
+             AND source NOT LIKE 'https://%.osym.gov.tr/%')
          OR (verified = 0 AND verified_at IS NOT NULL)
          OR approximate NOT IN (0, 1) OR sample NOT IN (0, 1)
       LIMIT 10
@@ -838,6 +965,74 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
       report.errors.push('programs.db: must contain at least one program');
     if (report.summary.programYears <= 0)
       report.errors.push('programs.db: must contain at least one program_year');
+
+    // Detail tables exist in every build; they are POPULATED only when the details
+    // fixture was present, which populate() records as pack_metadata.detailsGeneratedAt.
+    const tableNames = new Set(
+      (
+        database.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all() as SqliteRow[]
+      ).map((row) => String(row.name)),
+    );
+    const detailTables = [
+      'condition_text',
+      'program_condition',
+      'program_quota_category',
+      'program_net',
+    ];
+    for (const table of detailTables) {
+      if (!tableNames.has(table)) report.errors.push(`programs.db: missing table ${table}`);
+    }
+    const detailsBuilt = database
+      .prepare("SELECT value FROM pack_metadata WHERE key = 'detailsGeneratedAt'")
+      .get() as SqliteRow | undefined;
+    if (detailTables.every((table) => tableNames.has(table)) && detailsBuilt) {
+      const detailCounts = database
+        .prepare(
+          `
+        SELECT
+          (SELECT count(*) FROM program_net) AS nets,
+          (SELECT count(*) FROM program_quota_category) AS categories,
+          (SELECT count(*) FROM condition_text) AS condition_texts,
+          (SELECT count(*) FROM program_condition) AS program_conditions
+      `,
+        )
+        .get() as SqliteRow | undefined;
+      const floors: [string, number, number][] = [
+        ['program_net', Number(detailCounts?.nets ?? 0), 40_000],
+        ['program_quota_category', Number(detailCounts?.categories ?? 0), 20_000],
+        ['condition_text', Number(detailCounts?.condition_texts ?? 0), 100],
+        ['program_condition', Number(detailCounts?.program_conditions ?? 0), 20_000],
+      ];
+      for (const [table, count, floor] of floors) {
+        if (count < floor) {
+          report.errors.push(
+            `programs.db: ${table} has ${count} rows, below the ${floor} coverage floor`,
+          );
+        }
+      }
+
+      // §9.1 cross-check inside the built artifact: the nets tabanPuan and the wizard
+      // minScore are the same official number via two independent endpoints.
+      const crossCheck = database
+        .prepare(
+          `
+        SELECT
+          count(*) AS comparable,
+          coalesce(sum(CASE WHEN abs(pn.min_score - py.min_score) > 0.005 THEN 1 ELSE 0 END), 0) AS mismatched
+        FROM program_net pn
+        JOIN program_year py ON py.program_id = pn.program_id AND py.year = pn.year
+        WHERE pn.min_score IS NOT NULL AND py.min_score IS NOT NULL
+      `,
+        )
+        .get() as SqliteRow | undefined;
+      const comparable = Number(crossCheck?.comparable ?? 0);
+      const mismatched = Number(crossCheck?.mismatched ?? 0);
+      if (mismatched > 0) {
+        const line = `programs.db: ${mismatched}/${comparable} program_net cutoffs disagree with program_year`;
+        if (comparable > 0 && mismatched / comparable > 0.01) report.errors.push(line);
+        else report.warnings.push(line);
+      }
+    }
   } catch (error) {
     report.errors.push(
       `programs.db: could not validate ${path} (${error instanceof Error ? error.message : String(error)})`,
@@ -1011,6 +1206,22 @@ export async function validateSourcePack(
     report,
   );
   if (programsFixture) checkProgramsFixture(programsFixture, report);
+
+  // The details fixture is a companion artifact: absent is a warning (base catalog
+  // still ships), present-but-incoherent is an error.
+  const detailsPath = resolve(contentDir, 'programs-details.fixture.json');
+  let detailsFixture: ProgramsDetailsFixture | null = null;
+  try {
+    await access(detailsPath);
+    detailsFixture =
+      (await parseJson(detailsPath, 'programsDetails', programsDetailsFixtureSchema, report)) ??
+      null;
+  } catch {
+    report.warnings.push(
+      'programsDetails: programs-details.fixture.json missing — the pack ships without official detail data',
+    );
+  }
+  if (detailsFixture) checkProgramDetailsFixture(detailsFixture, programsFixture ?? null, report);
 
   if (!options.skipProgramsDatabase) {
     const databasePath = resolve(options.programsDbPath ?? resolve(contentDir, 'programs.db'));

@@ -4,8 +4,10 @@ import { useContentRevisionStore, type Program } from '@/data/content';
 import {
   queryProgramById,
   queryProgramCities,
+  queryProgramExtras,
   queryProgramLanguages,
   queryProgramPage,
+  type ProgramExtras,
   type ProgramPageQuery,
 } from '@/db/programRepository';
 import type { ProgramQueryLanguage } from '@/db/programQueries';
@@ -230,6 +232,44 @@ export function useProgram(programId: string | undefined) {
   return state.queryKey === queryKey
     ? { ...state, retry }
     : { program: null, loading: true, error: null, retry };
+}
+
+/**
+ * Loads the official YÖK Atlas detail data (quota categories, conditions, staff,
+ * nets...) for the detail screen. `extras: null` with `loading: false` is a normal
+ * outcome — web fallback, older packs, or a program without detail data — and the
+ * screen simply renders its base cards; errors degrade the same way on purpose.
+ */
+export function useProgramExtras(programId: string | undefined) {
+  const contentRevision = useContentRevisionStore((state) => state.revision);
+  const queryKey = `${contentRevision}:${programId ?? ''}`;
+  const [state, setState] = useState<{
+    queryKey: string;
+    extras: ProgramExtras | null;
+    loading: boolean;
+  }>({ queryKey: '', extras: null, loading: true });
+
+  useEffect(() => {
+    let active = true;
+    if (!programId) {
+      return () => {
+        active = false;
+      };
+    }
+    void queryProgramExtras(programId)
+      .then((extras) => {
+        if (active) setState({ queryKey, extras, loading: false });
+      })
+      .catch(() => {
+        if (active) setState({ queryKey, extras: null, loading: false });
+      });
+    return () => {
+      active = false;
+    };
+  }, [programId, queryKey]);
+
+  if (!programId) return { extras: null, loading: false };
+  return state.queryKey === queryKey ? state : { extras: null, loading: true };
 }
 
 export function useProgramFacets(language: ProgramQueryLanguage, enabled: boolean) {

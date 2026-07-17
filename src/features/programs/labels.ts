@@ -4,6 +4,9 @@ export const PROGRAM_TYPE_LABEL_KEYS = {
   devlet: 'preference.state',
   vakif: 'preference.foundation',
   kibris: 'preference.trnc',
+  'vakif-myo': 'preference.foundationMyo',
+  'yurtdisi-vakif': 'preference.foreignFoundation',
+  'yurtdisi-kamu': 'preference.foreignPublic',
 } as const satisfies Record<Program['type'], string>;
 
 export const PROGRAM_SCHOLARSHIP_LABEL_KEYS = {

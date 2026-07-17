@@ -145,6 +145,15 @@ export default function ProgramsScreen() {
           ranked = year;
         }
       }
+      const shown = ranked ?? latest;
+      // Occupancy of the displayed year (official quota vs placed). placed can exceed
+      // quota via ek yerleştirme/okul birincisi — that still reads as "doldu".
+      const occupancy =
+        shown && shown.quota !== null && shown.quota > 0 && shown.placed !== null
+          ? shown.placed >= shown.quota
+            ? ('full' as const)
+            : ('notFull' as const)
+          : null;
       const favorite = favoriteSet.has(item.id);
       return (
         <Pressable
@@ -162,7 +171,8 @@ export default function ProgramsScreen() {
                   numberOfLines={2}
                   style={[typography.footnote, { color: colors.secondaryLabel }]}
                 >
-                  {item.university[language]} · {item.city[language]} ·{' '}
+                  {item.university[language]}
+                  {item.city ? ` · ${item.city[language]}` : ''} ·{' '}
                   {t(programTypeLabelKey(item.type))}
                   {item.scholarship ? ` · ${t(programScholarshipLabelKey(item.scholarship))}` : ''}
                   {item.language ? ` · ${item.language[language]}` : ''}
@@ -182,6 +192,19 @@ export default function ProgramsScreen() {
                   ) : (
                     <Text style={{ color: colors.label }}>{t('preference.cutoffPending')}</Text>
                   )}
+                  {occupancy ? (
+                    <Text
+                      style={{
+                        color: occupancy === 'full' ? colors.secondaryLabel : colors.brand,
+                      }}
+                    >
+                      {' '}
+                      ·{' '}
+                      {occupancy === 'full'
+                        ? t('preference.occupancyFull')
+                        : t('preference.occupancyNotFull')}
+                    </Text>
+                  ) : null}
                 </Text>
               </View>
               <View style={styles.actions}>

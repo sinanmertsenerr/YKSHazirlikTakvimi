@@ -1366,8 +1366,13 @@ const programSchema = z
     id: z.string().trim().min(1),
     university: localizedTextSchema,
     name: localizedTextSchema,
-    city: localizedTextSchema,
-    type: z.enum(['devlet', 'vakif', 'kibris']),
+    // Foreign (YURTDISI) programs publish no il in YÖK Atlas — the official UI renders
+    // "--" — so city is honestly null for them, never derived from the university name.
+    city: localizedTextSchema.nullable(),
+    // All five live YÖK Atlas universiteTuru values plus KKTC→kibris. Older app binaries
+    // reject the three new values at runtime validation and simply never show such rows
+    // — the same intended forward-compat behavior as 'yetenek' below.
+    type: z.enum(['devlet', 'vakif', 'kibris', 'vakif-myo', 'yurtdisi-vakif', 'yurtdisi-kamu']),
     // 'yetenek' = özel yetenek (talent-exam) admission from YÖK Atlas TABLO 5: these
     // programs have no central cutoff (minScore/minRank stay null); older app binaries
     // reject the value at runtime validation and simply never show such rows — the
@@ -1405,6 +1410,102 @@ export const programsFixtureSchema = z
     programs: z.array(programSchema).min(1),
   })
   .strict();
+
+// ---------------------------------------------------------------------------
+// Program EXTRAS: the official YÖK Atlas detail data (quota categories, kosul
+// texts, staff counts, tuition, accreditation, last-placed candidate's nets).
+// Produced by scripts/lib/yok-atlas-details.ts into programs-details.fixture.json,
+// packed into programs.db by build-programs, and read back by the app's
+// programRepository — this schema is the single shared contract for all three.
+// ---------------------------------------------------------------------------
+
+/** Quota-category slugs mirroring the official "Kontenjan ve Yerleşme" table rows. */
+export const PROGRAM_QUOTA_CATEGORIES = [
+  'genel',
+  'okul-birincisi',
+  'deprem',
+  'sehit-gazi',
+  'kadin-34',
+] as const;
+export type ProgramQuotaCategory = (typeof PROGRAM_QUOTA_CATEGORIES)[number];
+
+/** Net-subject keys of the official "Yerleşen Son Kişinin Netleri" panel. */
+export const PROGRAM_NET_SUBJECTS = [
+  'tytTurkce',
+  'tytSosyal',
+  'tytMatematik',
+  'tytFen',
+  'aytMatematik',
+  'aytFizik',
+  'aytKimya',
+  'aytBiyoloji',
+  'aytEdebiyat',
+  'aytTarih1',
+  'aytCografya1',
+  'aytTarih2',
+  'aytCografya2',
+  'aytFelsefe',
+  'aytDin',
+  'ydtDil',
+] as const;
+export type ProgramNetSubject = (typeof PROGRAM_NET_SUBJECTS)[number];
+
+export const programStaffSchema = z
+  .object({
+    professor: z.int().nonnegative().nullable(),
+    docent: z.int().nonnegative().nullable(),
+    doctorFaculty: z.int().nonnegative().nullable(),
+    lecturer: z.int().nonnegative().nullable(),
+    researchAssistant: z.int().nonnegative().nullable(),
+  })
+  .strict();
+
+export const programQuotaCategoryRowSchema = z
+  .object({
+    category: z.enum(PROGRAM_QUOTA_CATEGORIES),
+    year: z.int().min(2018).max(2100),
+    quota: z.int().nonnegative().nullable(),
+    placed: z.int().nonnegative().nullable(),
+  })
+  .strict();
+
+export const programNetsRowSchema = z
+  .object({
+    year: z.int().min(2018).max(2100),
+    scoreType: z.enum(['say', 'ea', 'soz', 'dil', 'tyt']),
+    coefficient: z.number().positive().max(1).nullable(),
+    minScore: z.number().positive().max(700).nullable(),
+    obp: z.number().positive().max(600).nullable(),
+    // partialRecord: only the subjects of the program's own score type are published.
+    nets: z.partialRecord(z.enum(PROGRAM_NET_SUBJECTS), z.number().min(-120).max(120)),
+  })
+  .strict();
+
+export const programExtrasSchema = z
+  .object({
+    faculty: z.string().min(1).nullable(),
+    district: z.string().min(1).nullable(),
+    educationType: z.string().min(1).nullable(),
+    durationYears: z.int().positive().max(10).nullable(),
+    programGroup: z.string().min(1).nullable(),
+    tuition: z.int().positive().nullable(),
+    accreditation: z.string().min(1).nullable(),
+    accreditationNote: z.string().min(1).nullable(),
+    tyc: z.boolean(),
+    appliedEducationModel: z.string().min(1).nullable(),
+    minRankRequirement: z.int().positive().nullable(),
+    minRankRequirementNote: z.string().min(1).nullable(),
+    staff: programStaffSchema.nullable(),
+    // text is null for codes the source lists without publishing a text (rendered
+    // code-only in the UI, never with invented wording).
+    conditions: z.array(
+      z.object({ code: z.string().regex(/^\d{1,4}$/), text: z.string().min(1).nullable() }).strict(),
+    ),
+    quotaCategories: z.array(programQuotaCategoryRowSchema),
+    nets: z.array(programNetsRowSchema),
+  })
+  .strict();
+export type ProgramExtras = z.infer<typeof programExtrasSchema>;
 
 const manifestFileSchema = z
   .object({

@@ -4,7 +4,11 @@ import { File } from 'expo-file-system';
 import { defaultDatabaseDirectory, openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-import { CURRENT_SCHEMA_VERSION } from '../../scripts/lib/content-schemas';
+import {
+  CURRENT_SCHEMA_VERSION,
+  programExtrasSchema,
+  type ProgramExtras,
+} from '../../scripts/lib/content-schemas';
 
 import {
   programsPack,
@@ -17,9 +21,13 @@ import { getActivePackLocation, invalidateDownloadedPackVersion } from '@/data/p
 import {
   buildFavoriteProgramIdsQuery,
   buildProgramCitiesQuery,
+  buildProgramConditionsQuery,
   buildProgramDetailQuery,
+  buildProgramExtrasQuery,
   buildProgramLanguagesQuery,
   buildProgramListQuery,
+  buildProgramNetsQuery,
+  buildProgramQuotaCategoriesQuery,
   buildProgramYearsQuery,
   buildProgramsByIdsQuery,
   orderRecordsByIds,
@@ -64,6 +72,61 @@ type ProgramYearRow = {
   approximate: number;
   sample: number;
 };
+
+type ProgramExtrasRow = {
+  faculty: string | null;
+  district: string | null;
+  education_type: string | null;
+  duration_years: number | null;
+  program_group: string | null;
+  tuition: number | null;
+  accreditation: string | null;
+  accreditation_note: string | null;
+  tyc: number;
+  applied_education_model: string | null;
+  min_rank_requirement: number | null;
+  min_rank_requirement_note: string | null;
+  staff_professor: number | null;
+  staff_docent: number | null;
+  staff_doctor_faculty: number | null;
+  staff_lecturer: number | null;
+  staff_research_assistant: number | null;
+};
+
+type ProgramConditionRow = { code: string; text: string };
+
+type ProgramQuotaCategoryRow = {
+  year: number;
+  category: string;
+  quota: number | null;
+  placed: number | null;
+};
+
+type ProgramNetRow = {
+  year: number;
+  score_type: string;
+  coefficient: number | null;
+  min_score: number | null;
+  obp: number | null;
+  tyt_turkce: number | null;
+  tyt_sosyal: number | null;
+  tyt_matematik: number | null;
+  tyt_fen: number | null;
+  ayt_matematik: number | null;
+  ayt_fizik: number | null;
+  ayt_kimya: number | null;
+  ayt_biyoloji: number | null;
+  ayt_edebiyat: number | null;
+  ayt_tarih1: number | null;
+  ayt_cografya1: number | null;
+  ayt_tarih2: number | null;
+  ayt_cografya2: number | null;
+  ayt_felsefe: number | null;
+  ayt_din: number | null;
+  ydt_dil: number | null;
+};
+
+export type { ProgramExtras };
 
 type DatabaseLocation = {
   key: string;
@@ -426,7 +489,10 @@ function mapProgram(row: ProgramRow, years: ProgramYearRow[]): Program | null {
     id: row.id,
     university: { tr: row.university, en: row.university_en },
     name: { tr: row.name, en: row.name_en },
-    city: { tr: row.city, en: row.city_en },
+    city:
+      row.city === null && row.city_en === null
+        ? null
+        : { tr: row.city ?? '', en: row.city_en ?? '' },
     type: row.type,
     scoreType: row.score_type,
     scholarship: row.scholarship,
@@ -544,7 +610,7 @@ function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): P
       return publishable ? [publishable] : [];
     })
     .filter((program) => program.scoreType === query.scoreType)
-    .filter((program) => !query.city || program.city[query.language] === query.city)
+    .filter((program) => !query.city || program.city?.[query.language] === query.city)
     .filter(
       (program) =>
         !query.instructionLanguage ||
@@ -629,6 +695,112 @@ export async function queryProgramById(id: string): Promise<Program | null> {
   });
 }
 
+const NET_SUBJECT_COLUMN_MAP = [
+  ['tyt_turkce', 'tytTurkce'],
+  ['tyt_sosyal', 'tytSosyal'],
+  ['tyt_matematik', 'tytMatematik'],
+  ['tyt_fen', 'tytFen'],
+  ['ayt_matematik', 'aytMatematik'],
+  ['ayt_fizik', 'aytFizik'],
+  ['ayt_kimya', 'aytKimya'],
+  ['ayt_biyoloji', 'aytBiyoloji'],
+  ['ayt_edebiyat', 'aytEdebiyat'],
+  ['ayt_tarih1', 'aytTarih1'],
+  ['ayt_cografya1', 'aytCografya1'],
+  ['ayt_tarih2', 'aytTarih2'],
+  ['ayt_cografya2', 'aytCografya2'],
+  ['ayt_felsefe', 'aytFelsefe'],
+  ['ayt_din', 'aytDin'],
+  ['ydt_dil', 'ydtDil'],
+] as const;
+
+function mapProgramExtras(
+  row: ProgramExtrasRow,
+  conditions: ProgramConditionRow[],
+  categories: ProgramQuotaCategoryRow[],
+  nets: ProgramNetRow[],
+): ProgramExtras | null {
+  const staffValues = {
+    professor: row.staff_professor,
+    docent: row.staff_docent,
+    doctorFaculty: row.staff_doctor_faculty,
+    lecturer: row.staff_lecturer,
+    researchAssistant: row.staff_research_assistant,
+  };
+  const candidate = {
+    faculty: row.faculty,
+    district: row.district,
+    educationType: row.education_type,
+    durationYears: row.duration_years,
+    programGroup: row.program_group,
+    tuition: row.tuition,
+    accreditation: row.accreditation,
+    accreditationNote: row.accreditation_note,
+    tyc: sqliteBoolean(row.tyc),
+    appliedEducationModel: row.applied_education_model,
+    minRankRequirement: row.min_rank_requirement,
+    minRankRequirementNote: row.min_rank_requirement_note,
+    staff: Object.values(staffValues).every((value) => value === null) ? null : staffValues,
+    conditions: conditions.map((condition) => ({ code: condition.code, text: condition.text })),
+    quotaCategories: categories.map((category) => ({
+      category: category.category,
+      year: category.year,
+      quota: category.quota,
+      placed: category.placed,
+    })),
+    nets: nets.map((net) => ({
+      year: net.year,
+      scoreType: net.score_type,
+      coefficient: net.coefficient,
+      minScore: net.min_score,
+      obp: net.obp,
+      nets: Object.fromEntries(
+        NET_SUBJECT_COLUMN_MAP.flatMap(([column, subject]) =>
+          net[column] === null ? [] : [[subject, net[column]]],
+        ),
+      ),
+    })),
+  };
+  const parsed = programExtrasSchema.safeParse(candidate);
+  if (!parsed.success && __DEV__) {
+    console.warn('Program extras failed runtime validation and were dropped');
+  }
+  return parsed.success ? parsed.data : null;
+}
+
+/**
+ * True when a query failed only because the open pack predates the detail schema
+ * (rollback/older downloaded pack). Detected INSIDE the database operation so the
+ * shared error path never invalidates a structurally healthy pack over it.
+ */
+function isMissingDetailSchemaError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /no such (table|column)/i.test(message);
+}
+
+/** Reads the official YÖK Atlas detail data of one program; null when unavailable. */
+export async function queryProgramExtras(id: string): Promise<ProgramExtras | null> {
+  if (!id.trim()) return null;
+  // The web fallback JSON carries no detail data; the detail screen renders base cards.
+  if (Platform.OS === 'web') return null;
+  return withProgramDatabase(async (database) => {
+    try {
+      const extrasRows = await all<ProgramExtrasRow>(database, buildProgramExtrasQuery(id));
+      const extras = extrasRows[0];
+      if (!extras) return null;
+      const [conditions, categories, nets] = await Promise.all([
+        all<ProgramConditionRow>(database, buildProgramConditionsQuery(id)),
+        all<ProgramQuotaCategoryRow>(database, buildProgramQuotaCategoriesQuery(id)),
+        all<ProgramNetRow>(database, buildProgramNetsQuery(id)),
+      ]);
+      return mapProgramExtras(extras, conditions, categories, nets);
+    } catch (error) {
+      if (isMissingDetailSchemaError(error)) return null;
+      throw error;
+    }
+  });
+}
+
 /** Reads the small distinct city facet without loading any program or yearly row. */
 export async function queryProgramCities(language: ProgramQueryLanguage): Promise<string[]> {
   if (Platform.OS === 'web') {
@@ -636,7 +808,7 @@ export async function queryProgramCities(language: ProgramQueryLanguage): Promis
       ...new Set(
         programsPack.programs.flatMap((program) => {
           const publishable = fallbackProgram(program);
-          return publishable ? [publishable.city[language]] : [];
+          return publishable?.city ? [publishable.city[language]] : [];
         }),
       ),
     ].sort();

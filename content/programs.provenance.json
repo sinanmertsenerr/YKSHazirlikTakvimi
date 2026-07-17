@@ -2,13 +2,14 @@
   "schemaVersion": 1,
   "authority": "Yükseköğretim Kurulu (YÖK)",
   "product": "YÖK Atlas",
-  "verifiedAt": "2026-07-16T14:53:45.825Z",
+  "verifiedAt": "2026-07-16T23:03:35.851Z",
   "source": {
     "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
     "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
     "detailBaseUrl": "https://yokatlas.yok.gov.tr/detay",
     "snapshotSource": "snapshot",
     "snapshotYear": 2025,
+    "talentSnapshotYear": 2026,
     "spaBundle": {
       "url": "https://yokatlas.yok.gov.tr/static/js/main.c2960988.js",
       "sha256": "8790166556afe546f29189069aa04805be5068d05fcb4ef8a6cb2c27c85b8914"
@@ -32,31 +33,41 @@
         "scoreTypes": [
           "TYT"
         ]
+      },
+      {
+        "level": "ozelyetenek",
+        "birimTuruId": 48,
+        "allowEmpty": true
       }
     ],
     "supportedUniversityTypes": [
       "DEVLET",
       "VAKIF",
-      "KKTC"
+      "KKTC",
+      "VAKIF MYO",
+      "YURTDISI VAKIF",
+      "YURTDISI KAMU"
     ],
     "localePolicy": "source-only"
   },
   "pagination": {
     "pageSize": 500,
     "delayMs": 250,
-    "requestCount": 45,
+    "requestCount": 46,
     "totalsByScoreType": {
       "SAY": 5653,
       "EA": 3987,
       "SÖZ": 1948,
       "DİL": 677,
       "TYT": 9337
-    }
+    },
+    "talentRows": 0
   },
   "fieldMappings": {
     "currentYear": {
       "year": "yil",
       "quota": "kontenjan",
+      "placed": "gkY",
       "minScore": "minPuan",
       "minRank": "basariSirasi"
     },
@@ -80,20 +91,79 @@
         "minRank": "basariSirasi3"
       }
     ],
-    "placed": "null — no proven year-by-year placed-count field is imported; values are never inferred",
-    "unsupportedScholarship": "null — source label remains visible in birimAdi and is counted below; no lossy category mapping"
+    "placed": "current year only, from gkY (genel yerleşen — proven by the SPA's own Kontenjan ve Yerleşme rendering and canary-pinned); a 0 without any published cutoff means \"placement not run yet\" and stays null. Historical placed counts come from the ÖSYM archive at build time.",
+    "foreignCity": "null — YURTDISI rows publish no il field (the official UI renders \"--\"); never derived from the university name",
+    "unsupportedScholarship": "null — source label remains visible in birimAdi and is counted below; no lossy category mapping",
+    "talent": "scoreType 'yetenek' — TABLO 5 rows regardless of source puanTuru label; central cutoffs stay null (admission is TYT threshold + university talent exam)"
+  },
+  "details": {
+    "netsApiUrl": "https://yokatlas.yok.gov.tr/api/netler/search",
+    "netYears": [
+      2023,
+      2024,
+      2025
+    ],
+    "netsRequestCount": 3,
+    "netsRowsByYear": {
+      "2023": 21341,
+      "2024": 20813,
+      "2025": 20821
+    },
+    "quotaCategories": [
+      {
+        "category": "genel",
+        "quotaField": "kontenjan",
+        "placedField": "gkY",
+        "officialLabel": "Genel"
+      },
+      {
+        "category": "okul-birincisi",
+        "quotaField": "kontenjanObs",
+        "placedField": "obkY",
+        "officialLabel": "Okul Birincisi"
+      },
+      {
+        "category": "deprem",
+        "quotaField": "kontenjanDep",
+        "placedField": "dprmY",
+        "officialLabel": "Deprem"
+      },
+      {
+        "category": "sehit-gazi",
+        "quotaField": "kontenjanSgy",
+        "placedField": "sgyY",
+        "officialLabel": "Şehit Gazi"
+      },
+      {
+        "category": "kadin-34",
+        "quotaField": "kontenjanY34",
+        "placedField": "y34",
+        "officialLabel": "34 Yaş Üstü Kadın"
+      }
+    ],
+    "excludedFields": "tustt1/tustt2/tusktp/kpss1/kpss2/dus are present in the API but rendered nowhere in the official UI; without an official label their meaning is unverifiable, so they are not imported",
+    "statistics": {
+      "receivedRows": 21602,
+      "detailRecords": 21602,
+      "conditionCount": 184,
+      "conditionCodesWithoutText": 4,
+      "netRowsReceived": 62975,
+      "netRowsAttached": 57336,
+      "netRowsDropped": 5639,
+      "tuitionPrograms": 9275,
+      "accreditedPrograms": 2885
+    },
+    "detailsFixtureSha256": "dc07ce039b3985534b1105de6ce490e7cefaeba513dfd64d8c881d71a5694c6b"
   },
   "result": {
     "receivedRows": 21602,
-    "importedPrograms": 21263,
-    "programYears": 76318,
-    "skippedPrograms": 339,
-    "skippedByUniversityType": {
-      "YURTDISI VAKIF": 41,
-      "YURTDISI KAMU": 117,
-      "VAKIF MYO": 181
-    },
+    "receivedTalentRows": 0,
+    "importedPrograms": 21602,
+    "importedTalentPrograms": 0,
+    "programYears": 77302,
+    "skippedPrograms": 0,
+    "skippedByUniversityType": {},
     "omittedScholarshipLabels": {},
-    "fixtureSha256": "bdf36a2a9f37f48fc7194f18773b4f8eea522a73298307289e1833fd62117a26"
+    "fixtureSha256": "3ea7c7431149124101b9c0bfd77420baa330dd0edab83fc5d0eb597539bbc39f"
   }
 }

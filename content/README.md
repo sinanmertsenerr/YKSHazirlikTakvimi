@@ -90,6 +90,18 @@ the API and application-bundle hashes, field mappings, counts, skipped source ca
 verification timestamp. Program labels are not machine-translated; the official Turkish source
 text is retained in both locales. Run `npm run build:programs` after importing.
 
+The same sweep also produces `programs-details.fixture.json`: the official YÖK Atlas detail data of
+every program — quota categories with placed counts (genel, okul birincisi, deprem, şehit-gazi,
+34+ kadın), full kosul texts, academic staff headcounts, tuition, accreditation, TYÇ, faculty,
+district, program group, and the "Yerleşen Son Kişinin Netleri" archive (per program-year subject
+nets, OBP, katsayı, and taban puan; published from 2023). Field semantics are proven against the
+YÖK Atlas SPA's own rendering and canary-pinned in the importer; API fields the official UI never
+labels (`tustt*`, `kpss*`, `dus`) are deliberately excluded. The current-year `placed` in
+`programs.fixture.json` also comes from this sweep (`gkY`, the genel-yerleşen field the official
+doluluk chart renders); historical placed counts still come from the ÖSYM archive. Fixture,
+details, and provenance are written atomically together, and validate-pack cross-checks the nets
+taban puan against the wizard's per-year minScore in both the fixtures and the built database.
+
 The large deterministic fixtures can be regenerated with
 `npx tsx scripts/lib/generate-topics.ts` and
 `npx tsx scripts/lib/generate-program-fixture.ts`. The latter is an explicitly synthetic developer

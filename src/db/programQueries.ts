@@ -221,6 +221,68 @@ export function buildProgramYearsQuery(ids: readonly string[]): SqlQuery {
   };
 }
 
+// --- Program extras (official YÖK Atlas detail data) ---------------------------------
+// The four extras queries are only ever run against packs built with the detail schema;
+// the repository catches "no such table/column" for older packs and degrades to null.
+
+export function buildProgramExtrasQuery(id: string): SqlQuery {
+  return {
+    sql: `
+      SELECT p.faculty, p.district, p.education_type, p.duration_years, p.program_group,
+             p.tuition, p.accreditation, p.accreditation_note, p.tyc, p.applied_education_model,
+             p.min_rank_requirement, p.min_rank_requirement_note,
+             p.staff_professor, p.staff_docent, p.staff_doctor_faculty, p.staff_lecturer,
+             p.staff_research_assistant
+      FROM program p
+      WHERE ${PUBLISHABLE_PROGRAM_PREDICATE}
+        AND p.id = ?
+      LIMIT 1
+    `,
+    parameters: [id],
+  };
+}
+
+export function buildProgramConditionsQuery(id: string): SqlQuery {
+  return {
+    sql: `
+      SELECT pc.code AS code, ct.text AS text
+      FROM program_condition pc
+      LEFT JOIN condition_text ct ON ct.code = pc.code
+      WHERE pc.program_id = ?
+      ORDER BY pc.position
+    `,
+    parameters: [id],
+  };
+}
+
+export function buildProgramQuotaCategoriesQuery(id: string): SqlQuery {
+  return {
+    sql: `
+      SELECT year, category, quota, placed
+      FROM program_quota_category
+      WHERE program_id = ?
+      ORDER BY year DESC, category
+    `,
+    parameters: [id],
+  };
+}
+
+export function buildProgramNetsQuery(id: string): SqlQuery {
+  return {
+    sql: `
+      SELECT year, score_type, coefficient, min_score, obp,
+             tyt_turkce, tyt_sosyal, tyt_matematik, tyt_fen,
+             ayt_matematik, ayt_fizik, ayt_kimya, ayt_biyoloji,
+             ayt_edebiyat, ayt_tarih1, ayt_cografya1, ayt_tarih2, ayt_cografya2,
+             ayt_felsefe, ayt_din, ydt_dil
+      FROM program_net
+      WHERE program_id = ?
+      ORDER BY year DESC
+    `,
+    parameters: [id],
+  };
+}
+
 export function buildProgramCitiesQuery(language: ProgramQueryLanguage): SqlQuery {
   const cityColumn = language === 'en' ? 'p.city_en' : 'p.city';
   return {
