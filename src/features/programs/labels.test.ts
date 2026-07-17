@@ -9,13 +9,23 @@ import {
 
 describe('official program label mappings', () => {
   it('maps every supported university type without a fallback', () => {
-    const types: Program['type'][] = ['devlet', 'vakif', 'kibris'];
+    const types: Program['type'][] = [
+      'devlet',
+      'vakif',
+      'kibris',
+      'vakif-myo',
+      'yurtdisi-vakif',
+      'yurtdisi-kamu',
+    ];
 
     expect(Object.keys(PROGRAM_TYPE_LABEL_KEYS).sort()).toEqual([...types].sort());
     expect(types.map(programTypeLabelKey)).toEqual([
       'preference.state',
       'preference.foundation',
       'preference.trnc',
+      'preference.foundationMyo',
+      'preference.foreignFoundation',
+      'preference.foreignPublic',
     ]);
   });
 

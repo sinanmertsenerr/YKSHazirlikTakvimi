@@ -10,6 +10,14 @@ import {
   writeTextFileAtomicallyIfChanged,
 } from './lib/semantic-stability.ts';
 import {
+  buildProgramsDetailsFixture,
+  fetchAllYokAtlasNets,
+  prepareStableDetailsFixture,
+  YOK_ATLAS_NETS_API_URL,
+  YOK_ATLAS_NETS_FIRST_YEAR,
+  YOK_ATLAS_QUOTA_CATEGORIES,
+} from './lib/yok-atlas-details.ts';
+import {
   buildYokAtlasFixture,
   fetchAllYokAtlasPrograms,
   fetchAllYokAtlasTalentPrograms,
@@ -25,6 +33,7 @@ const YOK_ATLAS_APP_URL = 'https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php';
 export type ImportOptions = {
   outputPath: string;
   provenancePath: string;
+  detailsOutputPath: string;
   expectedYear?: number;
   pageSize: number;
   requestDelayMs: number;
@@ -107,6 +116,16 @@ async function discoverAndVerifySpaBundle(
     // keep offering birimTuruId 48. Matched without the leading Ö so both raw-UTF-8 and
     // \xd6-escaped bundle encodings pass.
     'ZEL YETENEK",value:48',
+    // Details contract canaries (live-verified 2026-07-17): the SPA's own detail page
+    // must keep binding gkY/obkY as "yerleşen" in its Kontenjan ve Yerleşme table and
+    // keep serving the nets panel from /netler/search with the tytTrkNet field family.
+    // If YÖK renames or repurposes any of these, the import aborts instead of shipping
+    // silently re-interpreted numbers.
+    '.gkY',
+    '.kontenjanObs',
+    '.obkY',
+    '/netler/search',
+    'tytTrkNet',
   ];
   const missing = requiredContractEvidence.filter((token) => !bundle.includes(token));
   if (missing.length) {
@@ -125,24 +144,24 @@ async function stageFile(path: string, contents: string): Promise<string> {
   return temporaryPath;
 }
 
-async function writeImportAtomically(
-  outputPath: string,
-  fixtureJson: string,
-  provenancePath: string,
-  provenanceJson: string,
-): Promise<void> {
-  const fixtureTemporaryPath = await stageFile(outputPath, fixtureJson);
-  let provenanceTemporaryPath: string | null = null;
+/**
+ * Stages every file first, then renames in list order. The MAIN fixture must be the
+ * LAST entry: it is the activation point, so its audit record (provenance) and its
+ * companion details fixture are always installed before a new fixture becomes visible.
+ */
+async function writeImportAtomically(files: { path: string; contents: string }[]): Promise<void> {
+  const staged: { temporaryPath: string; path: string }[] = [];
   try {
-    provenanceTemporaryPath = await stageFile(provenancePath, provenanceJson);
-    // The fixture is the activation point. Provenance is installed first so a visible new fixture
-    // never exists without its audit record.
-    await rename(provenanceTemporaryPath, provenancePath);
-    provenanceTemporaryPath = null;
-    await rename(fixtureTemporaryPath, outputPath);
+    for (const file of files) {
+      staged.push({ temporaryPath: await stageFile(file.path, file.contents), path: file.path });
+    }
+    while (staged.length) {
+      const next = staged[0]!;
+      await rename(next.temporaryPath, next.path);
+      staged.shift();
+    }
   } catch (error) {
-    await rm(fixtureTemporaryPath, { force: true });
-    if (provenanceTemporaryPath) await rm(provenanceTemporaryPath, { force: true });
+    await Promise.all(staged.map((entry) => rm(entry.temporaryPath, { force: true })));
     throw error;
   }
 }
@@ -159,6 +178,7 @@ function parseOptions(args: string[]): ImportOptions {
   const options: ImportOptions = {
     outputPath: resolve(process.cwd(), 'content/programs.fixture.json'),
     provenancePath: resolve(process.cwd(), 'content/programs.provenance.json'),
+    detailsOutputPath: resolve(process.cwd(), 'content/programs-details.fixture.json'),
     pageSize: 500,
     requestDelayMs: 250,
     dryRun: false,
@@ -171,6 +191,9 @@ function parseOptions(args: string[]): ImportOptions {
       index += 1;
     } else if (argument === '--provenance-output' && value) {
       options.provenancePath = resolve(value);
+      index += 1;
+    } else if (argument === '--details-output' && value) {
+      options.detailsOutputPath = resolve(value);
       index += 1;
     } else if (argument === '--expected-year' && value) {
       options.expectedYear = parseInteger(value, 'expectedYear', 2018, 2100);
@@ -187,8 +210,9 @@ function parseOptions(args: string[]): ImportOptions {
       throw new Error(`Unknown or incomplete argument: ${argument ?? '<empty>'}`);
     }
   }
-  if (options.outputPath === options.provenancePath) {
-    throw new Error('Fixture and provenance outputs must be different files');
+  const outputPaths = [options.outputPath, options.provenancePath, options.detailsOutputPath];
+  if (new Set(outputPaths).size !== outputPaths.length) {
+    throw new Error('Fixture, details, and provenance outputs must be different files');
   }
   return options;
 }
@@ -198,12 +222,16 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
   if (!Number.isFinite(now.valueOf())) throw new Error('Invalid program verification time');
   const verifiedAt = now.toISOString();
   const bundle = await discoverAndVerifySpaBundle(options.fetchImpl);
+  // Raw page rows feed the details fixture from the SAME sweep the program fixture is
+  // built from — the two artifacts can never describe two different snapshots.
+  const rawDetailRows: unknown[] = [];
   const fetched = await fetchAllYokAtlasPrograms({
     expectedYear: options.expectedYear,
     pageSize: options.pageSize,
     requestDelayMs: options.requestDelayMs,
     fetchImpl: options.fetchImpl,
     onProgress: (message) => console.log(message),
+    onRawRow: (raw) => rawDetailRows.push(raw),
   });
   // Same straight-line throw chain as the merkezi sweep: a talent-level failure aborts
   // the WHOLE import before anything is written — no partial fixture can ever publish.
@@ -213,17 +241,45 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
     requestDelayMs: options.requestDelayMs,
     fetchImpl: options.fetchImpl,
     onProgress: (message) => console.log(message),
+    onRawRow: (raw) => rawDetailRows.push(raw),
+  });
+  // Nets are archived from 2023; the sweep covers the snapshot year and up to two
+  // preceding years so the detail screen can show the full published nets history.
+  const netYears: number[] = [];
+  for (
+    let year = Math.max(YOK_ATLAS_NETS_FIRST_YEAR, fetched.statistics.snapshotYear - 2);
+    year <= fetched.statistics.snapshotYear;
+    year += 1
+  ) {
+    netYears.push(year);
+  }
+  // No pageSize passthrough: the nets sweep sizes its own single-request-per-year
+  // reads (the endpoint's unsorted pagination is unstable across pages).
+  const nets = await fetchAllYokAtlasNets(netYears, {
+    requestDelayMs: options.requestDelayMs,
+    fetchImpl: options.fetchImpl,
+    onProgress: (message) => console.log(message),
   });
   const { fixture: candidateFixture, statistics } = buildYokAtlasFixture(
     fetched.rows,
     verifiedAt,
     talent.rows,
   );
+  const { fixture: detailsFixture, statistics: detailsStatistics } = buildProgramsDetailsFixture({
+    rawRows: rawDetailRows,
+    netsRows: nets.rows,
+    snapshotYear: fetched.statistics.snapshotYear,
+    netYears,
+    generatedAt: verifiedAt,
+  });
   const existingFixtureJson = await readTextFileIfExists(options.outputPath);
   const { fixture, fixtureJson, reusedExistingBytes } = prepareStableProgramsFixture(
     candidateFixture,
     existingFixtureJson,
   );
+  const existingDetailsJson = await readTextFileIfExists(options.detailsOutputPath);
+  const { fixtureJson: detailsJson, reusedExistingBytes: reusedDetailsBytes } =
+    prepareStableDetailsFixture(detailsFixture, existingDetailsJson);
   const programYears = fixture.programs.reduce((total, program) => total + program.years.length, 0);
   const skippedPrograms = Object.values(statistics.skippedByUniversityType).reduce(
     (total, count) => total + count,
@@ -249,7 +305,14 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       // One sweep per program level; TYT is the önlisans placement score, the other four
       // sweep lisans. Kept as data (not prose) so the audit trail names the exact API filters.
       levels: [...YOK_ATLAS_LEVELS, YOK_ATLAS_TALENT_LEVEL],
-      supportedUniversityTypes: ['DEVLET', 'VAKIF', 'KKTC'],
+      supportedUniversityTypes: [
+        'DEVLET',
+        'VAKIF',
+        'KKTC',
+        'VAKIF MYO',
+        'YURTDISI VAKIF',
+        'YURTDISI KAMU',
+      ],
       localePolicy: 'source-only',
     },
     pagination: {
@@ -263,6 +326,7 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       currentYear: {
         year: 'yil',
         quota: 'kontenjan',
+        placed: 'gkY',
         minScore: 'minPuan',
         minRank: 'basariSirasi',
       },
@@ -272,11 +336,28 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
         { offset: -3, quota: 'gk3', minScore: 'minPuan3', minRank: 'basariSirasi3' },
       ],
       placed:
-        'null — no proven year-by-year placed-count field is imported; values are never inferred',
+        "current year only, from gkY (genel yerleşen — proven by the SPA's own Kontenjan ve Yerleşme " +
+        'rendering and canary-pinned); a 0 without any published cutoff means "placement not run yet" ' +
+        'and stays null. Historical placed counts come from the ÖSYM archive at build time.',
+      foreignCity:
+        'null — YURTDISI rows publish no il field (the official UI renders "--"); never derived from the university name',
       unsupportedScholarship:
         'null — source label remains visible in birimAdi and is counted below; no lossy category mapping',
       talent:
         "scoreType 'yetenek' — TABLO 5 rows regardless of source puanTuru label; central cutoffs stay null (admission is TYT threshold + university talent exam)",
+    },
+    details: {
+      netsApiUrl: YOK_ATLAS_NETS_API_URL,
+      netYears,
+      netsRequestCount: nets.statistics.requestCount,
+      netsRowsByYear: nets.statistics.rowsByYear,
+      // The exact source-field → category binding, mirroring the SPA's own table.
+      quotaCategories: YOK_ATLAS_QUOTA_CATEGORIES,
+      excludedFields:
+        'tustt1/tustt2/tusktp/kpss1/kpss2/dus are present in the API but rendered nowhere in the ' +
+        'official UI; without an official label their meaning is unverifiable, so they are not imported',
+      statistics: detailsStatistics,
+      detailsFixtureSha256: sha256(detailsJson),
     },
     result: {
       receivedRows: statistics.receivedRows,
@@ -293,15 +374,15 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
   const provenanceJson = `${JSON.stringify(provenance, null, 2)}\n`;
 
   if (!options.dryRun) {
-    if (reusedExistingBytes) {
+    if (reusedExistingBytes && reusedDetailsBytes) {
       await writeTextFileAtomicallyIfChanged(options.provenancePath, provenanceJson);
     } else {
-      await writeImportAtomically(
-        options.outputPath,
-        fixtureJson,
-        options.provenancePath,
-        provenanceJson,
-      );
+      // Install order: audit record first, companion details second, the main fixture
+      // LAST (activation point) — a visible new fixture always has its full context.
+      const files = [{ path: options.provenancePath, contents: provenanceJson }];
+      if (!reusedDetailsBytes) files.push({ path: options.detailsOutputPath, contents: detailsJson });
+      if (!reusedExistingBytes) files.push({ path: options.outputPath, contents: fixtureJson });
+      await writeImportAtomically(files);
     }
   }
   console.log(
@@ -309,6 +390,12 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       `and ${programYears} program-year rows from the ${fetched.statistics.snapshotYear} YÖK Atlas snapshot` +
       ` (özel yetenek: ${statistics.importedTalentPrograms} of ${statistics.receivedTalentRows} rows, ${talent.statistics.snapshotYear} snapshot)` +
       `${skippedPrograms ? `; skipped ${skippedPrograms} unsupported foreign-type rows` : ''}.`,
+  );
+  console.log(
+    `Details${options.dryRun ? ' (validated)' : reusedDetailsBytes ? ' (unchanged)' : ''}: ` +
+      `${detailsStatistics.detailRecords} programs, ${detailsStatistics.conditionCount} kosul texts, ` +
+      `${detailsStatistics.netRowsAttached}/${detailsStatistics.netRowsReceived} nets rows attached ` +
+      `(${detailsStatistics.netRowsDropped} for closed programs) across ${netYears.join('/')}.`,
   );
 }
 
@@ -322,6 +409,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     options = {
       outputPath: '',
       provenancePath: '',
+      detailsOutputPath: '',
       pageSize: 500,
       requestDelayMs: 250,
       dryRun: true,

@@ -9,7 +9,10 @@ on:
       - '.github/workflows/publish-content.yml'
   schedule:
     - cron: '17 */6 * * *'
-    - cron: '47 4 * * 1'
+    # Daily YÖK Atlas program refresh (03:47 UTC = 06:47 TR). Kept daily rather than
+    # 6-hourly to stay polite to the source; unchanged snapshots commit nothing
+    # (provenance-only audits are restored) and publish nothing (check:pack-change).
+    - cron: '47 3 * * *'
   workflow_dispatch:
     inputs:
       refresh_programs:
@@ -62,10 +65,10 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: npm run fetch:news
       - name: Refresh official YÖK Atlas programs
-        if: github.event.schedule == '47 4 * * 1' || inputs.refresh_programs == true
+        if: github.event.schedule == '47 3 * * *' || inputs.refresh_programs == true
         run: npm run import:programs
 
-      - name: Keep program fixture and provenance atomic
+      - name: Keep program fixture, details, and provenance atomic
         id: program-state
         shell: bash
         run: |
@@ -73,10 +76,10 @@ jobs:
           fixture_changed=false
           provenance_only=false
 
-          if ! git diff --quiet -- content/programs.fixture.json; then
+          if ! git diff --quiet -- content/programs.fixture.json content/programs-details.fixture.json; then
             fixture_changed=true
             if git diff --quiet -- content/programs.provenance.json; then
-              echo "Program fixture changed without matching provenance." >&2
+              echo "Program data changed without matching provenance." >&2
               exit 1
             fi
           elif ! git diff --quiet -- content/programs.provenance.json; then
@@ -116,6 +119,7 @@ jobs:
             content/news.json \
             content/manifest.source.json \
             content/programs.fixture.json \
+            content/programs-details.fixture.json \
             content/programs.provenance.json || changed=true
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
 
@@ -183,7 +187,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' path; do
             case "$path" in
-              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs.provenance.json)
+              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs-details.fixture.json|content/programs.provenance.json)
                 ;;
               *)
                 echo "Refusing unexpected generated mutation: $path" >&2
@@ -205,6 +209,7 @@ jobs:
           install -m 0644 content/news.json "$STATE_DIRECTORY/content/news.json"
           if [[ "$PROGRAM_FIXTURE_CHANGED" == "true" ]]; then
             install -m 0644 content/programs.fixture.json "$STATE_DIRECTORY/content/programs.fixture.json"
+            install -m 0644 content/programs-details.fixture.json "$STATE_DIRECTORY/content/programs-details.fixture.json"
             install -m 0644 content/programs.provenance.json "$STATE_DIRECTORY/content/programs.provenance.json"
           fi
 
@@ -273,6 +278,7 @@ jobs:
           calendar_seen=false
           news_seen=false
           fixture_seen=false
+          details_seen=false
           provenance_seen=false
           file_count=0
           while IFS= read -r -d '' file; do
@@ -282,6 +288,7 @@ jobs:
               content/calendar.json) calendar_seen=true ;;
               content/news.json) news_seen=true ;;
               content/programs.fixture.json) fixture_seen=true ;;
+              content/programs-details.fixture.json) details_seen=true ;;
               content/programs.provenance.json) provenance_seen=true ;;
               *)
                 echo "Persisted-state artifact contains an unexpected file: $relative" >&2
@@ -295,12 +302,12 @@ jobs:
             echo "Persisted-state artifact is missing a required source file." >&2
             exit 1
           }
-          [[ "$fixture_seen" == "$provenance_seen" ]] || {
-            echo "Program fixture and provenance must be persisted together." >&2
+          [[ "$fixture_seen" == "$provenance_seen" && "$fixture_seen" == "$details_seen" ]] || {
+            echo "Program fixture, details, and provenance must be persisted together." >&2
             exit 1
           }
           if [[ "$fixture_seen" == "true" ]]; then
-            [[ "$file_count" -eq 5 ]] || exit 1
+            [[ "$file_count" -eq 6 ]] || exit 1
           else
             [[ "$file_count" -eq 3 ]] || exit 1
           fi
@@ -310,6 +317,7 @@ jobs:
           [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/news.json")" -le 2097152 ]]
           if [[ "$fixture_seen" == "true" ]]; then
             [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/programs.fixture.json")" -le 262144000 ]]
+            [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/programs-details.fixture.json")" -le 262144000 ]]
             [[ "$(stat -c '%s' "$STATE_DIRECTORY/content/programs.provenance.json")" -le 2097152 ]]
           fi
           for file in "$STATE_DIRECTORY"/content/*.json; do
@@ -321,21 +329,22 @@ jobs:
           install -m 0644 "$STATE_DIRECTORY/content/news.json" content/news.json
           if [[ "$fixture_seen" == "true" ]]; then
             install -m 0644 "$STATE_DIRECTORY/content/programs.fixture.json" content/programs.fixture.json
+            install -m 0644 "$STATE_DIRECTORY/content/programs-details.fixture.json" content/programs-details.fixture.json
             install -m 0644 "$STATE_DIRECTORY/content/programs.provenance.json" content/programs.provenance.json
           fi
 
-          fixture_changed=false
+          data_changed=false
           provenance_changed=false
-          git diff --quiet -- content/programs.fixture.json || fixture_changed=true
+          git diff --quiet -- content/programs.fixture.json content/programs-details.fixture.json || data_changed=true
           git diff --quiet -- content/programs.provenance.json || provenance_changed=true
-          [[ "$fixture_changed" == "$provenance_changed" ]] || {
-            echo "Program fixture and provenance diff are not atomic." >&2
+          if [[ "$data_changed" == "true" && "$provenance_changed" != "true" ]]; then
+            echo "Program data diff has no matching provenance diff." >&2
             exit 1
-          }
+          fi
 
           while IFS= read -r -d '' path; do
             case "$path" in
-              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs.provenance.json)
+              content/calendar.json|content/news.json|content/manifest.source.json|content/programs.fixture.json|content/programs-details.fixture.json|content/programs.provenance.json)
                 ;;
               *)
                 echo "Refusing unexpected persisted mutation: $path" >&2
@@ -344,15 +353,15 @@ jobs:
             esac
           done < <(git diff --name-only -z)
 
-          if git diff --quiet -- content/calendar.json content/news.json content/manifest.source.json content/programs.fixture.json content/programs.provenance.json; then
+          if git diff --quiet -- content/calendar.json content/news.json content/manifest.source.json content/programs.fixture.json content/programs-details.fixture.json content/programs.provenance.json; then
             echo "state_changed=false" >> "$GITHUB_OUTPUT"
             echo "commit_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           git add -- content/calendar.json content/news.json content/manifest.source.json
-          if [[ "$fixture_changed" == "true" ]]; then
-            git add -- content/programs.fixture.json content/programs.provenance.json
+          if [[ "$fixture_seen" == "true" ]]; then
+            git add -- content/programs.fixture.json content/programs-details.fixture.json content/programs.provenance.json
           fi
           git diff --cached --check
           git config user.name 'github-actions[bot]'

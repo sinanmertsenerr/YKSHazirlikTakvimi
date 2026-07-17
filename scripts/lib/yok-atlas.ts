@@ -55,6 +55,11 @@ export const yokAtlasRowSchema = z.object({
   bursOraniAdi: z.string().trim().min(1).nullish(),
   ogrenimDiliAdi: z.string().trim().min(1).nullish(),
   kontenjan: nullableNumberLikeSchema,
+  // gkY = genel kontenjana yerleşen. Proven against the SPA's own render code (the
+  // "Kontenjan ve Yerleşme" table binds {kategori:"Genel", kontenjan, yerlesen:E.gkY}
+  // and the doluluk doughnut charts gkY as "Yerleşen Öğrenci") — canary-pinned in
+  // import-yok-atlas-programs. Only the CURRENT year exposes it; no gk1Y/gk2Y exists.
+  gkY: nullableNumberLikeSchema,
   minPuan: nullableNumberLikeSchema,
   basariSirasi: nullableNumberLikeSchema,
   gk1: nullableNumberLikeSchema,
@@ -123,6 +128,12 @@ export type FetchYokAtlasOptions = {
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
   onProgress?: (message: string) => void;
+  /**
+   * Receives every RAW page row before schema parsing strips unmodeled fields. The
+   * details importer consumes the same sweep through this hook so the program fixture
+   * and the details fixture can never come from two different snapshots.
+   */
+  onRawRow?: (raw: unknown) => void;
 };
 
 export type BuildYokAtlasFixtureResult = {
@@ -196,6 +207,10 @@ function parsePositiveMetric(
   return parsed;
 }
 
+// All five live universiteTuru values map 1:1 (live-verified 2026-07-17: DEVLET 12060,
+// VAKIF 8045, KKTC 1158, VAKIF MYO 181, YURTDISI VAKIF 41, YURTDISI KAMU 117 rows).
+// The source spells the foreign values in plain ASCII ("YURTDISI", not "YURTDIŞI").
+// An unknown NEW value still returns null and is skip-counted, never guessed.
 function toProgramType(value: string): ProgramsFixture['programs'][number]['type'] | null {
   switch (value.toLocaleUpperCase('tr-TR')) {
     case 'DEVLET':
@@ -204,6 +219,12 @@ function toProgramType(value: string): ProgramsFixture['programs'][number]['type
       return 'vakif';
     case 'KKTC':
       return 'kibris';
+    case 'VAKIF MYO':
+      return 'vakif-myo';
+    case 'YURTDISI VAKIF':
+      return 'yurtdisi-vakif';
+    case 'YURTDISI KAMU':
+      return 'yurtdisi-kamu';
     default:
       return null;
   }
@@ -261,11 +282,21 @@ function makeYear(
   const minRank = parsePositiveMetric(row[rankKey], `${row.kilavuzKodu}.${year}.minRank`, true);
 
   if (suffix && quota === null && minScore === null && minRank === null) return null;
+  // gkY (genel yerleşen) exists for the CURRENT year only; historical years stay null and
+  // are filled from the official ÖSYM archive tables at build time. A 0 next to a fully
+  // cutoff-less year is indistinguishable from "placement not run yet" (a freshly loaded
+  // kılavuz), so only a published cutoff or a positive count is trusted as a real total.
+  let placed: number | null = null;
+  if (!suffix) {
+    const generalPlaced = parseNonnegativeInteger(row.gkY, `${row.kilavuzKodu}.${year}.placed`);
+    if (generalPlaced !== null && (generalPlaced > 0 || minScore !== null || minRank !== null)) {
+      placed = generalPlaced;
+    }
+  }
   return {
     year,
     quota,
-    // The public response does not expose a proven, year-by-year placed field. Do not infer it.
-    placed: null,
+    placed,
     minScore,
     minRank,
     verified: true,
@@ -318,8 +349,12 @@ function buildNormalizedProgram(
       omittedScholarshipLabel: null,
     };
   }
-  if (!row.ilAdi) {
-    throw new Error(`${id} is a supported university type but has no official city value`);
+  // Foreign programs carry no il in the source (their city lives inside the university
+  // name, e.g. "(BİŞKEK)") and the official UI renders "--" — mirrored as null, never
+  // derived. A missing il on a DOMESTIC row is still snapshot corruption and aborts.
+  const isForeign = type === 'yurtdisi-vakif' || type === 'yurtdisi-kamu';
+  if (!row.ilAdi && !isForeign) {
+    throw new Error(`${id} is a domestic university type but has no official city value`);
   }
 
   const source = programDetailUrl(id);
@@ -337,7 +372,7 @@ function buildNormalizedProgram(
       id,
       university: sourceOnly(row.universiteAdi),
       name: sourceOnly(row.birimAdi),
-      city: sourceOnly(row.ilAdi),
+      city: row.ilAdi ? sourceOnly(row.ilAdi) : null,
       type,
       scoreType,
       scholarship,
@@ -486,6 +521,8 @@ async function fetchPage(
       });
       const retryable =
         response.status === 408 ||
+        // 418 is YÖK Atlas's observed rate-limit signal alongside the standard 429.
+        response.status === 418 ||
         response.status === 425 ||
         response.status === 429 ||
         response.status >= 500;
@@ -581,6 +618,7 @@ export async function fetchAllYokAtlasPrograms(
           if (rowYear !== result.yil) {
             throw new Error(`YÖK Atlas row ${row.kilavuzKodu} has an unexpected year ${rowYear}`);
           }
+          options.onRawRow?.(raw);
           rows.push(row);
         }
       }
@@ -674,6 +712,7 @@ export async function fetchAllYokAtlasTalentPrograms(
       if (rowYear !== result.yil) {
         throw new Error(`YÖK Atlas row ${row.kilavuzKodu} has an unexpected year ${rowYear}`);
       }
+      options.onRawRow?.(raw);
       rows.push(row);
     }
   }
