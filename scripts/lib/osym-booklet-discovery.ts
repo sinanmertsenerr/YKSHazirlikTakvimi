@@ -7,6 +7,7 @@ import path from 'node:path';
 import { z } from 'zod';
 
 import { calendarSchema } from './content-schemas.ts';
+import { htmlToText } from './html-text.ts';
 import {
   assertPopplerAvailable,
   locateBookletSectionPages,
@@ -200,13 +201,7 @@ function decodeHtml(value: string): string {
 }
 
 function normalizedText(html: string): string {
-  return decodeHtml(
-    html
-      .replace(/<!--[\s\S]*?-->/g, ' ')
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' '),
-  )
+  return htmlToText(html)
     .replace(/\s+/g, ' ')
     .trim()
     .toLocaleUpperCase('tr-TR')

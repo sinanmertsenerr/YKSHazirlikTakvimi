@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { CURRENT_SCHEMA_VERSION, newsItemSchema, newsSchema } from './lib/content-schemas.ts';
+import { htmlToText } from './lib/html-text.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
   preserveStableRecordVerificationTimes,
@@ -146,15 +147,7 @@ function decodeHtml(value: string): string {
 }
 
 function plainText(html: string): string {
-  return decodeHtml(
-    html
-      .replace(/<!--[\s\S]*?-->/g, ' ')
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' '),
-  )
-    .replace(/\s+/g, ' ')
-    .trim();
+  return htmlToText(html).replace(/\s+/g, ' ').trim();
 }
 
 function attributeValue(openingTag: string, name: string): string | undefined {

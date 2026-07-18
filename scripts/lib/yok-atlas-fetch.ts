@@ -71,6 +71,7 @@ export async function readBoundedText(
 ): Promise<string> {
   const advertised = Number(response.headers.get('content-length'));
   if (Number.isFinite(advertised) && advertised > maxBytes) {
+    await cancelBody(response);
     throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit (advertised length).`);
   }
 

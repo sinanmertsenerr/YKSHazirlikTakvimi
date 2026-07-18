@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { handleRequest, type Env } from '../../infra/cloudflare/src/index.ts';
+import {
+  CLASSIFIER_MAX_BODY_BYTES,
+  handleRequest,
+  type Env,
+} from '../../infra/cloudflare/src/index.ts';
 
 const token = '0123456789abcdef0123456789abcdef';
 
@@ -38,6 +42,12 @@ function environment(
   limit: NonNullable<Env['CLASSIFIER_RATE_LIMITER']>['limit'] = async () => ({ success: true }),
 ): Env {
   return { AI: { run }, CLASSIFIER_AUTH_TOKEN: token, CLASSIFIER_RATE_LIMITER: { limit } };
+}
+
+function dataImageUrlForBytes(byteLength: number): string {
+  const encodedLength = Math.ceil(byteLength / 3) * 4;
+  const padding = (3 - (byteLength % 3)) % 3;
+  return `data:image/png;base64,${'A'.repeat(encodedLength - padding)}${'='.repeat(padding)}`;
 }
 
 test('Cloudflare classifier rejects unauthenticated requests before quota or inference', async () => {
@@ -179,19 +189,19 @@ test('Cloudflare classifier hides inference failures behind a bounded error resp
   assert.deepEqual(await response.json(), { error: 'inference-failed' });
 });
 
-test('Cloudflare classifier admits two full-size vision images within the derived body limit', async () => {
-  // A base64 payload that decodes to just under the 5 MiB per-image cap.
-  const fullImage = `data:image/png;base64,${'A'.repeat(6_990_000)}`;
+test('Cloudflare classifier admits two exact 5 MiB images with maximum escaped text', async () => {
+  const fullImage = dataImageUrlForBytes(5 * 1024 * 1024);
+  const maximumTextPart = String.fromCharCode(0).repeat(80_000);
   const visionPayload = {
     model: '@cf/google/gemma-4-26b-a4b-it',
     mode: 'vision',
     requestId: '2026-tyt-turkce-vision-boundary-1',
     messages: [
-      { role: 'system', content: 'Return only the requested taxonomy IDs.' },
+      { role: 'system', content: String.fromCharCode(0).repeat(450_000) },
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Classify both rendered section pages.' },
+          ...Array.from({ length: 5 }, () => ({ type: 'text', text: maximumTextPart })),
           { type: 'image_url', image_url: { url: fullImage } },
           { type: 'image_url', image_url: { url: fullImage } },
         ],
@@ -199,9 +209,7 @@ test('Cloudflare classifier admits two full-size vision images within the derive
     ],
     responseJsonSchema: {
       type: 'object',
-      properties: { topicId: { type: 'string' } },
-      required: ['topicId'],
-      additionalProperties: false,
+      description: String.fromCharCode(0).repeat(5_000),
     },
     maxCompletionTokens: 512,
     temperature: 0,
@@ -216,10 +224,66 @@ test('Cloudflare classifier admits two full-size vision images within the derive
     }),
   );
 
-  // Two full images encode to ~13.3 MiB, so the old flat 12 MiB body cap would have
-  // wrongly rejected this valid request with 413. The body limit is now derived from
-  // the per-image and image-count limits, keeping the request contract self-consistent.
-  assert.notEqual(response.status, 413);
   assert.equal(response.status, 200);
   assert.equal(calls, 1);
+});
+
+test('Cloudflare classifier rejects an image one byte above the decoded limit', async () => {
+  const payload = {
+    ...textPayload(),
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    mode: 'vision',
+    messages: [
+      textPayload().messages[0],
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Classify this page.' },
+          { type: 'image_url', image_url: { url: dataImageUrlForBytes(5 * 1024 * 1024 + 1) } },
+        ],
+      },
+    ],
+  };
+  let calls = 0;
+  const response = await handleRequest(
+    request(payload),
+    environment(async () => {
+      calls += 1;
+      return {};
+    }),
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(calls, 0);
+});
+
+test('Cloudflare classifier stops reading a streamed body at the transport limit', async () => {
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new Uint8Array(CLASSIFIER_MAX_BODY_BYTES));
+      controller.enqueue(new Uint8Array(1));
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+  const oversizedRequest = new Request('https://classifier.example/v1/classify', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body,
+    duplex: 'half',
+  } as RequestInit & { duplex: 'half' });
+  let calls = 0;
+  const response = await handleRequest(
+    oversizedRequest,
+    environment(async () => {
+      calls += 1;
+      return {};
+    }),
+  );
+
+  assert.equal(response.status, 413);
+  assert.equal(cancelled, true);
+  assert.equal(calls, 0);
 });

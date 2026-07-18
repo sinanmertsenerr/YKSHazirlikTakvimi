@@ -105,12 +105,12 @@ The representative latest-year/rank query uses `ix_program_score_type` and the `
 ## Remediation verification to date
 
 - Application Jest: 35 suites / 162 tests passed with 100% configured scoring coverage.
-- Node content/security pipeline: 227 tests passed.
+- Node content/security pipeline: 238 tests passed.
 - TypeScript and ESLint: passed.
 - Expo dependency compatibility: passed; Expo Doctor 20/20.
 - Official content validation: annual publication ledger, 18 ÖSYM booklets, and 7 OGM sources passed.
 - Content pack: built and fully validated once per candidate path; 21,602 programs / 136,220 program-year rows.
-- Cloudflare: 6 focused Worker tests passed and Wrangler dry-run recognized the 60 requests/60 seconds binding (8.32 KiB upload, 2.66 KiB gzip).
+- Cloudflare: 9 focused Worker tests passed and Wrangler dry-run recognized the 60 requests/60 seconds binding (9.97 KiB upload, 3.11 KiB gzip).
 - Pack signing: runtime and Node contract/tamper/rotation tests passed; Android Metro/Hermes export bundled the verifier (7.8 MiB HBC plus the 50,978,816-byte database asset); the main-only GitHub signing environment and secret were configured without retaining the private key locally.
 - Formatting check remains a pre-existing repository gap: after excluding agent worktrees it reports 37 unrelated legacy files. Newly changed files were formatted; this review did not create a broad formatting-only diff.
 
@@ -123,16 +123,17 @@ The representative latest-year/rank query uses `ix_program_score_type` and the `
 
 ## Follow-up remediation — 2026-07-19 (closure pass)
 
-- **Classifier vision body limit made self-consistent.** `MAX_BODY_BYTES` is now derived from the per-image (5 MiB) and image-count (2) limits plus base64 inflation, so two full-size images can no longer pass the per-image checks yet be rejected with a 413 body-too-large. A boundary test asserts two full images are admitted: `infra/cloudflare/src/index.ts`, `scripts/__tests__/cloudflare-worker.test.ts`.
-- **YÖK Atlas responses are read under a streaming byte ceiling.** `readBoundedText` rejects an oversized advertised `Content-Length` before allocation and aborts mid-stream once the cap is exceeded, replacing the previous read-everything-then-check pattern and adding a previously missing bound on the SPA document: `scripts/lib/yok-atlas-fetch.ts`, `scripts/lib/yok-atlas.ts`, `scripts/lib/yok-atlas-details.ts`, `scripts/import-yok-atlas-programs.ts`, `scripts/__tests__/yok-atlas-fetch.test.ts`.
-- **CodeQL `js/bad-tag-filter` (4 pre-existing high alerts) addressed in code.** The script/style stripping regexes in the four HTML→text helpers were replaced with the tolerant, CodeQL-recommended form and comment stripping was added, preserving output behavior (these outputs feed text parsing, never an HTML sink): `scripts/fetch-news.ts`, `scripts/lib/osym-preference-calendar.ts`, `scripts/lib/osym-booklet-discovery.ts`, `scripts/sync-calendar.ts`. Re-scan confirmation is pending the next CodeQL run on `main`.
+- **Classifier request limits are self-consistent at exact boundaries.** Base64 decoded size now subtracts standard padding, so an exact 5 MiB image is accepted and a one-byte oversize image is rejected. The transport ceiling is derived from two encoded images plus the worst-case JSON expansion of every accepted text/schema field, and request bodies are streamed under that ceiling instead of being allocated in full first: `infra/cloudflare/src/index.ts`, `scripts/__tests__/cloudflare-worker.test.ts`.
+- **YÖK Atlas responses are read under a streaming byte ceiling.** `readBoundedText` cancels a response whose advertised `Content-Length` is oversized before reading, and cancels mid-stream once the cap is exceeded. The bounded reader covers the SPA document/bundle, program API, and nets API: `scripts/lib/yok-atlas-fetch.ts`, `scripts/lib/yok-atlas.ts`, `scripts/lib/yok-atlas-details.ts`, `scripts/import-yok-atlas-programs.ts`, `scripts/__tests__/yok-atlas-fetch.test.ts`.
+- **CodeQL `js/bad-tag-filter` regexes were removed.** The four HTML→text consumers now use a shared `parse5` tree parser that omits script/style subtrees and comments, including browser-tolerated malformed closing tags, without treating regex output as sanitized HTML: `scripts/lib/html-text.ts`, `scripts/fetch-news.ts`, `scripts/lib/osym-preference-calendar.ts`, `scripts/lib/osym-booklet-discovery.ts`, `scripts/sync-calendar.ts`, `scripts/__tests__/html-text.test.ts`. Re-scan confirmation is pending the next CodeQL run on `main`.
+- **Static-host signature MIME handling was corrected.** The publisher accepts `manifest.sig` under `application/pgp-signature` while continuing to JSON-parse and Ed25519-verify its bytes; `manifest.json` still requires a JSON Content-Type. A production-shaped regression test covers the GitHub Pages response.
 
-Gates re-run after this pass: TypeScript, ESLint, Jest (162), Node content/security (232), Cloudflare dry-run — all passed.
+Gates re-run after this pass: TypeScript, ESLint, Jest (162), Node content/security (238), production dependency audit, and Cloudflare dry-run — all passed.
 
 ## Verification still required
 
 - Signed-pack publication is now **live** (closed): schema 3, key ID `pack-2026-01`, with `manifest.sig` served and deploy-time signature/size/SHA-256 verification passing.
-- CodeQL re-scan on `main` to confirm the four `js/bad-tag-filter` alerts clear after the regex fix.
+- CodeQL re-scan on `main` to confirm the four `js/bad-tag-filter` alerts clear after the parser migration.
 - Branch protection / ruleset on `main` (required status checks including CodeQL, no force-push/deletion) is not yet configured; open high alerts do not currently block merges.
 - Production Cloudflare Worker deployment of the rate-limit binding — intentionally deferred to a separate outward-facing action.
 - EAS production Android/iOS artifact creation and signing/manifest/entitlement inspection (interactive EAS authentication required).

@@ -1,3 +1,5 @@
+import { htmlToText } from './html-text.ts';
+
 const OSYM_HOST = 'www.osym.gov.tr';
 
 export const OSYM_YKS_LIST_URL = 'https://www.osym.gov.tr/TR,13493/yks.html';
@@ -103,15 +105,7 @@ function decodeHtml(value: string): string {
 }
 
 function plainText(html: string): string {
-  return decodeHtml(
-    html
-      .replace(/<!--[\s\S]*?-->/g, ' ')
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' '),
-  )
-    .replace(/\s+/g, ' ')
-    .trim();
+  return htmlToText(html).replace(/\s+/g, ' ').trim();
 }
 
 function attributeValue(openingTag: string, name: string): string | undefined {

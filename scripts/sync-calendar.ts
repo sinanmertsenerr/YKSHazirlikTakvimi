@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { calendarSchema, CURRENT_SCHEMA_VERSION } from './lib/content-schemas.ts';
+import { htmlToText } from './lib/html-text.ts';
 import {
   preserveStableRecordVerificationTimes,
   readTextFileIfExists,
@@ -75,46 +76,10 @@ function assertAllowedOfficialUrl(rawUrl: string): URL {
   return url;
 }
 
-function decodeHtml(value: string): string {
-  const named: Record<string, string> = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-    ccedil: 'ç',
-    Ccedil: 'Ç',
-    gbreve: 'ğ',
-    Gbreve: 'Ğ',
-    Idot: 'İ',
-    inodot: 'ı',
-    odot: 'ö',
-    Odot: 'Ö',
-    scedil: 'ş',
-    Scedil: 'Ş',
-    udot: 'ü',
-    Udot: 'Ü',
-  };
-
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
-    if (code.toLocaleLowerCase('en-US').startsWith('#x')) {
-      return String.fromCodePoint(Number.parseInt(code.slice(2), 16));
-    }
-    if (code.startsWith('#')) return String.fromCodePoint(Number.parseInt(code.slice(1), 10));
-    return named[code] ?? entity;
-  });
-}
+const HTML_LINE_BREAK_TAGS = new Set(['br']);
 
 function htmlLines(html: string): string[] {
-  return decodeHtml(
-    html
-      .replace(/<!--[\s\S]*?-->/g, ' ')
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-      .replace(/<br\s*\/?\s*>/gi, '\n')
-      .replace(/<[^>]+>/g, ' '),
-  )
+  return htmlToText(html, { lineBreakTags: HTML_LINE_BREAK_TAGS })
     .split('\n')
     .map((line) => line.replace(/\s+/g, ' ').trim())
     .filter(Boolean);

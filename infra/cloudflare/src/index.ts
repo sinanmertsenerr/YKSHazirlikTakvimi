@@ -1,21 +1,28 @@
 const TEXT_MODEL = '@cf/qwen/qwen3-30b-a3b-fp8' as const;
 const VISION_MODEL = '@cf/google/gemma-4-26b-a4b-it' as const;
 const MAX_TEXT_CHARACTERS = 450_000;
+const MAX_MESSAGE_PARTS = 7;
+const MAX_MESSAGE_TEXT_CHARACTERS = 80_000;
+const MAX_SCHEMA_JSON_CHARACTERS = 32_000;
+const MAX_REQUEST_ID_CHARACTERS = 240;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VISION_IMAGES = 2;
-// Base64 inflates raw bytes by 4/3. The request body must hold every permitted
-// image at its ENCODED size plus the text parts and JSON envelope, so derive the
-// ceiling from those limits instead of hard-coding a value that can silently
-// contradict them: two 5 MiB decoded images alone encode to ~13.3 MiB, which a
-// flat 12 MiB body would have wrongly rejected as too large.
-const BASE64_BYTES_PER_RAW_BYTE_NUM = 4;
-const BASE64_BYTES_PER_RAW_BYTE_DEN = 3;
-const MAX_NON_IMAGE_BODY_BYTES = 1 * 1024 * 1024;
-const MAX_BODY_BYTES =
-  Math.ceil(
-    (MAX_IMAGE_BYTES * MAX_VISION_IMAGES * BASE64_BYTES_PER_RAW_BYTE_NUM) /
-      BASE64_BYTES_PER_RAW_BYTE_DEN,
-  ) + MAX_NON_IMAGE_BODY_BYTES;
+const MAX_BASE64_IMAGE_CHARACTERS = Math.ceil(MAX_IMAGE_BYTES / 3) * 4;
+// JSON can expand one accepted UTF-16 text unit to six ASCII bytes when escaped.
+// Schema size is already measured after JSON.stringify, where one remaining
+// UTF-16 unit needs at most three UTF-8 bytes. Keep a fixed envelope
+// allowance for keys, punctuation, data-URL prefixes, and bounded scalar fields.
+const MAX_JSON_ESCAPED_BYTES_PER_TEXT_CHARACTER = 6;
+const MAX_UTF8_BYTES_PER_SCHEMA_CHARACTER = 3;
+const MAX_FIXED_JSON_ENVELOPE_BYTES = 64 * 1024;
+const MAX_VISION_TEXT_PARTS = MAX_MESSAGE_PARTS - MAX_VISION_IMAGES;
+const MAX_NON_IMAGE_BODY_BYTES =
+  (MAX_TEXT_CHARACTERS + MAX_VISION_TEXT_PARTS * MAX_MESSAGE_TEXT_CHARACTERS) *
+    MAX_JSON_ESCAPED_BYTES_PER_TEXT_CHARACTER +
+  MAX_SCHEMA_JSON_CHARACTERS * MAX_UTF8_BYTES_PER_SCHEMA_CHARACTER +
+  MAX_FIXED_JSON_ENVELOPE_BYTES;
+const MAX_BODY_BYTES = MAX_BASE64_IMAGE_CHARACTERS * MAX_VISION_IMAGES + MAX_NON_IMAGE_BODY_BYTES;
+export const CLASSIFIER_MAX_BODY_BYTES = MAX_BODY_BYTES;
 export const CLASSIFIER_AI_TIMEOUT_MS = 90_000;
 export const CLASSIFIER_RATE_LIMIT_KEY = 'annual-classifier';
 export const CLASSIFIER_RATE_LIMIT_RETRY_SECONDS = 60;
@@ -95,8 +102,11 @@ function hasExactKeys(value: Record<string, unknown>, allowed: readonly string[]
 function validDataImageUrl(value: unknown): value is string {
   if (typeof value !== 'string') return false;
   const match = /^data:image\/(?:jpeg|png);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
-  if (!match) return false;
-  return Math.ceil((match[1]!.length * 3) / 4) <= MAX_IMAGE_BYTES;
+  const encoded = match?.[1];
+  if (!encoded || encoded.length % 4 !== 0) return false;
+  const padding = encoded.endsWith('==') ? 2 : encoded.endsWith('=') ? 1 : 0;
+  const decodedBytes = (encoded.length / 4) * 3 - padding;
+  return decodedBytes > 0 && decodedBytes <= MAX_IMAGE_BYTES;
 }
 
 function parseMessage(value: unknown): Message | undefined {
@@ -106,7 +116,11 @@ function parseMessage(value: unknown): Message | undefined {
     if (!value.content.length || value.content.length > MAX_TEXT_CHARACTERS) return undefined;
     return { role: value.role, content: value.content };
   }
-  if (!Array.isArray(value.content) || !value.content.length || value.content.length > 7) {
+  if (
+    !Array.isArray(value.content) ||
+    !value.content.length ||
+    value.content.length > MAX_MESSAGE_PARTS
+  ) {
     return undefined;
   }
   const parts: MessagePart[] = [];
@@ -117,7 +131,7 @@ function parseMessage(value: unknown): Message | undefined {
         !hasExactKeys(candidate, ['type', 'text']) ||
         typeof candidate.text !== 'string' ||
         !candidate.text.length ||
-        candidate.text.length > 80_000
+        candidate.text.length > MAX_MESSAGE_TEXT_CHARACTERS
       ) {
         return undefined;
       }
@@ -157,11 +171,11 @@ function parseClassifierRequest(value: unknown): ClassifierRequest | undefined {
     (value.mode === 'vision' && value.model !== VISION_MODEL) ||
     typeof value.requestId !== 'string' ||
     !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.requestId) ||
-    value.requestId.length > 240 ||
+    value.requestId.length > MAX_REQUEST_ID_CHARACTERS ||
     !Array.isArray(value.messages) ||
     value.messages.length !== 2 ||
     !isPlainObject(value.responseJsonSchema) ||
-    JSON.stringify(value.responseJsonSchema).length > 32_000 ||
+    JSON.stringify(value.responseJsonSchema).length > MAX_SCHEMA_JSON_CHARACTERS ||
     !Number.isInteger(value.maxCompletionTokens) ||
     (value.maxCompletionTokens as number) < 1 ||
     (value.maxCompletionTokens as number) > 8_192 ||
@@ -192,13 +206,36 @@ function parseClassifierRequest(value: unknown): ClassifierRequest | undefined {
 }
 
 async function readJsonBody(request: Request): Promise<unknown> {
-  const declaredLength = request.headers.get('content-length');
-  if (declaredLength && Number(declaredLength) > MAX_BODY_BYTES) {
+  const declaredLength = Number(request.headers.get('content-length'));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+    await request.body?.cancel().catch(() => {});
     throw new RangeError('body-too-large');
   }
-  const bytes = await request.arrayBuffer();
-  if (!bytes.byteLength || bytes.byteLength > MAX_BODY_BYTES) {
-    throw new RangeError('body-too-large');
+
+  const body = request.body;
+  if (!body) throw new RangeError('body-too-large');
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+      total += value.byteLength;
+      if (total > MAX_BODY_BYTES) throw new RangeError('body-too-large');
+      chunks.push(value);
+    }
+  } finally {
+    await reader.cancel().catch(() => {});
+  }
+  if (!total) throw new RangeError('body-too-large');
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
   }
   try {
     return JSON.parse(new TextDecoder().decode(bytes)) as unknown;

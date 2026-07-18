@@ -122,12 +122,18 @@ test('redirects fail closed on missing locations and excessive chains', async ()
   );
 });
 
-function streamOfChunks(chunks: string[]): ReadableStream<Uint8Array> {
+function streamOfChunks(
+  chunks: string[],
+  options: { close?: boolean; onCancel?: () => void } = {},
+): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
   return new ReadableStream({
     start(controller) {
       for (const chunk of chunks) controller.enqueue(encoder.encode(chunk));
-      controller.close();
+      if (options.close !== false) controller.close();
+    },
+    cancel() {
+      options.onCancel?.();
     },
   });
 }
@@ -136,6 +142,8 @@ function boundedResponse(options: {
   contentLength?: string;
   chunks?: string[];
   hasBody?: boolean;
+  keepBodyOpen?: boolean;
+  onCancel?: () => void;
   text?: string;
 }): Response {
   return {
@@ -143,25 +151,44 @@ function boundedResponse(options: {
       get: (name: string) =>
         name.toLowerCase() === 'content-length' ? (options.contentLength ?? null) : null,
     },
-    body: options.hasBody === false ? null : streamOfChunks(options.chunks ?? []),
+    body:
+      options.hasBody === false
+        ? null
+        : streamOfChunks(options.chunks ?? [], {
+            close: !options.keepBodyOpen,
+            onCancel: options.onCancel,
+          }),
     text: async () => options.text ?? '',
   } as unknown as Response;
 }
 
-test('readBoundedText rejects an oversized advertised Content-Length before reading', async () => {
+test('readBoundedText cancels an oversized advertised response before reading', async () => {
+  let cancelled = false;
   await assert.rejects(
     readBoundedText(
-      boundedResponse({ contentLength: '2048', chunks: ['x'.repeat(4096)] }),
+      boundedResponse({
+        contentLength: '2048',
+        chunks: ['x'.repeat(4096)],
+        keepBodyOpen: true,
+        onCancel: () => {
+          cancelled = true;
+        },
+      }),
       1024,
       'YÖK payload',
     ),
     /advertised length/,
   );
+  assert.equal(cancelled, true);
 });
 
 test('readBoundedText aborts once the streamed body exceeds the limit', async () => {
   await assert.rejects(
-    readBoundedText(boundedResponse({ chunks: ['A'.repeat(600), 'B'.repeat(600)] }), 1000, 'YÖK payload'),
+    readBoundedText(
+      boundedResponse({ chunks: ['A'.repeat(600), 'B'.repeat(600)] }),
+      1000,
+      'YÖK payload',
+    ),
     /safety limit/,
   );
 });
@@ -179,7 +206,11 @@ test('readBoundedText falls back to a bounded text read when no stream body exis
     'inline',
   );
   await assert.rejects(
-    readBoundedText(boundedResponse({ hasBody: false, text: 'z'.repeat(2048) }), 1024, 'YÖK payload'),
+    readBoundedText(
+      boundedResponse({ hasBody: false, text: 'z'.repeat(2048) }),
+      1024,
+      'YÖK payload',
+    ),
     /safety limit/,
   );
 });
