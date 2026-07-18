@@ -63,7 +63,7 @@
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.0",
     "exceljs": "^4.4.0",
-    "expo-doctor": "1.20.0",
+    "expo-doctor": "1.20.1",
     "jest": "^29.7.0",
     "jest-expo": "~57.0.2",
     "parse5": "^7.3.0",
@@ -71,7 +71,7 @@
     "sharp": "^0.35.3",
     "tsx": "^4.23.1",
     "typescript": "~6.0.3",
-    "wrangler": "4.110.0"
+    "wrangler": "4.112.0"
   },
   "scripts": {
     "start": "expo start --dev-client",
