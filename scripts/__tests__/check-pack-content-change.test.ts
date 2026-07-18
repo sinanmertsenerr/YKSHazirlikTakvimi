@@ -43,6 +43,15 @@ function jsonResponse(value: unknown): Response {
   });
 }
 
+function pgpSignatureResponse(value: unknown): Response {
+  // GitHub Pages (and most static hosts) serve a `.sig` file as
+  // application/pgp-signature, never application/json, even though its bytes are a
+  // JSON-shaped signature envelope. This mirrors production reality.
+  return new Response(JSON.stringify(value), {
+    headers: { 'content-type': 'application/pgp-signature' },
+  });
+}
+
 const signingKeyId = 'content-change-test';
 const signingKeyPair = generateKeyPairSync('ed25519');
 const signingPublicJwk = signingKeyPair.publicKey.export({ format: 'jwk' });
@@ -89,6 +98,23 @@ test('content identity ignores only packVersion and writes fixed safe action out
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test('a detached signature is accepted under a non-JSON Content-Type from a static host', async () => {
+  const candidate = manifest('2026.07.150000000000001');
+  const remote = manifest('2026.07.3');
+  const signature = signPackManifest(remote, signingKeyId, signingPrivateKeyPem, trustedKeys);
+  const result = await checkPackContentChange({
+    candidateManifest: candidate,
+    remoteManifestUrl: 'https://example.com/pack/manifest.json',
+    fetchImpl: async (input) =>
+      String(input).endsWith('/manifest.sig')
+        ? pgpSignatureResponse(signature)
+        : jsonResponse(remote),
+    trustedKeys,
+  });
+  assert.equal(result.changed, false);
+  assert.equal(result.reason, 'content-unchanged');
 });
 
 test('a file identity change publishes while an initial remote 404 also publishes', async () => {

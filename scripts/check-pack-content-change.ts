@@ -207,6 +207,7 @@ async function fetchRemoteJson(
   fetchImpl: FetchLike,
   timeoutMs: number,
   maxBytes: number,
+  requireJsonContentType = true,
 ): Promise<unknown | null> {
   const initialUrl = assertRemoteMetadataUrl(value, fileName);
   let currentUrl = initialUrl;
@@ -250,7 +251,16 @@ async function fetchRemoteJson(
         ?.split(';', 1)[0]
         ?.trim()
         .toLowerCase();
-      if (contentType !== 'application/json' && !contentType?.endsWith('+json')) {
+      // The manifest is served as JSON, but a detached signature is a JSON-shaped
+      // payload that static hosts (e.g. GitHub Pages) serve under a non-JSON MIME
+      // type such as application/pgp-signature. Its bytes are still JSON-parsed and
+      // cryptographically verified below, so the transport Content-Type is not a
+      // trust boundary for the signature and must not be enforced for it.
+      if (
+        requireJsonContentType &&
+        contentType !== 'application/json' &&
+        !contentType?.endsWith('+json')
+      ) {
         await cancelBody(response);
         throw new Error(`${label} response must use a JSON Content-Type.`);
       }
@@ -310,6 +320,7 @@ export async function checkPackContentChange({
     fetchImpl,
     timeoutMs,
     MAX_PACK_SIGNATURE_BYTES,
+    false,
   );
   if (remoteSignature === null) {
     return {
