@@ -178,3 +178,48 @@ test('Cloudflare classifier hides inference failures behind a bounded error resp
   assert.equal(response.status, 502);
   assert.deepEqual(await response.json(), { error: 'inference-failed' });
 });
+
+test('Cloudflare classifier admits two full-size vision images within the derived body limit', async () => {
+  // A base64 payload that decodes to just under the 5 MiB per-image cap.
+  const fullImage = `data:image/png;base64,${'A'.repeat(6_990_000)}`;
+  const visionPayload = {
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    mode: 'vision',
+    requestId: '2026-tyt-turkce-vision-boundary-1',
+    messages: [
+      { role: 'system', content: 'Return only the requested taxonomy IDs.' },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Classify both rendered section pages.' },
+          { type: 'image_url', image_url: { url: fullImage } },
+          { type: 'image_url', image_url: { url: fullImage } },
+        ],
+      },
+    ],
+    responseJsonSchema: {
+      type: 'object',
+      properties: { topicId: { type: 'string' } },
+      required: ['topicId'],
+      additionalProperties: false,
+    },
+    maxCompletionTokens: 512,
+    temperature: 0,
+  };
+
+  let calls = 0;
+  const response = await handleRequest(
+    request(visionPayload),
+    environment(async () => {
+      calls += 1;
+      return { response: '{"topicId":"paragraf"}' };
+    }),
+  );
+
+  // Two full images encode to ~13.3 MiB, so the old flat 12 MiB body cap would have
+  // wrongly rejected this valid request with 413. The body limit is now derived from
+  // the per-image and image-count limits, keeping the request contract self-consistent.
+  assert.notEqual(response.status, 413);
+  assert.equal(response.status, 200);
+  assert.equal(calls, 1);
+});

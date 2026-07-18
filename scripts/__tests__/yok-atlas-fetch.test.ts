@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { fetchYokAtlas, type YokAtlasFetch } from '../lib/yok-atlas-fetch.ts';
+import { fetchYokAtlas, readBoundedText, type YokAtlasFetch } from '../lib/yok-atlas-fetch.ts';
 
 const surfaces = [
   {
@@ -119,5 +119,67 @@ test('redirects fail closed on missing locations and excessive chains', async ()
         }),
     ),
     /exceeded 3 redirects/,
+  );
+});
+
+function streamOfChunks(chunks: string[]): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) controller.enqueue(encoder.encode(chunk));
+      controller.close();
+    },
+  });
+}
+
+function boundedResponse(options: {
+  contentLength?: string;
+  chunks?: string[];
+  hasBody?: boolean;
+  text?: string;
+}): Response {
+  return {
+    headers: {
+      get: (name: string) =>
+        name.toLowerCase() === 'content-length' ? (options.contentLength ?? null) : null,
+    },
+    body: options.hasBody === false ? null : streamOfChunks(options.chunks ?? []),
+    text: async () => options.text ?? '',
+  } as unknown as Response;
+}
+
+test('readBoundedText rejects an oversized advertised Content-Length before reading', async () => {
+  await assert.rejects(
+    readBoundedText(
+      boundedResponse({ contentLength: '2048', chunks: ['x'.repeat(4096)] }),
+      1024,
+      'YÖK payload',
+    ),
+    /advertised length/,
+  );
+});
+
+test('readBoundedText aborts once the streamed body exceeds the limit', async () => {
+  await assert.rejects(
+    readBoundedText(boundedResponse({ chunks: ['A'.repeat(600), 'B'.repeat(600)] }), 1000, 'YÖK payload'),
+    /safety limit/,
+  );
+});
+
+test('readBoundedText returns the decoded text when the body stays within the limit', async () => {
+  assert.equal(
+    await readBoundedText(boundedResponse({ chunks: ['hello ', 'world'] }), 1024, 'YÖK payload'),
+    'hello world',
+  );
+});
+
+test('readBoundedText falls back to a bounded text read when no stream body exists', async () => {
+  assert.equal(
+    await readBoundedText(boundedResponse({ hasBody: false, text: 'inline' }), 1024, 'YÖK payload'),
+    'inline',
+  );
+  await assert.rejects(
+    readBoundedText(boundedResponse({ hasBody: false, text: 'z'.repeat(2048) }), 1024, 'YÖK payload'),
+    /safety limit/,
   );
 });

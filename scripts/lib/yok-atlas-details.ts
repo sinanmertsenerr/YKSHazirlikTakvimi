@@ -6,7 +6,7 @@ import {
   type ProgramNetSubject,
   type ProgramQuotaCategory,
 } from './content-schemas.ts';
-import { fetchYokAtlas } from './yok-atlas-fetch.ts';
+import { fetchYokAtlas, readBoundedText } from './yok-atlas-fetch.ts';
 
 // YÖK Atlas program DETAILS + NETS importer library.
 //
@@ -652,10 +652,11 @@ async function fetchNetsPage(
           `YÖK Atlas nets returned unexpected content type ${contentType || '<missing>'}`,
         );
       }
-      const text = await response.text();
-      if (text.length > 32 * 1024 * 1024) {
-        throw new Error(`YÖK Atlas nets ${year} page ${page} exceeded the 32 MiB safety limit`);
-      }
+      const text = await readBoundedText(
+        response,
+        32 * 1024 * 1024,
+        `YÖK Atlas nets ${year} page ${page}`,
+      );
       return netsPageSchema.parse(JSON.parse(text) as unknown);
     } catch (error) {
       lastError = error;

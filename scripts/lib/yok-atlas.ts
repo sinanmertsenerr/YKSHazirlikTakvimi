@@ -9,7 +9,7 @@ import {
   preserveStableRecordVerificationTimes,
   preserveVerifiedAtIfUnchanged,
 } from './semantic-stability.ts';
-import { fetchYokAtlas } from './yok-atlas-fetch.ts';
+import { fetchYokAtlas, readBoundedText } from './yok-atlas-fetch.ts';
 
 export const YOK_ATLAS_API_URL = 'https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search';
 export const YOK_ATLAS_DETAIL_BASE_URL = 'https://yokatlas.yok.gov.tr/detay';
@@ -545,10 +545,11 @@ async function fetchPage(
       if (!contentType.toLocaleLowerCase('en-US').includes('application/json')) {
         throw new Error(`YÖK Atlas returned unexpected content type ${contentType || '<missing>'}`);
       }
-      const text = await response.text();
-      if (text.length > 32 * 1024 * 1024) {
-        throw new Error(`YÖK Atlas ${label} page ${page} exceeded the 32 MiB safety limit`);
-      }
+      const text = await readBoundedText(
+        response,
+        32 * 1024 * 1024,
+        `YÖK Atlas ${label} page ${page}`,
+      );
       return yokAtlasPageSchema.parse(JSON.parse(text) as unknown);
     } catch (error) {
       lastError = error;

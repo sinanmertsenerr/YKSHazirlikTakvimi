@@ -121,12 +121,21 @@ The representative latest-year/rank query uses `ix_program_score_type` and the `
 - Expo web is a development/visual-preview target, not a supported production product surface. No unrelated hosting/CSP migration is included.
 - Pack/database integrity, provenance validation, atomic staging, and rollback will not be weakened for performance.
 
+## Follow-up remediation — 2026-07-19 (closure pass)
+
+- **Classifier vision body limit made self-consistent.** `MAX_BODY_BYTES` is now derived from the per-image (5 MiB) and image-count (2) limits plus base64 inflation, so two full-size images can no longer pass the per-image checks yet be rejected with a 413 body-too-large. A boundary test asserts two full images are admitted: `infra/cloudflare/src/index.ts`, `scripts/__tests__/cloudflare-worker.test.ts`.
+- **YÖK Atlas responses are read under a streaming byte ceiling.** `readBoundedText` rejects an oversized advertised `Content-Length` before allocation and aborts mid-stream once the cap is exceeded, replacing the previous read-everything-then-check pattern and adding a previously missing bound on the SPA document: `scripts/lib/yok-atlas-fetch.ts`, `scripts/lib/yok-atlas.ts`, `scripts/lib/yok-atlas-details.ts`, `scripts/import-yok-atlas-programs.ts`, `scripts/__tests__/yok-atlas-fetch.test.ts`.
+- **CodeQL `js/bad-tag-filter` (4 pre-existing high alerts) addressed in code.** The script/style stripping regexes in the four HTML→text helpers were replaced with the tolerant, CodeQL-recommended form and comment stripping was added, preserving output behavior (these outputs feed text parsing, never an HTML sink): `scripts/fetch-news.ts`, `scripts/lib/osym-preference-calendar.ts`, `scripts/lib/osym-booklet-discovery.ts`, `scripts/sync-calendar.ts`. Re-scan confirmation is pending the next CodeQL run on `main`.
+
+Gates re-run after this pass: TypeScript, ESLint, Jest (162), Node content/security (232), Cloudflare dry-run — all passed.
+
 ## Verification still required
 
-- EAS production Android/iOS artifact creation and signing/manifest/entitlement inspection (interactive EAS authentication is still required).
-- Native-device measurements for catalog first-open, changed-pack installation peak memory/battery, and large-history scrolling; repository-level instrumentation is in place for collection.
-- Signed-pack publication and deployed signature/hash smoke verification after the reviewed diff reaches `main`; the current public pack remains unsigned until that deployment.
-- Production Cloudflare Worker deployment of the rate-limit binding, intentionally not performed without a separate outward-facing deployment action.
-- CodeQL results after the new workflow reaches GitHub and runs.
+- Signed-pack publication is now **live** (closed): schema 3, key ID `pack-2026-01`, with `manifest.sig` served and deploy-time signature/size/SHA-256 verification passing.
+- CodeQL re-scan on `main` to confirm the four `js/bad-tag-filter` alerts clear after the regex fix.
+- Branch protection / ruleset on `main` (required status checks including CodeQL, no force-push/deletion) is not yet configured; open high alerts do not currently block merges.
+- Production Cloudflare Worker deployment of the rate-limit binding — intentionally deferred to a separate outward-facing action.
+- EAS production Android/iOS artifact creation and signing/manifest/entitlement inspection (interactive EAS authentication required).
+- Native-device measurements for catalog first-open, changed-pack installation peak memory/battery, and large-history scrolling; repository-level instrumentation is in place.
 
-This document will be updated with remediation commits/diffs, after measurements, residual advisories, and final pass/fail counts as implementation proceeds.
+This document will be updated with residual advisories and final pass/fail counts as the remaining outward-facing and on-device verifications are performed.

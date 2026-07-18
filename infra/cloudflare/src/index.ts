@@ -1,9 +1,21 @@
 const TEXT_MODEL = '@cf/qwen/qwen3-30b-a3b-fp8' as const;
 const VISION_MODEL = '@cf/google/gemma-4-26b-a4b-it' as const;
-const MAX_BODY_BYTES = 12 * 1024 * 1024;
 const MAX_TEXT_CHARACTERS = 450_000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VISION_IMAGES = 2;
+// Base64 inflates raw bytes by 4/3. The request body must hold every permitted
+// image at its ENCODED size plus the text parts and JSON envelope, so derive the
+// ceiling from those limits instead of hard-coding a value that can silently
+// contradict them: two 5 MiB decoded images alone encode to ~13.3 MiB, which a
+// flat 12 MiB body would have wrongly rejected as too large.
+const BASE64_BYTES_PER_RAW_BYTE_NUM = 4;
+const BASE64_BYTES_PER_RAW_BYTE_DEN = 3;
+const MAX_NON_IMAGE_BODY_BYTES = 1 * 1024 * 1024;
+const MAX_BODY_BYTES =
+  Math.ceil(
+    (MAX_IMAGE_BYTES * MAX_VISION_IMAGES * BASE64_BYTES_PER_RAW_BYTE_NUM) /
+      BASE64_BYTES_PER_RAW_BYTE_DEN,
+  ) + MAX_NON_IMAGE_BODY_BYTES;
 export const CLASSIFIER_AI_TIMEOUT_MS = 90_000;
 export const CLASSIFIER_RATE_LIMIT_KEY = 'annual-classifier';
 export const CLASSIFIER_RATE_LIMIT_RETRY_SECONDS = 60;

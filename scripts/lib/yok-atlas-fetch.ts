@@ -55,3 +55,50 @@ export async function fetchYokAtlas(
 
   throw new Error('YÖK Atlas redirect loop ended unexpectedly.');
 }
+
+/**
+ * Reads a response body as UTF-8 text while enforcing a hard byte ceiling.
+ *
+ * Rejects on an oversized advertised `Content-Length` before any allocation, then
+ * streams the body chunk by chunk and aborts the moment the accumulated size would
+ * exceed `maxBytes`. This prevents a very large or malicious official-source
+ * response from exhausting memory before a post-hoc `.length` check could run.
+ */
+export async function readBoundedText(
+  response: Response,
+  maxBytes: number,
+  label: string,
+): Promise<string> {
+  const advertised = Number(response.headers.get('content-length'));
+  if (Number.isFinite(advertised) && advertised > maxBytes) {
+    throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit (advertised length).`);
+  }
+
+  const body = response.body;
+  if (!body) {
+    const text = await response.text();
+    if (Buffer.byteLength(text, 'utf8') > maxBytes) {
+      throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit.`);
+    }
+    return text;
+  }
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit.`);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    await reader.cancel().catch(() => {});
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}

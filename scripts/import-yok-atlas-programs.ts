@@ -9,7 +9,7 @@ import {
   readTextFileIfExists,
   writeTextFileAtomicallyIfChanged,
 } from './lib/semantic-stability.ts';
-import { fetchYokAtlas } from './lib/yok-atlas-fetch.ts';
+import { fetchYokAtlas, readBoundedText } from './lib/yok-atlas-fetch.ts';
 import {
   buildProgramsDetailsFixture,
   fetchAllYokAtlasNets,
@@ -93,7 +93,7 @@ async function discoverAndVerifySpaBundle(
   if (!pageResponse.ok) {
     throw new Error(`YÖK Atlas application returned HTTP ${pageResponse.status}`);
   }
-  const html = await pageResponse.text();
+  const html = await readBoundedText(pageResponse, 8 * 1024 * 1024, 'YÖK Atlas application page');
   const match = html.match(/src=["'](\/static\/js\/main\.[a-z0-9]+\.js)["']/i);
   if (!match?.[1]) throw new Error('Could not discover the YÖK Atlas application bundle');
   const bundleUrl = new URL(match[1], YOK_ATLAS_APP_URL).href;
@@ -108,10 +108,11 @@ async function discoverAndVerifySpaBundle(
   if (!bundleResponse.ok) {
     throw new Error(`YÖK Atlas application bundle returned HTTP ${bundleResponse.status}`);
   }
-  const bundle = await bundleResponse.text();
-  if (bundle.length > 10 * 1024 * 1024) {
-    throw new Error('YÖK Atlas application bundle exceeded the 10 MiB safety limit');
-  }
+  const bundle = await readBoundedText(
+    bundleResponse,
+    10 * 1024 * 1024,
+    'YÖK Atlas application bundle',
+  );
 
   const requiredContractEvidence = [
     'minPuan1',
