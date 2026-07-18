@@ -35,6 +35,19 @@ export type ActivityRecord = {
   createdAt: number;
 };
 
+export type ActivityDaySummary = {
+  day: string;
+  questions: number;
+  topicCount: number;
+};
+
+export type AppDataSnapshot = {
+  progress: TopicProgressRecord[];
+  exams: ExamRecord[];
+  favorites: string[];
+  activityDays: ActivityDaySummary[];
+};
+
 export type UserDataSnapshot = {
   progress: TopicProgressRecord[];
   exams: ExamRecord[];

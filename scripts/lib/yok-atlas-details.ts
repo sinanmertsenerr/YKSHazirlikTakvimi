@@ -6,6 +6,7 @@ import {
   type ProgramNetSubject,
   type ProgramQuotaCategory,
 } from './content-schemas.ts';
+import { fetchYokAtlas } from './yok-atlas-fetch.ts';
 
 // YÖK Atlas program DETAILS + NETS importer library.
 //
@@ -305,7 +306,9 @@ function parsePositiveNumber(value: unknown, label: string): number | null {
   return parsed;
 }
 
-function toNetScoreType(value: YokAtlasNetsSourceRow['puanTuru']): 'say' | 'ea' | 'soz' | 'dil' | 'tyt' {
+function toNetScoreType(
+  value: YokAtlasNetsSourceRow['puanTuru'],
+): 'say' | 'ea' | 'soz' | 'dil' | 'tyt' {
   if (value === 'SAY') return 'say';
   if (value === 'EA') return 'ea';
   if (value === 'DİL') return 'dil';
@@ -536,7 +539,9 @@ export function buildProgramsDetailsFixture(input: {
         'placement conditions, academic staff counts, tuition, accreditation, and the last-placed ' +
         "candidate's nets. Field semantics are verified against the YÖK Atlas UI's own rendering.",
     },
-    conditions: Object.fromEntries([...conditions.entries()].sort(([a], [b]) => Number(a) - Number(b))),
+    conditions: Object.fromEntries(
+      [...conditions.entries()].sort(([a], [b]) => Number(a) - Number(b)),
+    ),
     programs,
   });
 
@@ -611,17 +616,21 @@ async function fetchNetsPage(
   let lastError: unknown;
   for (let attempt = 0; attempt <= options.retries; attempt += 1) {
     try {
-      const response = await options.fetchImpl(YOK_ATLAS_NETS_API_URL, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent':
-            'YKSHazirlikTakvimi/1.0 (+https://github.com/sinanmertsener/YKSHazirlikTakvimi; static-content-importer)',
+      const response = await fetchYokAtlas(
+        YOK_ATLAS_NETS_API_URL,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent':
+              'YKSHazirlikTakvimi/1.0 (+https://github.com/sinanmertsener/YKSHazirlikTakvimi; static-content-importer)',
+          },
+          body: JSON.stringify({ filters: { yil: year, kilavuzKodu: null }, page, size }),
+          signal: AbortSignal.timeout(options.timeoutMs),
         },
-        body: JSON.stringify({ filters: { yil: year, kilavuzKodu: null }, page, size }),
-        signal: AbortSignal.timeout(options.timeoutMs),
-      });
+        options.fetchImpl,
+      );
       const retryable =
         response.status === 408 ||
         response.status === 418 ||
@@ -629,7 +638,9 @@ async function fetchNetsPage(
         response.status === 429 ||
         response.status >= 500;
       if (!response.ok) {
-        const error = new Error(`YÖK Atlas nets ${year} page ${page} returned HTTP ${response.status}`);
+        const error = new Error(
+          `YÖK Atlas nets ${year} page ${page} returned HTTP ${response.status}`,
+        );
         if (!retryable || attempt === options.retries) throw error;
         lastError = error;
         await wait(Math.min(500 * 2 ** attempt, 5_000));
@@ -637,7 +648,9 @@ async function fetchNetsPage(
       }
       const contentType = response.headers.get('content-type') ?? '';
       if (!contentType.toLocaleLowerCase('en-US').includes('application/json')) {
-        throw new Error(`YÖK Atlas nets returned unexpected content type ${contentType || '<missing>'}`);
+        throw new Error(
+          `YÖK Atlas nets returned unexpected content type ${contentType || '<missing>'}`,
+        );
       }
       const text = await response.text();
       if (text.length > 32 * 1024 * 1024) {
@@ -718,7 +731,10 @@ export async function fetchAllYokAtlasNets(
     }
 
     // Group by program code first; duplicate resolution needs the full candidate set.
-    const rowsByProgram = new Map<string, { raw: unknown; payload: string; hasMinScore: boolean }[]>();
+    const rowsByProgram = new Map<
+      string,
+      { raw: unknown; payload: string; hasMinScore: boolean }[]
+    >();
     let receivedRowCount = 0;
     for (const raw of result.content) {
       const normalized = normalizeNetsRow(raw);

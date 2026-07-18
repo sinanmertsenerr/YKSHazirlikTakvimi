@@ -9,6 +9,11 @@ import {
   CURRENT_PACK_SCHEMA_VERSION,
   CURRENT_SCHEMA_VERSION,
 } from '../../scripts/lib/content-schemas';
+import {
+  MAX_PACK_SIGNATURE_BYTES,
+  PACK_SIGNATURE_FILE_NAME,
+  type PackSignatureEnvelope,
+} from '../../scripts/lib/pack-signature-contract';
 
 import {
   calendarPackSchema,
@@ -19,7 +24,9 @@ import {
   topicGroupStatisticsPackSchema,
   topicsPackSchema,
 } from '@/data/content';
+import { type TrustedPackPublicKeys, verifyPackManifestSignature } from '@/data/packSignature';
 import { type SettingsState, useSettingsStore } from '@/stores/settings';
+import { withPerformancePhase } from '@/utils/performanceDiagnostics';
 
 export const PACK_SCHEMA_VERSION = CURRENT_PACK_SCHEMA_VERSION;
 export const PACK_CHECK_INTERVAL_MS = 3 * 60 * 60 * 1000;
@@ -66,11 +73,11 @@ export const packManifestSchema = z
   .superRefine((manifest, context) => {
     const paths = Object.values(manifest.files).map((descriptor) => descriptor.path);
     for (const [index, path] of paths.entries()) {
-      if (path === 'manifest.json') {
+      if (path === 'manifest.json' || path === PACK_SIGNATURE_FILE_NAME) {
         context.addIssue({
           code: 'custom',
           path: ['files'],
-          message: 'manifest.json is reserved.',
+          message: `${path} is reserved.`,
         });
       }
       if (paths.indexOf(path) !== index) {
@@ -110,7 +117,13 @@ export type PackValidationHook = (context: {
 }) => void | Promise<void>;
 
 export type PackLocation =
-  | { source: 'downloaded'; version: string; directory: Directory; manifest: PackManifest }
+  | {
+      source: 'downloaded';
+      version: string;
+      directory: Directory;
+      manifest: PackManifest;
+      signature: PackSignatureEnvelope;
+    }
   | { source: 'bundled'; version: string; directory: null; manifest: PackManifest | null };
 
 export type PackUpdateResult =
@@ -130,6 +143,9 @@ export type CheckForPackUpdateOptions = {
   baseUrl?: string;
   now?: number;
   validateFile?: PackValidationHook;
+  fetchImpl?: typeof fetch;
+  /** Test/rotation injection only; normal callers use the app-embedded trust registry. */
+  trustedKeys?: TrustedPackPublicKeys;
 };
 
 const bundledManifestResult = packManifestSchema.safeParse(bundledManifestJson);
@@ -469,17 +485,19 @@ async function validateDownloadedFile(
   if (key !== 'programs' && descriptor.bytes > MAX_JSON_FILE_BYTES) {
     throw new Error(`JSON pack file is unexpectedly large: ${descriptor.path}.`);
   }
-  const actualHash = await sha256(file);
+  const actualHash = await withPerformancePhase(`content.validate.${key}.hash`, () => sha256(file));
   if (actualHash.toLowerCase() !== descriptor.sha256.toLowerCase()) {
     throw new Error(`SHA-256 mismatch for ${descriptor.path}.`);
   }
 
-  if (key !== 'programs') {
-    const document = safeJsonParse(await file.text(), descriptor.path);
-    validateJsonDocument(key, document);
-  } else {
-    await validateProgramsDatabase(file);
-  }
+  await withPerformancePhase(`content.validate.${key}.payload`, async () => {
+    if (key !== 'programs') {
+      const document = safeJsonParse(await file.text(), descriptor.path);
+      validateJsonDocument(key, document);
+    } else {
+      await validateProgramsDatabase(file);
+    }
+  });
 
   await hook?.({ key, file, manifest });
 }
@@ -525,11 +543,34 @@ export async function runWithConcurrency<Item>(
   if (failed) throw firstError;
 }
 
-async function readManifestFromDirectory(directory: Directory): Promise<PackManifest | null> {
-  const file = new File(directory, 'manifest.json');
-  if (!file.exists) return null;
-  const parsed = packManifestSchema.safeParse(safeJsonParse(await file.text(), 'manifest.json'));
-  return parsed.success ? parsed.data : null;
+async function readSignedManifestFromDirectory(
+  directory: Directory,
+  trustedKeys?: TrustedPackPublicKeys,
+): Promise<{ manifest: PackManifest; signature: PackSignatureEnvelope } | null> {
+  const manifestFile = new File(directory, 'manifest.json');
+  const signatureFile = new File(directory, PACK_SIGNATURE_FILE_NAME);
+  if (
+    !manifestFile.exists ||
+    !signatureFile.exists ||
+    manifestFile.size > MAX_MANIFEST_BYTES ||
+    signatureFile.size > MAX_PACK_SIGNATURE_BYTES
+  ) {
+    return null;
+  }
+  try {
+    const parsed = packManifestSchema.safeParse(
+      safeJsonParse(await manifestFile.text(), 'manifest.json'),
+    );
+    if (!parsed.success) return null;
+    const signature = verifyPackManifestSignature(
+      parsed.data,
+      safeJsonParse(await signatureFile.text(), PACK_SIGNATURE_FILE_NAME),
+      trustedKeys,
+    );
+    return { manifest: parsed.data, signature };
+  } catch {
+    return null;
+  }
 }
 
 function hasCompleteDeclaredFiles(directory: Directory, manifest: PackManifest): boolean {
@@ -581,13 +622,22 @@ export async function getActivePackLocation(): Promise<PackLocation> {
     for (const pointer of pointers) {
       const directory = new Directory(versionsRoot(), pointer.value.directoryName);
       if (!directory.exists) continue;
-      const manifest = await readManifestFromDirectory(directory);
-      if (!manifest || manifest.packVersion !== pointer.value.packVersion) continue;
+      const signedManifest = await readSignedManifestFromDirectory(directory);
+      if (!signedManifest || signedManifest.manifest.packVersion !== pointer.value.packVersion) {
+        continue;
+      }
+      const { manifest, signature } = signedManifest;
       if (!shouldUseDownloadedPack(manifest.packVersion, bundledManifest?.packVersion ?? null)) {
         continue;
       }
       if (!hasCompleteDeclaredFiles(directory, manifest)) continue;
-      return { source: 'downloaded', version: manifest.packVersion, directory, manifest };
+      return {
+        source: 'downloaded',
+        version: manifest.packVersion,
+        directory,
+        manifest,
+        signature,
+      };
     }
     return bundledPackLocation();
   } catch {
@@ -619,31 +669,65 @@ export async function getActivePackFile(key: PackFileKey): Promise<File | null> 
   return file.exists ? file : null;
 }
 
-async function fetchManifest(baseUrl: string): Promise<PackManifest> {
+async function fetchRemoteJson(
+  baseUrl: string,
+  fileName: string,
+  label: string,
+  maxBytes: number,
+  fetchImpl: typeof fetch,
+): Promise<unknown> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MANIFEST_TIMEOUT_MS);
   try {
-    const response = await fetch(`${baseUrl}/manifest.json`, {
+    const response = await fetchImpl(`${baseUrl}/${fileName}`, {
       headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+      redirect: 'error',
       signal: controller.signal,
     });
-    if (!response.ok) throw new Error(`Content manifest request failed (${response.status}).`);
+    if (!response.ok) throw new Error(`${label} request failed (${response.status}).`);
     const advertisedLength = Number(response.headers.get('content-length'));
-    if (Number.isFinite(advertisedLength) && advertisedLength > MAX_MANIFEST_BYTES) {
-      throw new Error('The remote content manifest is unexpectedly large.');
+    if (Number.isFinite(advertisedLength) && advertisedLength > maxBytes) {
+      throw new Error(`${label} is unexpectedly large.`);
     }
     const text = await response.text();
-    if (text.length > MAX_MANIFEST_BYTES) {
-      throw new Error('The remote content manifest is unexpectedly large.');
+    if (new TextEncoder().encode(text).byteLength > maxBytes) {
+      throw new Error(`${label} is unexpectedly large.`);
     }
-    const result = packManifestSchema.safeParse(safeJsonParse(text, 'manifest.json'));
-    if (!result.success) {
-      throw new Error('The remote content manifest is incompatible or invalid.');
-    }
-    return result.data;
+    return safeJsonParse(text, fileName);
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function fetchSignedManifest(
+  baseUrl: string,
+  fetchImpl: typeof fetch,
+  trustedKeys?: TrustedPackPublicKeys,
+): Promise<{ manifest: PackManifest; signature: PackSignatureEnvelope }> {
+  const result = packManifestSchema.safeParse(
+    await fetchRemoteJson(
+      baseUrl,
+      'manifest.json',
+      'Content manifest',
+      MAX_MANIFEST_BYTES,
+      fetchImpl,
+    ),
+  );
+  if (!result.success) {
+    throw new Error('The remote content manifest is incompatible or invalid.');
+  }
+  const signature = verifyPackManifestSignature(
+    result.data,
+    await fetchRemoteJson(
+      baseUrl,
+      PACK_SIGNATURE_FILE_NAME,
+      'Content manifest signature',
+      MAX_PACK_SIGNATURE_BYTES,
+      fetchImpl,
+    ),
+    trustedKeys,
+  );
+  return { manifest: result.data, signature };
 }
 
 async function downloadPackFile(url: string, destination: File): Promise<void> {
@@ -703,14 +787,23 @@ async function installCandidateFile(
       return;
     }
   }
-  await downloadPackFile(`${baseUrl}/${descriptor.path}`, destination);
+  await withPerformancePhase(`content.download.${key}`, () =>
+    downloadPackFile(`${baseUrl}/${descriptor.path}`, destination),
+  );
   await validateDownloadedFile(key, destination, manifest, hook);
 }
 
-function writeManifest(directory: Directory, manifest: PackManifest): void {
-  const file = new File(directory, 'manifest.json');
-  file.create({ overwrite: true });
-  file.write(`${JSON.stringify(manifest, null, 2)}\n`);
+function writeManifestFiles(
+  directory: Directory,
+  manifest: PackManifest,
+  signature: PackSignatureEnvelope,
+): void {
+  const manifestFile = new File(directory, 'manifest.json');
+  manifestFile.create({ overwrite: true });
+  manifestFile.write(`${JSON.stringify(manifest, null, 2)}\n`);
+  const signatureFile = new File(directory, PACK_SIGNATURE_FILE_NAME);
+  signatureFile.create({ overwrite: true });
+  signatureFile.write(`${JSON.stringify(signature, null, 2)}\n`);
 }
 
 async function activatePack(
@@ -806,8 +899,8 @@ async function pruneOldValidatedVersionDirectories(): Promise<void> {
     for (const entry of root.list()) {
       if (!(entry instanceof Directory) || retained.has(entry.name)) continue;
       try {
-        const manifest = await readManifestFromDirectory(entry);
-        if (!manifest || manifest.packVersion !== entry.name) continue;
+        const signedManifest = await readSignedManifestFromDirectory(entry);
+        if (!signedManifest || signedManifest.manifest.packVersion !== entry.name) continue;
         entry.delete();
       } catch {
         // Cleanup is best-effort; pointer activation has already completed safely.
@@ -829,7 +922,11 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
   let staging: Directory | null = null;
   try {
     const baseUrl = normalizeBaseUrl(options.baseUrl);
-    const manifest = await fetchManifest(baseUrl);
+    const { manifest, signature } = await fetchSignedManifest(
+      baseUrl,
+      options.fetchImpl ?? fetch,
+      options.trustedKeys,
+    );
     const currentAppVersion = Constants.expoConfig?.version ?? '0.0.0';
 
     if (compareVersions(currentAppVersion, manifest.minAppVersion) < 0) {
@@ -880,7 +977,7 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
           MAX_CONCURRENT_FILE_OPERATIONS,
           install,
         );
-        writeManifest(candidateDirectory, manifest);
+        writeManifestFiles(candidateDirectory, manifest, signature);
       },
       () => activatePack(candidateDirectory, manifest, now),
     );
@@ -890,6 +987,7 @@ async function performPackCheck(options: CheckForPackUpdateOptions): Promise<Pac
       version: manifest.packVersion,
       directory,
       manifest,
+      signature,
     };
     settings.setPackCheckSuccess(manifest.packVersion, now);
     return { status: 'updated', checkedAt: now, active: downloaded };

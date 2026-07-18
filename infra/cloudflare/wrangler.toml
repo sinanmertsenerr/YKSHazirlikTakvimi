@@ -9,5 +9,13 @@ enabled = false
 [ai]
 binding = "AI"
 
+[[ratelimits]]
+name = "CLASSIFIER_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60
+
 # Set the only secret out-of-band; never add it here:
 #   npm run secret:cloudflare

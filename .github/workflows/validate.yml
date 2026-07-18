@@ -21,7 +21,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run validate:pack
+      - run: npm run audit:production
+      - run: npx expo prebuild --platform android --no-install --clean
+      - run: npm run validate:native-config
       - run: npm run validate:annual-publication
       - run: npm run validate:ogm-topics
       - run: npm run build:pack

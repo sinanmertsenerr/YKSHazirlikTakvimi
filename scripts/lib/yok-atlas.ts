@@ -9,6 +9,7 @@ import {
   preserveStableRecordVerificationTimes,
   preserveVerifiedAtIfUnchanged,
 } from './semantic-stability.ts';
+import { fetchYokAtlas } from './yok-atlas-fetch.ts';
 
 export const YOK_ATLAS_API_URL = 'https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search';
 export const YOK_ATLAS_DETAIL_BASE_URL = 'https://yokatlas.yok.gov.tr/detay';
@@ -320,7 +321,10 @@ export function normalizeYokAtlasRow(input: unknown, verifiedAt: string): Normal
 }
 
 /** TABLO 5 rows always map to the 'yetenek' score type regardless of any puanTuru label. */
-export function normalizeYokAtlasTalentRow(input: unknown, verifiedAt: string): NormalizedRowResult {
+export function normalizeYokAtlasTalentRow(
+  input: unknown,
+  verifiedAt: string,
+): NormalizedRowResult {
   const row = yokAtlasTalentRowSchema.parse(input);
   z.iso.datetime({ offset: true }).parse(verifiedAt);
   return buildNormalizedProgram(row, 'yetenek', verifiedAt);
@@ -508,17 +512,21 @@ async function fetchPage(
   let lastError: unknown;
   for (let attempt = 0; attempt <= options.retries; attempt += 1) {
     try {
-      const response = await options.fetchImpl(YOK_ATLAS_API_URL, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent':
-            'YKSHazirlikTakvimi/1.0 (+https://github.com/sinanmertsener/YKSHazirlikTakvimi; static-content-importer)',
+      const response = await fetchYokAtlas(
+        YOK_ATLAS_API_URL,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent':
+              'YKSHazirlikTakvimi/1.0 (+https://github.com/sinanmertsener/YKSHazirlikTakvimi; static-content-importer)',
+          },
+          body: JSON.stringify(makeSearchBody(scoreType, birimTuruId, page, size)),
+          signal: AbortSignal.timeout(options.timeoutMs),
         },
-        body: JSON.stringify(makeSearchBody(scoreType, birimTuruId, page, size)),
-        signal: AbortSignal.timeout(options.timeoutMs),
-      });
+        options.fetchImpl,
+      );
       const retryable =
         response.status === 408 ||
         // 418 is YÖK Atlas's observed rate-limit signal alongside the standard 429.

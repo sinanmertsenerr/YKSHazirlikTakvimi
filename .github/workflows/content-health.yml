@@ -18,8 +18,11 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
 
-      - name: Verify manifest, news payload, and publisher recency
+      - name: Verify signed manifest, payloads, and publisher recency
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -52,6 +55,16 @@ jobs:
             (.files.programs.bytes | type == "number") and
             (.files.programs.sha256 | test("^[a-f0-9]{64}$"))
           ' "$manifest" >/dev/null
+
+          signature="$work_directory/manifest.sig"
+          curl --fail --silent --show-error --location \
+            --header 'accept: application/json' \
+            --header 'cache-control: no-cache' \
+            "$pack_base/manifest.sig" \
+            --output "$signature"
+          node scripts/verify-pack-signature.ts \
+            --manifest "$manifest" \
+            --signature "$signature"
 
           news_path="$(jq -r '.files.news.path' "$manifest")"
           [[ "$news_path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {
@@ -125,6 +138,6 @@ jobs:
     with:
       title: 'Yayımlanan içerik paketi sağlık kontrolü başarısız'
       body: >-
-        GitHub Pages manifesti, haber dosyası, program paketi (programs.db bütünlüğü)
+        GitHub Pages manifest imzası, haber dosyası, program paketi (programs.db bütünlüğü)
         veya altı saatlik yayın işinin güncelliği doğrulanamadı. Monitor published
         content pack iş günlüğünü ve Pages yapılandırmasını inceleyin.

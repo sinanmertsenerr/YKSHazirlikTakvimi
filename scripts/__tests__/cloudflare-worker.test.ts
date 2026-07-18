@@ -33,39 +33,103 @@ function request(body: unknown, authorization = `Bearer ${token}`) {
   });
 }
 
-function environment(run: Env['AI']['run']): Env {
-  return { AI: { run }, CLASSIFIER_AUTH_TOKEN: token };
+function environment(
+  run: Env['AI']['run'],
+  limit: NonNullable<Env['CLASSIFIER_RATE_LIMITER']>['limit'] = async () => ({ success: true }),
+): Env {
+  return { AI: { run }, CLASSIFIER_AUTH_TOKEN: token, CLASSIFIER_RATE_LIMITER: { limit } };
 }
 
-test('Cloudflare classifier rejects unauthenticated requests before inference', async () => {
+test('Cloudflare classifier rejects unauthenticated requests before quota or inference', async () => {
   let called = false;
+  let limited = false;
   const response = await handleRequest(
     request(textPayload(), 'Bearer incorrect-token-value-000000000000'),
-    environment(async () => {
-      called = true;
-      return {};
-    }),
+    environment(
+      async () => {
+        called = true;
+        return {};
+      },
+      async () => {
+        limited = true;
+        return { success: true };
+      },
+    ),
   );
 
   assert.equal(response.status, 401);
+  assert.equal(limited, false);
   assert.equal(called, false);
   assert.equal(response.headers.get('cache-control'), 'no-store, max-age=0');
   assert.deepEqual(await response.json(), { error: 'unauthorized' });
 });
 
-test('Cloudflare classifier accepts only the pinned text model contract', async () => {
-  let receivedModel = '';
-  let receivedInput: Record<string, unknown> | undefined;
-  const response = await handleRequest(
+test('Cloudflare classifier fails closed when the rate limiter is absent or unavailable', async () => {
+  let calls = 0;
+  const run = async () => {
+    calls += 1;
+    return {};
+  };
+  const missing = await handleRequest(request(textPayload()), {
+    AI: { run },
+    CLASSIFIER_AUTH_TOKEN: token,
+  });
+  const failed = await handleRequest(
     request(textPayload()),
-    environment(async (model, input) => {
-      receivedModel = model;
-      receivedInput = input;
-      return { response: '{"topicId":"paragraf"}' };
+    environment(run, async () => {
+      throw new Error('limiter unavailable');
     }),
   );
 
+  assert.equal(missing.status, 503);
+  assert.equal(failed.status, 503);
+  assert.equal(calls, 0);
+});
+
+test('Cloudflare classifier returns a bounded 429 before body parsing or inference', async () => {
+  let calls = 0;
+  const response = await handleRequest(
+    request(textPayload()),
+    environment(
+      async () => {
+        calls += 1;
+        return {};
+      },
+      async ({ key }) => {
+        assert.equal(key, 'annual-classifier');
+        return { success: false };
+      },
+    ),
+  );
+
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get('retry-after'), '60');
+  assert.equal(response.headers.get('cache-control'), 'no-store, max-age=0');
+  assert.deepEqual(await response.json(), { error: 'rate-limited' });
+  assert.equal(calls, 0);
+});
+
+test('Cloudflare classifier accepts only the pinned text model contract', async () => {
+  let receivedModel = '';
+  let receivedInput: Record<string, unknown> | undefined;
+  let limits = 0;
+  const response = await handleRequest(
+    request(textPayload()),
+    environment(
+      async (model, input) => {
+        receivedModel = model;
+        receivedInput = input;
+        return { response: '{"topicId":"paragraf"}' };
+      },
+      async () => {
+        limits += 1;
+        return { success: true };
+      },
+    ),
+  );
+
   assert.equal(response.status, 200);
+  assert.equal(limits, 1);
   assert.equal(receivedModel, '@cf/qwen/qwen3-30b-a3b-fp8');
   assert.equal(receivedInput?.store, false);
   assert.equal(receivedInput?.stream, false);

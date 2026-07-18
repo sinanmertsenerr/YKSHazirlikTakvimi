@@ -1,8 +1,10 @@
 /* eslint-disable import/first */
 
+const mockLoadAppData = jest.fn();
 const mockLoadUserData = jest.fn();
 
 jest.mock('@/db/repository', () => ({
+  loadAppData: (...args: unknown[]) => mockLoadAppData(...args),
   loadUserData: (...args: unknown[]) => mockLoadUserData(...args),
   removeExam: jest.fn(),
   reorderFavorites: jest.fn(),
@@ -30,15 +32,30 @@ jest.mock('@/theme/useTheme', () => ({
 }));
 
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
 import { AppDataProvider, useAppData } from './AppDataProvider';
 
-const emptySnapshot = { progress: [], exams: [], favorites: [], activities: [] };
+const emptySnapshot = { progress: [], exams: [], favorites: [], activityDays: [] };
+const emptyFullSnapshot = { progress: [], exams: [], favorites: [], activities: [] };
 
 function ReadyState() {
   const { ready } = useAppData();
   return <Text>{ready ? 'ready' : 'hydrating'}</Text>;
+}
+
+function FullSnapshotReader() {
+  const { readFullSnapshot } = useAppData();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => {
+        void readFullSnapshot();
+      }}
+    >
+      <Text>read-full</Text>
+    </Pressable>
+  );
 }
 
 describe('AppDataProvider startup', () => {
@@ -48,7 +65,7 @@ describe('AppDataProvider startup', () => {
 
   it('keeps children visible while initial user data is still hydrating', async () => {
     let resolveLoad: (snapshot: typeof emptySnapshot) => void = () => undefined;
-    mockLoadUserData.mockReturnValueOnce(
+    mockLoadAppData.mockReturnValueOnce(
       new Promise((resolve) => {
         resolveLoad = resolve;
       }),
@@ -72,7 +89,7 @@ describe('AppDataProvider startup', () => {
   });
 
   it('shows a non-blocking retry banner after an initial database read failure and recovers', async () => {
-    mockLoadUserData
+    mockLoadAppData
       .mockRejectedValueOnce(new Error('database unavailable'))
       .mockResolvedValueOnce(emptySnapshot);
 
@@ -92,6 +109,25 @@ describe('AppDataProvider startup', () => {
     });
     await waitFor(() => expect(view.getByText('ready')).toBeTruthy());
     expect(view.queryByText('common.dataLoadFailed')).toBeNull();
-    expect(mockLoadUserData).toHaveBeenCalledTimes(2);
+    expect(mockLoadAppData).toHaveBeenCalledTimes(2);
+  });
+
+  it('loads complete raw history only when an explicit full snapshot is requested', async () => {
+    mockLoadAppData.mockResolvedValueOnce(emptySnapshot);
+    mockLoadUserData.mockResolvedValueOnce(emptyFullSnapshot);
+    const view = await render(
+      <AppDataProvider>
+        <ReadyState />
+        <FullSnapshotReader />
+      </AppDataProvider>,
+    );
+    await view.findByText('ready');
+    expect(mockLoadUserData).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.press(view.getByRole('button'));
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(mockLoadUserData).toHaveBeenCalledTimes(1));
   });
 });

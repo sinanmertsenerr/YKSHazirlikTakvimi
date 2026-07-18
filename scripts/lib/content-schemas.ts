@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { isRelevantNewsTitle } from './news-relevance.ts';
+import { PACK_SIGNATURE_FILE_NAME } from './pack-signature-contract.ts';
 import {
   BOOKLET_FIRST_YEAR,
   BOOKLET_MAX_YEAR,
@@ -101,7 +102,10 @@ const officialTopicGroupSchema = z
     displaySubjectId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     sourceKey: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     evidenceMethod: z.literal('official-pdf-table'),
-    apiTestIds: z.array(z.string().regex(/^[0-9a-f]{24}$/)).min(1).optional(),
+    apiTestIds: z
+      .array(z.string().regex(/^[0-9a-f]{24}$/))
+      .min(1)
+      .optional(),
     questionSet: z.enum(['canonical', 'alternative-included', 'cross-check']),
     countingPolicy: z.enum(['canonical', 'alternative-included', 'cross-check-only']),
     sourceLabelTr: z.string().trim().min(1).max(180),
@@ -1499,7 +1503,9 @@ export const programExtrasSchema = z
     // text is null for codes the source lists without publishing a text (rendered
     // code-only in the UI, never with invented wording).
     conditions: z.array(
-      z.object({ code: z.string().regex(/^\d{1,4}$/), text: z.string().min(1).nullable() }).strict(),
+      z
+        .object({ code: z.string().regex(/^\d{1,4}$/), text: z.string().min(1).nullable() })
+        .strict(),
     ),
     quotaCategories: z.array(programQuotaCategoryRowSchema),
     nets: z.array(programNetsRowSchema),
@@ -1536,7 +1542,26 @@ export const manifestSourceSchema = z
       })
       .strict(),
   })
-  .strict();
+  .strict()
+  .superRefine((manifest, context) => {
+    const paths = Object.values(manifest.files).map((descriptor) => descriptor.path);
+    for (const [index, path] of paths.entries()) {
+      if (path === 'manifest.json' || path === PACK_SIGNATURE_FILE_NAME) {
+        context.addIssue({
+          code: 'custom',
+          path: ['files'],
+          message: `${path} is reserved.`,
+        });
+      }
+      if (paths.indexOf(path) !== index) {
+        context.addIssue({
+          code: 'custom',
+          path: ['files'],
+          message: `Duplicate file path: ${path}`,
+        });
+      }
+    }
+  });
 
 export type TopicsDocument = z.infer<typeof topicsSchema>;
 

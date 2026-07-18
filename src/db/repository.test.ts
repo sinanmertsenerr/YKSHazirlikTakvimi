@@ -4,6 +4,7 @@ const mockTransaction = { runAsync: jest.fn() };
 const mockSqlite = {
   closeSync: jest.fn(),
   execSync: jest.fn(),
+  getAllAsync: jest.fn(),
   getFirstSync: jest.fn(() => null),
   runAsync: jest.fn(),
   withExclusiveTransactionAsync: jest.fn(

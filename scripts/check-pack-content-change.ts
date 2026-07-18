@@ -6,6 +6,12 @@ import { isDeepStrictEqual } from 'node:util';
 import { z } from 'zod';
 
 import { CURRENT_PACK_SCHEMA_VERSION, manifestSourceSchema } from './lib/content-schemas.ts';
+import {
+  MAX_PACK_SIGNATURE_BYTES,
+  PACK_SIGNATURE_FILE_NAME,
+} from './lib/pack-signature-contract.ts';
+import { verifyPackManifestSignatureWithNode } from './lib/pack-signature-node.ts';
+import { TRUSTED_PACK_PUBLIC_KEYS } from './lib/trusted-pack-keys.ts';
 
 const MAX_MANIFEST_BYTES = 256 * 1024;
 const MAX_PACK_FILE_BYTES = 250 * 1024 * 1024;
@@ -47,8 +53,10 @@ export const builtPackManifestSchema = z
     if (new Set(paths).size !== paths.length) {
       context.addIssue({ code: 'custom', path: ['files'], message: 'file paths must be unique' });
     }
-    if (paths.includes('manifest.json')) {
-      context.addIssue({ code: 'custom', path: ['files'], message: 'manifest.json is reserved' });
+    for (const reserved of ['manifest.json', PACK_SIGNATURE_FILE_NAME]) {
+      if (paths.includes(reserved)) {
+        context.addIssue({ code: 'custom', path: ['files'], message: `${reserved} is reserved` });
+      }
     }
     const totalBytes = Object.values(manifest.files).reduce(
       (total, descriptor) => total + descriptor.bytes,
@@ -75,6 +83,11 @@ export type PackContentChangeResult =
       changed: true;
       reason: 'remote-missing';
       remotePackVersion: null;
+    }
+  | {
+      changed: true;
+      reason: 'remote-signature-invalid';
+      remotePackVersion: string;
     };
 
 type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
@@ -85,6 +98,7 @@ export type CheckPackContentChangeOptions = {
   fetchImpl?: FetchLike;
   maxBytes?: number;
   timeoutMs?: number;
+  trustedKeys?: Readonly<Record<string, string>>;
 };
 
 type CliOptions = {
@@ -113,12 +127,12 @@ export function packContentIdentity(manifest: unknown): Omit<BuiltPackManifest, 
   return identity;
 }
 
-function assertRemoteManifestUrl(value: string): URL {
+function assertRemoteMetadataUrl(value: string, fileName: string): URL {
   let url: URL;
   try {
     url = new URL(value);
   } catch {
-    throw new Error('Remote manifest URL must be a valid HTTPS URL.');
+    throw new Error(`Remote ${fileName} URL must be a valid HTTPS URL.`);
   }
   if (
     url.protocol !== 'https:' ||
@@ -127,11 +141,20 @@ function assertRemoteManifestUrl(value: string): URL {
     url.port ||
     url.search ||
     url.hash ||
-    !url.pathname.endsWith('/manifest.json')
+    !url.pathname.endsWith(`/${fileName}`)
   ) {
-    throw new Error('Remote manifest URL must be a clean HTTPS .../manifest.json URL.');
+    throw new Error(`Remote ${fileName} URL must be a clean HTTPS .../${fileName} URL.`);
   }
   return url;
+}
+
+function assertRemoteManifestUrl(value: string): URL {
+  return assertRemoteMetadataUrl(value, 'manifest.json');
+}
+
+function signatureUrlForManifest(value: string): string {
+  const manifestUrl = assertRemoteManifestUrl(value);
+  return new URL(PACK_SIGNATURE_FILE_NAME, manifestUrl).href;
 }
 
 async function cancelBody(response: Response): Promise<void> {
@@ -142,44 +165,54 @@ async function cancelBody(response: Response): Promise<void> {
   }
 }
 
-function declaredResponseBytes(response: Response, maxBytes: number): number | undefined {
+function declaredResponseBytes(
+  response: Response,
+  maxBytes: number,
+  label: string,
+): number | undefined {
   const header = response.headers.get('content-length');
   if (header === null) return undefined;
-  if (!/^\d+$/.test(header)) throw new Error('Remote manifest has an invalid Content-Length.');
+  if (!/^\d+$/.test(header)) throw new Error(`${label} has an invalid Content-Length.`);
   const bytes = Number(header);
   if (!Number.isSafeInteger(bytes) || bytes < 1) {
-    throw new Error('Remote manifest has an invalid Content-Length.');
+    throw new Error(`${label} has an invalid Content-Length.`);
   }
-  if (bytes > maxBytes) throw new Error('Remote manifest exceeds the response size limit.');
+  if (bytes > maxBytes) throw new Error(`${label} exceeds the response size limit.`);
   return bytes;
 }
 
-async function readResponseText(response: Response, maxBytes: number): Promise<string> {
-  declaredResponseBytes(response, maxBytes);
-  if (!response.body) throw new Error('Remote manifest response has no body.');
+async function readResponseText(
+  response: Response,
+  maxBytes: number,
+  label: string,
+): Promise<string> {
+  declaredResponseBytes(response, maxBytes, label);
+  if (!response.body) throw new Error(`${label} response has no body.`);
   const chunks: Buffer[] = [];
   let bytes = 0;
   for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
     const buffer = Buffer.from(chunk);
     bytes += buffer.byteLength;
-    if (bytes > maxBytes) throw new Error('Remote manifest exceeds the response size limit.');
+    if (bytes > maxBytes) throw new Error(`${label} exceeds the response size limit.`);
     chunks.push(buffer);
   }
-  if (bytes === 0) throw new Error('Remote manifest response is empty.');
+  if (bytes === 0) throw new Error(`${label} response is empty.`);
   return Buffer.concat(chunks).toString('utf8');
 }
 
-async function fetchRemoteManifest(
+async function fetchRemoteJson(
   value: string,
+  fileName: string,
+  label: string,
   fetchImpl: FetchLike,
   timeoutMs: number,
   maxBytes: number,
-): Promise<BuiltPackManifest | null> {
-  const initialUrl = assertRemoteManifestUrl(value);
+): Promise<unknown | null> {
+  const initialUrl = assertRemoteMetadataUrl(value, fileName);
   let currentUrl = initialUrl;
   const controller = new AbortController();
   const timeout = setTimeout(
-    () => controller.abort(new Error('Remote manifest request timeout.')),
+    () => controller.abort(new Error(`${label} request timeout.`)),
     timeoutMs,
   );
 
@@ -193,13 +226,13 @@ async function fetchRemoteManifest(
       if (REDIRECT_STATUSES.has(response.status)) {
         const location = response.headers.get('location');
         await cancelBody(response);
-        if (!location) throw new Error('Remote manifest redirect has no Location header.');
+        if (!location) throw new Error(`${label} redirect has no Location header.`);
         if (redirectCount === MAX_REDIRECTS) {
-          throw new Error(`Remote manifest exceeded ${MAX_REDIRECTS} redirects.`);
+          throw new Error(`${label} exceeded ${MAX_REDIRECTS} redirects.`);
         }
-        const redirected = assertRemoteManifestUrl(new URL(location, currentUrl).href);
+        const redirected = assertRemoteMetadataUrl(new URL(location, currentUrl).href, fileName);
         if (redirected.origin !== initialUrl.origin) {
-          throw new Error('Remote manifest redirect changed origin.');
+          throw new Error(`${label} redirect changed origin.`);
         }
         currentUrl = redirected;
         continue;
@@ -210,7 +243,7 @@ async function fetchRemoteManifest(
       }
       if (!response.ok) {
         await cancelBody(response);
-        throw new Error(`Remote manifest request failed with HTTP ${response.status}.`);
+        throw new Error(`${label} request failed with HTTP ${response.status}.`);
       }
       const contentType = response.headers
         .get('content-type')
@@ -219,21 +252,36 @@ async function fetchRemoteManifest(
         .toLowerCase();
       if (contentType !== 'application/json' && !contentType?.endsWith('+json')) {
         await cancelBody(response);
-        throw new Error('Remote manifest response must use a JSON Content-Type.');
+        throw new Error(`${label} response must use a JSON Content-Type.`);
       }
-      const text = await readResponseText(response, maxBytes);
-      let data: unknown;
+      const text = await readResponseText(response, maxBytes, label);
       try {
-        data = JSON.parse(text) as unknown;
+        return JSON.parse(text) as unknown;
       } catch {
-        throw new Error('Remote manifest is not valid JSON.');
+        throw new Error(`${label} is not valid JSON.`);
       }
-      return parseManifest(data, 'remote pack manifest');
     }
-    throw new Error('Remote manifest redirect loop ended unexpectedly.');
+    throw new Error(`${label} redirect loop ended unexpectedly.`);
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function fetchRemoteManifest(
+  value: string,
+  fetchImpl: FetchLike,
+  timeoutMs: number,
+  maxBytes: number,
+): Promise<BuiltPackManifest | null> {
+  const data = await fetchRemoteJson(
+    value,
+    'manifest.json',
+    'Remote manifest',
+    fetchImpl,
+    timeoutMs,
+    maxBytes,
+  );
+  return data === null ? null : parseManifest(data, 'remote pack manifest');
 }
 
 export async function checkPackContentChange({
@@ -242,6 +290,7 @@ export async function checkPackContentChange({
   fetchImpl = fetch,
   maxBytes = MAX_MANIFEST_BYTES,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  trustedKeys = TRUSTED_PACK_PUBLIC_KEYS,
 }: CheckPackContentChangeOptions): Promise<PackContentChangeResult> {
   if (!Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 60_000) {
     throw new Error('timeoutMs must be an integer from 100 through 60000.');
@@ -253,6 +302,30 @@ export async function checkPackContentChange({
   const remote = await fetchRemoteManifest(remoteManifestUrl, fetchImpl, timeoutMs, maxBytes);
   if (remote === null) {
     return { changed: true, reason: 'remote-missing', remotePackVersion: null };
+  }
+  const remoteSignature = await fetchRemoteJson(
+    signatureUrlForManifest(remoteManifestUrl),
+    PACK_SIGNATURE_FILE_NAME,
+    'Remote manifest signature',
+    fetchImpl,
+    timeoutMs,
+    MAX_PACK_SIGNATURE_BYTES,
+  );
+  if (remoteSignature === null) {
+    return {
+      changed: true,
+      reason: 'remote-signature-invalid',
+      remotePackVersion: remote.packVersion,
+    };
+  }
+  try {
+    verifyPackManifestSignatureWithNode(remote, remoteSignature, trustedKeys);
+  } catch {
+    return {
+      changed: true,
+      reason: 'remote-signature-invalid',
+      remotePackVersion: remote.packVersion,
+    };
   }
   const changed = !isDeepStrictEqual(packContentIdentity(candidate), packContentIdentity(remote));
   return changed

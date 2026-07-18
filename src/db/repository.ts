@@ -11,7 +11,13 @@ import {
   topicProgress,
 } from './schema';
 import { countsAsProgressActivity, istanbulDay, percentToStatus } from './activity';
+import {
+  ACTIVITY_DAY_SUMMARY_SQL,
+  mapActivityDaySummaries,
+  type ActivityDaySummaryRow,
+} from './activitySummary';
 import type {
+  AppDataSnapshot,
   ExamRecord,
   ExamSectionRecord,
   TopicProgressRecord,
@@ -166,14 +172,15 @@ export function groupExamSectionsByExamId(
   return grouped;
 }
 
-export async function loadUserData(): Promise<UserDataSnapshot> {
+async function loadCoreUserData(): Promise<
+  Pick<AppDataSnapshot, 'progress' | 'exams' | 'favorites'>
+> {
   const { db } = getUserRepository();
-  const [progress, examRows, netRows, favoriteRows, activities] = await Promise.all([
+  const [progress, examRows, netRows, favoriteRows] = await Promise.all([
     db.select().from(topicProgress),
     db.select().from(mockExam).orderBy(desc(mockExam.date)),
     db.select().from(mockExamNet),
     db.select().from(favoriteProgram).orderBy(asc(favoriteProgram.sortOrder)),
-    db.select().from(activityLog).orderBy(desc(activityLog.createdAt)),
   ]);
   const sectionsByExamId = groupExamSectionsByExamId(netRows);
   const exams: ExamRecord[] = examRows.map((exam) => ({
@@ -188,8 +195,25 @@ export async function loadUserData(): Promise<UserDataSnapshot> {
     progress,
     exams,
     favorites: favoriteRows.map((favorite) => favorite.programId),
-    activities,
   };
+}
+
+export async function loadAppData(): Promise<AppDataSnapshot> {
+  const { sqlite } = getUserRepository();
+  const [core, activityRows] = await Promise.all([
+    loadCoreUserData(),
+    sqlite.getAllAsync<ActivityDaySummaryRow>(ACTIVITY_DAY_SUMMARY_SQL),
+  ]);
+  return { ...core, activityDays: mapActivityDaySummaries(activityRows) };
+}
+
+export async function loadUserData(): Promise<UserDataSnapshot> {
+  const { db } = getUserRepository();
+  const [core, activities] = await Promise.all([
+    loadCoreUserData(),
+    db.select().from(activityLog).orderBy(desc(activityLog.createdAt)),
+  ]);
+  return { ...core, activities };
 }
 
 export async function upsertTopicProgress(

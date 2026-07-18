@@ -293,7 +293,7 @@ export default function SettingsScreen() {
   const setNotificationPrefs = useSettingsStore((state) => state.setNotificationPrefs);
   const replaceSettings = useSettingsStore((state) => state.replaceSettings);
 
-  const { progress, exams, favorites, activities, ready, restoreSnapshot } = useAppData();
+  const { ready, readFullSnapshot, restoreSnapshot } = useAppData();
   const [backupBusy, setBackupBusy] = useState(false);
   const [restoreBusy, setRestoreBusy] = useState(false);
   const [notificationBusy, setNotificationBusy] = useState(false);
@@ -370,7 +370,7 @@ export default function SettingsScreen() {
   const exportBackup = async () => {
     setBackupBusy(true);
     try {
-      await exportUserBackup({ progress, exams, favorites, activities });
+      await exportUserBackup(await readFullSnapshot());
       Alert.alert(t('settings.backup'), t('settings.exportDone'));
     } catch (error) {
       showError(error);
@@ -382,7 +382,7 @@ export default function SettingsScreen() {
   const applyRestore = async (backup: BackupSnapshot) => {
     setRestoreBusy(true);
     try {
-      const previousUserData = { progress, exams, favorites, activities };
+      const previousUserData = await readFullSnapshot();
       const previousSettings = getSettingsSnapshot();
       let userDataApplied = false;
       try {

@@ -22,7 +22,7 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const { colors, dark, radii, typography } = useTheme();
   const router = useRouter();
-  const { activities, exams, progress } = useAppData();
+  const { activityDays, exams, progress } = useAppData();
   const examYear = useSettingsStore((state) => state.examYear);
   const language = i18n.language === 'en' ? 'en' : 'tr';
   const today = istanbulDay();
@@ -31,14 +31,12 @@ export default function HomeScreen() {
     [progress],
   );
   const streak = calculateStreak(
-    activities.map((item) => item.day),
+    activityDays.map((item) => item.day),
     today,
   );
-  const todayActivities = activities.filter((item) => item.day === today);
-  const todayQuestions = todayActivities.reduce((sum, item) => sum + item.questions, 0);
-  const todayTopics = new Set(
-    todayActivities.filter((item) => item.type === 'progress').map((item) => item.topicId),
-  ).size;
+  const todayActivity = activityDays.find((item) => item.day === today);
+  const todayQuestions = todayActivity?.questions ?? 0;
+  const todayTopics = todayActivity?.topicCount ?? 0;
 
   const allExamEvents = calendarPack.events
     .filter((event) => event.type === 'sinav')

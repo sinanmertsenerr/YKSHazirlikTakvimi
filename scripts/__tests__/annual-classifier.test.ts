@@ -821,6 +821,7 @@ test('Cloudflare gateway enforces auth, model/mode and no-store responses', asyn
   const calls: { model: string; input: Record<string, unknown> }[] = [];
   const env: WorkerEnv = {
     CLASSIFIER_AUTH_TOKEN: 't'.repeat(32),
+    CLASSIFIER_RATE_LIMITER: { limit: async () => ({ success: true }) },
     AI: {
       async run(model, input) {
         calls.push({ model, input });

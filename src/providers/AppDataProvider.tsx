@@ -12,6 +12,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 
 import {
+  loadAppData,
   loadUserData,
   removeExam as removeExamFromDb,
   reorderFavorites as reorderFavoritesInDb,
@@ -20,13 +21,15 @@ import {
   upsertExam,
   upsertTopicProgress,
 } from '@/db/repository';
-import type { ExamRecord, UserDataSnapshot } from '@/db/types';
+import type { AppDataSnapshot, ExamRecord, UserDataSnapshot } from '@/db/types';
 import { useTheme } from '@/theme/useTheme';
+import { withPerformancePhase } from '@/utils/performanceDiagnostics';
 import { withStartupPhase } from '@/utils/startupDiagnostics';
 
-type AppDataContextValue = UserDataSnapshot & {
+type AppDataContextValue = AppDataSnapshot & {
   ready: boolean;
   refresh: () => Promise<void>;
+  readFullSnapshot: () => Promise<UserDataSnapshot>;
   setTopicProgress: (topicId: string, percent: number) => Promise<void>;
   saveExam: (exam: ExamRecord) => Promise<void>;
   removeExam: (id: string) => Promise<void>;
@@ -35,11 +38,11 @@ type AppDataContextValue = UserDataSnapshot & {
   restoreSnapshot: (snapshot: UserDataSnapshot) => Promise<void>;
 };
 
-const empty: UserDataSnapshot = { progress: [], exams: [], favorites: [], activities: [] };
+const empty: AppDataSnapshot = { progress: [], exams: [], favorites: [], activityDays: [] };
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<UserDataSnapshot>(empty);
+  const [data, setData] = useState<AppDataSnapshot>(empty);
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState<Error | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -52,7 +55,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const generation = ++loadGeneration.current;
     try {
-      const next = await withStartupPhase('user-data.load', () => loadUserData());
+      const next = await withStartupPhase('user-data.load', () => loadAppData());
       if (!mounted.current || generation !== loadGeneration.current) return;
       setData(next);
       setReady(true);
@@ -68,7 +71,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     mounted.current = true;
     const generation = ++loadGeneration.current;
-    void withStartupPhase('user-data.load', () => loadUserData()).then(
+    void withStartupPhase('user-data.load', () => loadAppData()).then(
       (next) => {
         if (!mounted.current || generation !== loadGeneration.current) return;
         setData(next);
@@ -114,6 +117,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       ...data,
       ready,
       refresh,
+      readFullSnapshot: () =>
+        enqueueMutation(() => withPerformancePhase('user-data.load-full', () => loadUserData())),
       setTopicProgress: (topicId, percent) =>
         enqueueMutation(async () => {
           await upsertTopicProgress(topicId, percent);

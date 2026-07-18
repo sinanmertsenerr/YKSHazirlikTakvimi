@@ -123,7 +123,6 @@ jobs:
             content/programs.provenance.json || changed=true
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
 
-      - run: npm run validate:pack
       - name: Require durable human approvals for every published question mapping
         run: npm run validate:annual-publication
       - name: Build candidate pack
@@ -380,6 +379,7 @@ jobs:
 
   build-pages:
     needs: persist-state
+    environment: content-signing
     permissions:
       contents: read
     runs-on: ubuntu-24.04
@@ -397,11 +397,17 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run validate:pack
       - name: Recheck durable annual topic publication ledger
         run: npm run validate:annual-publication
       - name: Build persisted candidate pack
         run: npm run build:pack
+      - name: Sign persisted candidate pack
+        env:
+          PACK_SIGNING_KEY_ID: pack-2026-01
+          PACK_SIGNING_PRIVATE_KEY_PEM: ${{ secrets.PACK_SIGNING_PRIVATE_KEY_PEM }}
+        run: npm run sign:pack
+      - name: Verify candidate pack signature
+        run: npm run verify:pack-signature
       - name: Read candidate pack metadata
         id: pack-metadata
         shell: bash
@@ -446,6 +452,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Deploy persisted content pack
@@ -482,6 +494,16 @@ jobs:
             fi
             sleep 10
           done
+
+          signature="$work_directory/manifest.sig"
+          curl --fail --silent --show-error --location \
+            --header 'accept: application/json' \
+            --header 'cache-control: no-cache' \
+            "$pack_base/manifest.sig" \
+            --output "$signature"
+          node scripts/verify-pack-signature.ts \
+            --manifest "$manifest" \
+            --signature "$signature"
 
           while IFS=$'\t' read -r path expected_bytes expected_sha; do
             [[ "$path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {

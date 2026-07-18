@@ -38,6 +38,7 @@ import {
 } from '@/db/programQueries';
 import { expandProgramSearch } from '@/features/programs/searchAliases';
 import { trSearch } from '@/utils/format';
+import { withPerformancePhase } from '@/utils/performanceDiagnostics';
 
 type ProgramRow = {
   id: string;
@@ -297,7 +298,7 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
 
   const moduleId = require('../../assets/pack/programs.db') as number;
   const asset = Asset.fromModule(moduleId);
-  await asset.downloadAsync();
+  await withPerformancePhase('catalog.asset-download', () => asset.downloadAsync());
   if (!asset.localUri) throw new Error('Bundled programs database could not be loaded');
 
   const destination = new File(defaultDatabaseDirectory, `yks-programs-bundled-${identity}.db`);
@@ -316,7 +317,9 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
   const markerValid = await hasValidValidationMarker(location);
   let copyRequired = !destination.exists || destination.size !== descriptor.bytes;
   if (!copyRequired && !markerValid) {
-    copyRequired = !(await fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256));
+    copyRequired = !(await withPerformancePhase('catalog.hash-existing', () =>
+      fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256),
+    ));
   }
   if (copyRequired) {
     invalidateValidationMarker(location);
@@ -325,8 +328,11 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
     if (source.size !== descriptor.bytes) {
       throw new Error('Bundled programs database size does not match its manifest');
     }
-    await source.copy(destination, { overwrite: true });
-    if (!(await fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256))) {
+    const copiedAndVerified = await withPerformancePhase('catalog.copy-and-hash', async () => {
+      await source.copy(destination, { overwrite: true });
+      return fileMatchesManifest(destination, descriptor.bytes, descriptor.sha256);
+    });
+    if (!copiedAndVerified) {
       deleteIfPresent(destination);
       throw new Error('Bundled programs database hash does not match its manifest');
     }
@@ -350,17 +356,15 @@ async function getDatabaseLocation(): Promise<DatabaseLocation> {
 }
 
 async function openValidatedDatabase(location: DatabaseLocation): Promise<SQLiteDatabase> {
-  const database = await openDatabaseAsync(
-    location.name,
-    { useNewConnection: true },
-    location.directory,
+  const database = await withPerformancePhase('catalog.open', () =>
+    openDatabaseAsync(location.name, { useNewConnection: true }, location.directory),
   );
   let quickCheckFailed = false;
   try {
     const alreadyValidated = await hasValidValidationMarker(location);
     if (!alreadyValidated) {
-      const integrity = await database.getFirstAsync<{ quick_check: unknown }>(
-        'PRAGMA quick_check(1)',
+      const integrity = await withPerformancePhase('catalog.quick-check', () =>
+        database.getFirstAsync<{ quick_check: unknown }>('PRAGMA quick_check(1)'),
       );
       if (integrity?.quick_check !== 'ok') {
         quickCheckFailed = true;
@@ -477,7 +481,7 @@ async function withProgramDatabase<T>(operation: (database: SQLiteDatabase) => P
 /** Opens and validates the active program database before the browse screen needs its first page. */
 export async function prewarmProgramDatabase(): Promise<void> {
   if (Platform.OS === 'web') return;
-  await withProgramDatabase(async () => undefined);
+  await withPerformancePhase('catalog.prewarm', () => withProgramDatabase(async () => undefined));
 }
 
 async function all<Row>(database: SQLiteDatabase, query: SqlQuery): Promise<Row[]> {
@@ -671,15 +675,22 @@ export async function queryProgramPage(query: ProgramPageQuery): Promise<Program
   }
   if (Platform.OS === 'web') return fallbackPage(query, limit, offset);
 
-  return withProgramDatabase(async (database) => {
-    if (query.favoriteIds) return queryFavoritePage(database, query, limit, offset);
-    const rows = await all<ProgramRow>(database, buildProgramListQuery(query, limit + 1, offset));
-    const hasMore = rows.length > limit;
-    return {
-      programs: await hydratePrograms(database, rows.slice(0, limit)),
-      hasMore,
-    };
-  });
+  const phase = query.favoriteIds
+    ? 'catalog.query-page.favorites'
+    : query.search?.trim()
+      ? 'catalog.query-page.search'
+      : 'catalog.query-page.browse';
+  return withPerformancePhase(phase, () =>
+    withProgramDatabase(async (database) => {
+      if (query.favoriteIds) return queryFavoritePage(database, query, limit, offset);
+      const rows = await all<ProgramRow>(database, buildProgramListQuery(query, limit + 1, offset));
+      const hasMore = rows.length > limit;
+      return {
+        programs: await hydratePrograms(database, rows.slice(0, limit)),
+        hasMore,
+      };
+    }),
+  );
 }
 
 /** Reads a single verified program for the detail screen. */

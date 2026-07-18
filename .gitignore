@@ -63,6 +63,7 @@ playwright-report/
 /content/*.db-*
 /content/*.sqlite
 /content/*.sqlite-*
+/assets/pack/manifest.sig
 /assets/pack/*.tmp
 /assets/pack/*.part
 /assets/pack.staging-*

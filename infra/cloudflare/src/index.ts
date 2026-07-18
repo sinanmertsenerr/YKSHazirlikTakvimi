@@ -5,6 +5,8 @@ const MAX_TEXT_CHARACTERS = 450_000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VISION_IMAGES = 2;
 export const CLASSIFIER_AI_TIMEOUT_MS = 90_000;
+export const CLASSIFIER_RATE_LIMIT_KEY = 'annual-classifier';
+export const CLASSIFIER_RATE_LIMIT_RETRY_SECONDS = 60;
 
 type AllowedModel = typeof TEXT_MODEL | typeof VISION_MODEL;
 
@@ -30,9 +32,14 @@ interface AiBinding {
   run(model: AllowedModel, input: Record<string, unknown>): Promise<unknown>;
 }
 
+interface RateLimitBinding {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
 export interface Env {
   AI: AiBinding;
   CLASSIFIER_AUTH_TOKEN: string;
+  CLASSIFIER_RATE_LIMITER?: RateLimitBinding;
 }
 
 const RESPONSE_HEADERS = {
@@ -42,8 +49,15 @@ const RESPONSE_HEADERS = {
   'referrer-policy': 'no-referrer',
 } as const;
 
-function jsonResponse(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), { status, headers: RESPONSE_HEADERS });
+function jsonResponse(
+  status: number,
+  body: unknown,
+  additionalHeaders: Readonly<Record<string, string>> = {},
+): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...RESPONSE_HEADERS, ...additionalHeaders },
+  });
 }
 
 function timingSafeEqual(left: string, right: string): boolean {
@@ -204,6 +218,21 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
   const expected = `Bearer ${env.CLASSIFIER_AUTH_TOKEN}`;
   if (!timingSafeEqual(authorization, expected)) {
     return jsonResponse(401, { error: 'unauthorized' });
+  }
+  if (!env.CLASSIFIER_RATE_LIMITER) {
+    return jsonResponse(503, { error: 'service-unavailable' });
+  }
+  try {
+    const limit = await env.CLASSIFIER_RATE_LIMITER.limit({ key: CLASSIFIER_RATE_LIMIT_KEY });
+    if (!limit.success) {
+      return jsonResponse(
+        429,
+        { error: 'rate-limited' },
+        { 'retry-after': String(CLASSIFIER_RATE_LIMIT_RETRY_SECONDS) },
+      );
+    }
+  } catch {
+    return jsonResponse(503, { error: 'service-unavailable' });
   }
 
   let body: unknown;

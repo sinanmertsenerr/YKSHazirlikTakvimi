@@ -29,9 +29,12 @@ jest.mock('@/stores/settings', () => ({
   useSettingsStore: { getState: jest.fn() },
 }));
 
+import { generateKeyPairSync } from 'node:crypto';
+
 import coefficientsJson from '../../content/coefficients.json';
 import rankTablesJson from '../../content/rank-tables.json';
 import topicGroupStatisticsJson from '../../content/topic-group-statistics.json';
+import { signPackManifest } from '../../scripts/lib/pack-signature-node';
 
 import { useSettingsStore } from '@/stores/settings';
 
@@ -74,6 +77,23 @@ const validManifest = {
     topicGroupMappings: descriptor('topic-group-mappings.json'),
   },
 };
+
+const testKeyId = 'pack-updater-test';
+const testKeyPair = generateKeyPairSync('ed25519');
+const testPublicJwk = testKeyPair.publicKey.export({ format: 'jwk' });
+if (!testPublicJwk.x) throw new Error('Missing test Ed25519 public key.');
+const testTrustedKeys = {
+  [testKeyId]: testPublicJwk.x
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(testPublicJwk.x.length / 4) * 4, '='),
+};
+const validSignature = signPackManifest(
+  validManifest,
+  testKeyId,
+  String(testKeyPair.privateKey.export({ format: 'pem', type: 'pkcs8' })),
+  testTrustedKeys,
+);
 
 describe('content pack version ordering', () => {
   it('orders numeric pack segments instead of comparing strings', () => {
@@ -143,6 +163,12 @@ describe('content pack version ordering', () => {
       },
     });
     expect(result.success).toBe(false);
+    expect(
+      packManifestSchema.safeParse({
+        ...validManifest,
+        files: { ...validManifest.files, news: descriptor('manifest.sig') },
+      }).success,
+    ).toBe(false);
   });
 
   it('rejects legacy synthetic coefficients before activation', () => {
@@ -366,6 +392,54 @@ describe('persisted updater outcomes', () => {
     );
   });
 
+  it('rejects a tampered manifest signature before version decisions', async () => {
+    const setPackCheckFailure = jest.fn();
+    mockGetSettings.mockReturnValue({
+      lastPackCheckTs: null,
+      lastPackSuccessTs: null,
+      lastPackFailureTs: null,
+      setPackCheckFailure,
+      setPackCheckSuccess: jest.fn(),
+    });
+    const signed = validSignature.signatures[0]!;
+    const tamperedSignature = {
+      ...validSignature,
+      signatures: [
+        {
+          ...signed,
+          signature: `${signed.signature.startsWith('A') ? 'B' : 'A'}${signed.signature.slice(1)}`,
+        },
+      ],
+    };
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(validManifest),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(tamperedSignature),
+      } as unknown as Response);
+
+    const result = await checkForPackUpdate({
+      baseUrl: 'https://content.example/pack',
+      force: true,
+      now: 4999,
+      fetchImpl,
+      trustedKeys: testTrustedKeys,
+    });
+    expect(result.status).toBe('failed');
+    expect(setPackCheckFailure).toHaveBeenCalledWith(
+      4999,
+      'Content pack manifest signature is not trusted or valid.',
+    );
+  });
+
   it('records a successful manifest check and clears earlier diagnostics', async () => {
     const setPackCheckSuccess = jest.fn();
     mockGetSettings.mockReturnValue({
@@ -375,17 +449,27 @@ describe('persisted updater outcomes', () => {
       setPackCheckFailure: jest.fn(),
       setPackCheckSuccess,
     });
-    jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      status: 200,
-      headers: { get: () => null },
-      text: async () => JSON.stringify(validManifest),
-    } as unknown as Response);
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(validManifest),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(validSignature),
+      } as unknown as Response);
 
     const result = await checkForPackUpdate({
       baseUrl: 'https://content.example/pack',
       force: true,
       now: 5000,
+      fetchImpl,
+      trustedKeys: testTrustedKeys,
     });
     expect(['incompatible', 'up-to-date']).toContain(result.status);
     expect(setPackCheckSuccess).toHaveBeenCalledWith(expect.any(String), 5000);

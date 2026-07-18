@@ -9,6 +9,7 @@ import {
   readTextFileIfExists,
   writeTextFileAtomicallyIfChanged,
 } from './lib/semantic-stability.ts';
+import { fetchYokAtlas } from './lib/yok-atlas-fetch.ts';
 import {
   buildProgramsDetailsFixture,
   fetchAllYokAtlasNets,
@@ -81,10 +82,14 @@ export function prepareStableProgramsFixture(
 async function discoverAndVerifySpaBundle(
   fetchImpl: typeof fetch = fetch,
 ): Promise<{ url: string; sha256: string }> {
-  const pageResponse = await fetchImpl(YOK_ATLAS_APP_URL, {
-    headers: { Accept: 'text/html' },
-    signal: AbortSignal.timeout(20_000),
-  });
+  const pageResponse = await fetchYokAtlas(
+    YOK_ATLAS_APP_URL,
+    {
+      headers: { Accept: 'text/html' },
+      signal: AbortSignal.timeout(20_000),
+    },
+    fetchImpl,
+  );
   if (!pageResponse.ok) {
     throw new Error(`YÖK Atlas application returned HTTP ${pageResponse.status}`);
   }
@@ -92,10 +97,14 @@ async function discoverAndVerifySpaBundle(
   const match = html.match(/src=["'](\/static\/js\/main\.[a-z0-9]+\.js)["']/i);
   if (!match?.[1]) throw new Error('Could not discover the YÖK Atlas application bundle');
   const bundleUrl = new URL(match[1], YOK_ATLAS_APP_URL).href;
-  const bundleResponse = await fetchImpl(bundleUrl, {
-    headers: { Accept: 'application/javascript,text/javascript' },
-    signal: AbortSignal.timeout(20_000),
-  });
+  const bundleResponse = await fetchYokAtlas(
+    bundleUrl,
+    {
+      headers: { Accept: 'application/javascript,text/javascript' },
+      signal: AbortSignal.timeout(20_000),
+    },
+    fetchImpl,
+  );
   if (!bundleResponse.ok) {
     throw new Error(`YÖK Atlas application bundle returned HTTP ${bundleResponse.status}`);
   }
@@ -380,7 +389,8 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
       // Install order: audit record first, companion details second, the main fixture
       // LAST (activation point) — a visible new fixture always has its full context.
       const files = [{ path: options.provenancePath, contents: provenanceJson }];
-      if (!reusedDetailsBytes) files.push({ path: options.detailsOutputPath, contents: detailsJson });
+      if (!reusedDetailsBytes)
+        files.push({ path: options.detailsOutputPath, contents: detailsJson });
       if (!reusedExistingBytes) files.push({ path: options.outputPath, contents: fixtureJson });
       await writeImportAtomically(files);
     }
