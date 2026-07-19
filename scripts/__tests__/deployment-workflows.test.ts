@@ -7,12 +7,26 @@ async function repositoryFile(path: string): Promise<string> {
   return readFile(resolve(process.cwd(), path), 'utf8');
 }
 
-test('Pages deployment verifies the expected revision and every declared payload hash', async () => {
+test('Pages deployment preserves the pack and verifies the privacy policy byte-for-byte', async () => {
   const workflow = await repositoryFile('.github/workflows/publish-content.yml');
-  assert.match(workflow, /pack_version: \$\{\{ steps\.pack-metadata\.outputs\.pack_version \}\}/);
+  assert.match(workflow, /redeploy_site:/);
+  assert.match(workflow, /REDEPLOY_SITE: \$\{\{ inputs\.redeploy_site \|\| false \}\}/);
+  assert.match(workflow, /deploy_needed: \$\{\{ steps\.site-deploy\.outputs\.deploy_needed \}\}/);
+  assert.match(workflow, /pack_version: \$\{\{ steps\.site-metadata\.outputs\.pack_version \}\}/);
+  assert.match(
+    workflow,
+    /privacy_sha256: \$\{\{ steps\.site-metadata\.outputs\.privacy_sha256 \}\}/,
+  );
   assert.match(workflow, /EXPECTED_PACK_VERSION:/);
+  assert.match(workflow, /EXPECTED_PRIVACY_SHA256:/);
   assert.match(workflow, /\.packVersion == \$expected/);
   assert.match(workflow, /sha256sum "\$output"/);
+  assert.match(workflow, /sha256sum "\$privacy"/);
+  assert.match(workflow, /install -m 0644 docs\/privacy\.html public\/privacy\.html/);
+  assert.match(workflow, /pack_base="\$\(jq -r '\.expo\.extra\.packBaseUrl' app\.json\)"/);
+  assert.match(workflow, /mirror_published_pack\(\) \{/);
+  assert.match(workflow, /for attempt in \$\(seq 1 3\)/);
+  assert.match(workflow, /Published manifest declares no files\./);
   assert.match(workflow, /environment: content-signing/);
   assert.match(
     workflow,
@@ -21,6 +35,9 @@ test('Pages deployment verifies the expected revision and every declared payload
   assert.match(workflow, /npm run sign:pack/);
   assert.match(workflow, /scripts\/verify-pack-signature\.ts/);
   assert.match(workflow, /stat -c '%s' "\$output"/);
+  assert.match(workflow, /data-privacy-policy="yks-hazirlik-v1"/);
+  assert.match(workflow, /sinanmertsener9@gmail\.com/);
+  assert.match(workflow, /Deployed privacy policy did not expose the expected bytes/);
   assert.match(workflow, /notify-deploy-failure:/);
 });
 

@@ -17,6 +17,7 @@
     },
     "android": {
       "package": "com.sinanmertsener.ykshazirlik",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#4F46E5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -37,6 +38,8 @@
     },
     "plugins": [
       "expo-router",
+      "./plugins/with-reanimated-worklets-release-lint-workaround",
+      "./plugins/with-splash-screen-api-guard",
       [
         "expo-splash-screen",
         {
@@ -55,6 +58,7 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/images/notification-icon.png",
           "color": "#4F46E5"
         }
       ],
@@ -77,7 +81,8 @@
       "reactCompiler": true
     },
     "extra": {
-      "packBaseUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/pack"
+      "packBaseUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/pack",
+      "privacyPolicyUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/privacy.html"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

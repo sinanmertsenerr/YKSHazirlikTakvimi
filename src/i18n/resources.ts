@@ -326,6 +326,7 @@ export const resources = {
         updateNow: 'İçeriği şimdi güncelle',
         packVersion: 'Paket sürümü',
         about: 'Hakkında ve gizlilik',
+        openPrivacyPolicy: 'Gizlilik politikasını aç',
         privacy:
           'İlerleme, deneme ve tercih verilerin cihazında kalır. Analytics, takip veya hesap yoktur. Yalnız sen dışa aktardığında seçtiğin hedefe gider.',
         disclaimer:
@@ -665,6 +666,7 @@ export const resources = {
         updateNow: 'Update content now',
         packVersion: 'Pack version',
         about: 'About and privacy',
+        openPrivacyPolicy: 'Open privacy policy',
         privacy:
           'Your progress, exams, and preferences stay on your device. There is no account, analytics, or tracking. Data leaves only when you export it.',
         disclaimer:

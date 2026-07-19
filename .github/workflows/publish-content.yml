@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'content/**'
+      - 'docs/PRIVACY_EN.md'
+      - 'docs/PRIVACY_TR.md'
+      - 'docs/privacy.html'
       - 'scripts/**'
       - '.github/workflows/publish-content.yml'
   schedule:
@@ -17,6 +20,11 @@ on:
     inputs:
       refresh_programs:
         description: Refresh the official YÖK Atlas program snapshot
+        required: false
+        type: boolean
+        default: false
+      redeploy_site:
+        description: Redeploy the verified current pack with the privacy policy, without refreshing sources
         required: false
         type: boolean
         default: false
@@ -59,10 +67,10 @@ jobs:
       - run: npm ci
 
       - name: Refresh official YKS calendar
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.redeploy_site != true)
         run: npm run sync:calendar
       - name: Refresh official announcements
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.redeploy_site != true)
         run: npm run fetch:news
       - name: Refresh official YÖK Atlas programs
         if: github.event.schedule == '47 3 * * *' || inputs.refresh_programs == true
@@ -385,8 +393,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     outputs:
-      changed: ${{ steps.content-change.outputs.changed }}
-      pack_version: ${{ steps.pack-metadata.outputs.pack_version }}
+      deploy_needed: ${{ steps.site-deploy.outputs.deploy_needed }}
+      pack_version: ${{ steps.site-metadata.outputs.pack_version }}
+      privacy_sha256: ${{ steps.site-metadata.outputs.privacy_sha256 }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -408,41 +417,132 @@ jobs:
         run: npm run sign:pack
       - name: Verify candidate pack signature
         run: npm run verify:pack-signature
-      - name: Read candidate pack metadata
-        id: pack-metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "pack_version=$(jq -r '.packVersion' assets/pack/manifest.json)" >> "$GITHUB_OUTPUT"
       - name: Compare persisted candidate with published content identity
         id: content-change
         run: npm run check:pack-change -- --github-output "$GITHUB_OUTPUT"
+      - name: Decide whether the public site needs deployment
+        id: site-deploy
+        shell: bash
+        env:
+          CONTENT_CHANGED: ${{ steps.content-change.outputs.changed }}
+          EVENT_NAME: ${{ github.event_name }}
+          REDEPLOY_SITE: ${{ inputs.redeploy_site || false }}
+        run: |
+          set -euo pipefail
+          deploy_needed=false
+          if [[ "$CONTENT_CHANGED" == "true" || "$EVENT_NAME" == "push" || "$REDEPLOY_SITE" == "true" ]]; then
+            deploy_needed=true
+          fi
+          echo "deploy_needed=$deploy_needed" >> "$GITHUB_OUTPUT"
       - name: Require a newer revision before replacing published content
         if: steps.content-change.outputs.changed == 'true' && steps.content-change.outputs.remote_pack_version != ''
         env:
           REMOTE_VERSION: ${{ steps.content-change.outputs.remote_pack_version }}
         run: npm run sync:pack-version -- --verify-newer-than "$REMOTE_VERSION"
       - name: Prepare Pages artifact
-        if: steps.content-change.outputs.changed == 'true'
+        if: steps.site-deploy.outputs.deploy_needed == 'true'
         shell: bash
+        env:
+          CONTENT_CHANGED: ${{ steps.content-change.outputs.changed }}
         run: |
           set -euo pipefail
           [[ ! -e public ]] || {
-            echo "Refusing to merge generated pack files into an existing public directory." >&2
+            echo "Refusing to merge generated site files into an existing public directory." >&2
             exit 1
           }
           install -d -m 0755 public/pack
-          cp -R assets/pack/. public/pack/
+
+          if [[ "$CONTENT_CHANGED" == "true" ]]; then
+            cp -R assets/pack/. public/pack/
+          else
+            pack_base="$(jq -r '.expo.extra.packBaseUrl' app.json)"
+            [[ "$pack_base" =~ ^https:// ]] || {
+              echo "The configured packBaseUrl must use HTTPS." >&2
+              exit 1
+            }
+            pack_base="${pack_base%/}"
+
+            # Mirror the currently published pack. Transient CDN/network issues return 1
+            # (retryable); a signed manifest with an unsafe path is never retryable.
+            mirror_published_pack() {
+              rm -rf public/pack
+              install -d -m 0755 public/pack
+              curl --fail --silent --show-error --location \
+                --header 'accept: application/json' \
+                --header 'cache-control: no-cache' \
+                "$pack_base/manifest.json" \
+                --output public/pack/manifest.json || return 1
+              curl --fail --silent --show-error --location \
+                --header 'accept: application/json' \
+                --header 'cache-control: no-cache' \
+                "$pack_base/manifest.sig" \
+                --output public/pack/manifest.sig || return 1
+              node scripts/verify-pack-signature.ts \
+                --manifest public/pack/manifest.json \
+                --signature public/pack/manifest.sig || return 1
+
+              manifest_entries="$(
+                jq -r '.files | to_entries[] | [.value.path, .value.bytes, .value.sha256] | @tsv' \
+                  public/pack/manifest.json
+              )" || return 1
+              [[ -n "$manifest_entries" ]] || {
+                echo "Published manifest declares no files." >&2
+                return 1
+              }
+
+              while IFS=$'\t' read -r path expected_bytes expected_sha; do
+                [[ "$path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {
+                  echo "Unsafe published pack path: $path" >&2
+                  exit 1
+                }
+                output="public/pack/$path"
+                curl --fail --silent --show-error --location \
+                  --header 'cache-control: no-cache' \
+                  "$pack_base/$path" \
+                  --output "$output" || return 1
+                [[ "$(stat -c '%s' "$output")" == "$expected_bytes" ]] || {
+                  echo "Published size mismatch for $path." >&2
+                  return 1
+                }
+                [[ "$(sha256sum "$output" | cut -d' ' -f1)" == "$expected_sha" ]] || {
+                  echo "Published SHA-256 mismatch for $path." >&2
+                  return 1
+                }
+              done <<< "$manifest_entries"
+            }
+
+            for attempt in $(seq 1 3); do
+              if mirror_published_pack; then
+                break
+              fi
+              if [[ "$attempt" -eq 3 ]]; then
+                echo "Mirroring the published pack failed after 3 attempts." >&2
+                exit 1
+              fi
+              echo "Mirroring the published pack failed; retrying in 20s (attempt $attempt of 3)." >&2
+              sleep 20
+            done
+          fi
+
+          install -m 0644 docs/privacy.html public/privacy.html
           touch public/.nojekyll
+      - name: Read prepared site metadata
+        if: steps.site-deploy.outputs.deploy_needed == 'true'
+        id: site-metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "pack_version=$(jq -r '.packVersion' public/pack/manifest.json)" >> "$GITHUB_OUTPUT"
+          echo "privacy_sha256=$(sha256sum public/privacy.html | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Upload Pages artifact
-        if: steps.content-change.outputs.changed == 'true'
+        if: steps.site-deploy.outputs.deploy_needed == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: public
 
   deploy:
     needs: build-pages
-    if: needs.build-pages.outputs.changed == 'true'
+    if: needs.build-pages.outputs.deploy_needed == 'true'
     permissions:
       pages: write
       id-token: write
@@ -460,13 +560,14 @@ jobs:
           node-version-file: .nvmrc
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      - name: Deploy persisted content pack
+      - name: Deploy persisted content pack and privacy policy
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
-      - name: Verify the deployed pack byte-for-byte
+      - name: Verify the deployed site byte-for-byte
         shell: bash
         env:
           EXPECTED_PACK_VERSION: ${{ needs.build-pages.outputs.pack_version }}
+          EXPECTED_PRIVACY_SHA256: ${{ needs.build-pages.outputs.privacy_sha256 }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
@@ -527,6 +628,25 @@ jobs:
             jq -r '.files | to_entries[] | [.value.path, .value.bytes, .value.sha256] | @tsv' \
               "$manifest"
           )
+
+          privacy="$work_directory/privacy.html"
+          for attempt in $(seq 1 18); do
+            if curl --fail --silent --show-error --location \
+              --header 'accept: text/html' \
+              --header 'cache-control: no-cache' \
+              "${PAGE_URL%/}/privacy.html" \
+              --output "$privacy" &&
+              [[ "$(sha256sum "$privacy" | cut -d' ' -f1)" == "$EXPECTED_PRIVACY_SHA256" ]] &&
+              grep -F 'data-privacy-policy="yks-hazirlik-v1"' "$privacy" >/dev/null &&
+              grep -F 'sinanmertsener9@gmail.com' "$privacy" >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" -eq 18 ]]; then
+              echo "Deployed privacy policy did not expose the expected bytes." >&2
+              exit 1
+            fi
+            sleep 10
+          done
 
   notify-refresh-failure:
     needs: refresh

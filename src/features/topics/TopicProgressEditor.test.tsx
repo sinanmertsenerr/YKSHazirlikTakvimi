@@ -63,7 +63,7 @@ jest.mock('@/components/ui', () => {
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 
-import { TopicProgressEditor } from './[konuId]';
+import { TopicProgressEditor } from '../../../app/(tabs)/konular/konu/[konuId]';
 
 // State flushes and passive effects are asynchronous in this renderer, so every
 // interaction below is act-wrapped and asserted via waitFor.

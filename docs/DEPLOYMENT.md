@@ -114,26 +114,121 @@ network check is never silently downgraded.
 
 `app.json` is the authoritative native policy. Android automatic backup is disabled and the Expo
 prebuild emits `tools:node="remove"` declarations for `SYSTEM_ALERT_WINDOW` plus legacy external
-storage permissions. CI performs a clean Android prebuild and validates those declarations, release
-cleartext/debug flags, and the exported launcher activity. Generated `android/` and `ios/` trees
-remain ignored and must not be used as proof of store-binary behavior.
+storage permissions. CI performs a clean Android prebuild and validates those declarations, the
+public privacy-policy URL, notification-icon metadata, release cleartext/debug flags, and the
+exported launcher activity. Generated `android/` and `ios/` trees remain ignored and must not be used
+as proof of store-binary behavior.
 
-For each production release, build both platforms with the `production` EAS profile and retain the
-build URLs, artifact SHA-256 values, EAS CLI version, and build IDs in the release record. Inspect the
-actual downloaded artifacts, not only prebuild output:
+### Android production build record
 
-- Android AAB/APK: dump the effective manifest, confirm `allowBackup=false`, no cleartext traffic,
-  no `SYSTEM_ALERT_WINDOW`/legacy storage permissions, and only expected exported components. Print
-  the signing certificate and reject any certificate whose subject identifies an Android debug key.
-- iOS archive/IPA: inspect `Info.plist`, code-signing identity, and effective entitlements. ATS must
-  keep arbitrary loads disabled; distribution signing and any APS entitlement must be production,
-  not development.
-- Both platforms: record compressed/uncompressed artifact size and confirm the bundled programs
-  database is the expected manifest-addressed asset.
+Run the repository quality gates first, then create the store artifact only from the EAS production
+profile:
+
+```sh
+npm ci
+npm run check
+npx expo-doctor
+eas build --platform android --profile production
+```
 
 A production build is an external, quota-consuming action. Authenticate EAS interactively and run it
-intentionally; never commit generated credentials or native projects. Expo web remains a visual
-preview target and is not a supported public production deployment.
+intentionally. Never commit an upload key, keystore, password, EAS/Play token, service-account JSON,
+`credentials.json`, or a generated native project. Enable Play App Signing and let EAS manage the
+Android upload credential unless the existing Play application already has an established upload
+key.
+
+Retain this evidence for every candidate AAB:
+
+| Field      | Required value                                                                   |
+| ---------- | -------------------------------------------------------------------------------- |
+| Git commit | Exact immutable commit SHA used by EAS                                           |
+| EAS build  | Build ID, build URL, profile, EAS CLI version                                    |
+| Artifact   | Downloaded AAB filename and SHA-256                                              |
+| Identity   | `com.sinanmertsener.ykshazirlik`, `versionName`, unique increasing `versionCode` |
+| SDK        | `minSdk 24`, `targetSdk 36`                                                      |
+| Signing    | Upload certificate fingerprint and subject; reject Android debug certificates    |
+| Content    | Bundled pack version and expected manifest-addressed programs database           |
+| Size       | AAB size plus Play Console device-download size                                  |
+
+`app.json` supplies the initial Android `versionCode: 1`; `eas.json` uses the EAS **remote** version
+source and the production profile increments that server-side value for every candidate. Before every
+upload, compare the resulting artifact with the highest code already known to Play Console and reject
+an equal or lower value. Never reuse a failed, internal-test, or rolled-back `versionCode`; the next
+binary must still increment.
+
+Inspect the downloaded AAB rather than trusting source config or prebuild output. Use Android Studio
+APK Analyzer or a pinned `bundletool` release to dump the effective manifest and resources, and
+verify all of the following:
+
+- `allowBackup=false`; cleartext traffic and `debuggable` are not enabled.
+- `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, and `WRITE_EXTERNAL_STORAGE` are absent.
+- Only the launcher activity is intentionally exported; Expo notification service/receivers and file
+  providers remain non-exported.
+- The local and FCM default notification icon metadata resolve to `@drawable/notification_icon`.
+- `android:windowSplashScreenBehavior` is explicitly guarded with `tools:targetApi="33"`; older
+  supported Android versions keep the base splash style without a false `NewApi` lint failure.
+- The package contains 64-bit ABI support where native libraries are present.
+- The signing certificate is the expected production upload certificate, never the Android debug
+  key.
+- The final dependency/manifest report records Firebase Messaging and Firebase Installations if they
+  remain in the AAB through `expo-notifications`.
+- The generated root Gradle workaround skips only `lintAnalyzeRelease` in the
+  `react-native-reanimated` and `react-native-worklets` projects, whose Kotlin build scripts crash
+  this Android Lint version’s UAST analysis. Application lint, compilation, R8, packaging, and all
+  other library checks must remain enabled.
+
+For iOS, inspect `Info.plist`, the distribution signing identity, and effective entitlements. ATS
+must keep arbitrary loads disabled; distribution signing and any APS entitlement must be production,
+not development. Record compressed/uncompressed artifact size on both platforms.
+
+### Data Safety and privacy gate
+
+The application schedules reminders locally and does not request or send a push token to a
+developer-operated backend. User progress, exams, favourites, and settings stay in SQLite/MMKV;
+backup export occurs only after an explicit user action. However, the final Android dependency graph
+may still contain Firebase Messaging/Installations. Complete the Play Data Safety form from the
+actual AAB and the current official SDK disclosures, not from source-code intent alone. If an SDK
+automatically processes an app/device identifier or diagnostic network data, declare the matching
+data category and purpose instead of selecting “no data collected.”
+
+Before uploading a candidate, confirm that
+`https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/privacy.html` is publicly reachable without a
+login and shows `sinanmertsener9@gmail.com`. The Play Console privacy URL, Data Safety answers, app
+content declarations, and the in-app policy link must describe the same behavior.
+
+### Play audience and app-content declarations
+
+The current recommended target-audience selection is **13–15, 16–17, and 18+**: the product is a YKS
+study tool for secondary-school students and adult candidates, and it is not designed for children
+under 13. Re-evaluate this declaration if the store listing, visuals, monetisation, or product scope
+changes. Do not select an under-13 group without a separate Families-policy review.
+
+Complete the remaining Play declarations consistently:
+
+- category: **Education**;
+- ads: **No**;
+- app access: all functionality is available without an account or special instructions;
+- account creation: **No**, so the account-deletion requirement does not apply;
+- content rating: answer from the actual educational content and external links;
+- government affiliation: clearly state that the app is not an official ÖSYM or YÖK product;
+- support contact: `sinanmertsener9@gmail.com`.
+
+### Rollout gate
+
+1. Upload the AAB to **Internal testing**, not directly to production.
+2. Review Play’s pre-launch report, permission warnings, device compatibility, download size, and
+   policy status.
+3. On an Android 13+ physical device installed from Play, smoke-test offline first launch, topic and
+   exam persistence, backup export/import, privacy link, notification permission/local schedule/small
+   icon, content-update fallback, and R8-sensitive MMKV/SQLite/Skia flows.
+4. Promote only the exact tested AAB. Start with a narrow staged production rollout, watch crash/ANR
+   and install metrics, then increase gradually.
+5. Halt the rollout on any signing, manifest, Data Safety, startup, persistence, notification, or
+   content-integrity discrepancy. A fixed binary must use a new `versionCode`.
+
+Uploading to Play, changing Play App Signing, or starting a rollout is an outward-facing action and
+requires explicit release approval. Expo web remains a visual preview target and is not a supported
+public production deployment.
 
 ## Workflow artifact visibility
 

@@ -270,6 +270,7 @@ export default function SettingsScreen() {
   const { colors, typography } = useTheme();
   const language: LocalLanguage = i18n.resolvedLanguage === 'en' ? 'en' : 'tr';
   const local = useCallback((tr: string, en: string) => (language === 'en' ? en : tr), [language]);
+  const privacyPolicyUrl = Constants.expoConfig?.extra?.privacyPolicyUrl;
 
   const languagePreference = useSettingsStore((state) => state.language);
   const themePreference = useSettingsStore((state) => state.theme);
@@ -335,6 +336,16 @@ export default function SettingsScreen() {
     Alert.alert(
       local('İşlem tamamlanamadı', 'Could not complete the action'),
       error instanceof Error ? error.message : String(error),
+    );
+  };
+
+  const openPrivacyPolicy = () => {
+    if (typeof privacyPolicyUrl !== 'string' || !privacyPolicyUrl.startsWith('https://')) {
+      Alert.alert(t('common.externalLink'), t('common.externalLinkFailed'));
+      return;
+    }
+    void Linking.openURL(privacyPolicyUrl).catch(() =>
+      Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
     );
   };
 
@@ -748,6 +759,12 @@ export default function SettingsScreen() {
               {t('settings.licenses')}
             </Text>
             <View style={styles.sourceButtons}>
+              <Button
+                icon="privacy-tip"
+                onPress={openPrivacyPolicy}
+                title={t('settings.openPrivacyPolicy')}
+                variant="secondary"
+              />
               <Button
                 onPress={() =>
                   void Linking.openURL('https://www.osym.gov.tr').catch(() =>
