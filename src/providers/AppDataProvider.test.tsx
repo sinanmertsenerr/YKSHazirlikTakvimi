@@ -36,7 +36,13 @@ import { Pressable, Text } from 'react-native';
 
 import { AppDataProvider, useAppData } from './AppDataProvider';
 
-const emptySnapshot = { progress: [], exams: [], favorites: [], activityDays: [] };
+const emptySnapshot = {
+  progress: [],
+  exams: [],
+  favorites: [],
+  activityDays: [],
+  latestActivity: null,
+};
 const emptyFullSnapshot = { progress: [], exams: [], favorites: [], activities: [] };
 
 function ReadyState() {

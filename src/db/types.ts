@@ -46,6 +46,7 @@ export type AppDataSnapshot = {
   exams: ExamRecord[];
   favorites: string[];
   activityDays: ActivityDaySummary[];
+  latestActivity: ActivityRecord | null;
 };
 
 export type UserDataSnapshot = {

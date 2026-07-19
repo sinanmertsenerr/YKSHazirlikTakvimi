@@ -6,10 +6,12 @@ import { useMemo } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { AppHeader, Card, Chip, EmptyState, ProgressBar, Screen, Stat } from '@/components/ui';
+import { AppHeader, Card, Chip, EmptyState, ProgressBar, Screen } from '@/components/ui';
 import { allSubjects, calendarPack, useContentRevisionStore } from '@/data/content';
 import { istanbulDay } from '@/db/repository';
 import { calculateStreak } from '@/features/home/metrics';
+import { RecentActivityCard } from '@/features/home/RecentActivityCard';
+import { resolveRecentActivity } from '@/features/home/recentActivity';
 import { totalExamNet } from '@/features/progress/calculations';
 import { useAppData } from '@/providers/AppDataProvider';
 import { useSettingsStore } from '@/stores/settings';
@@ -22,7 +24,7 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const { colors, dark, radii, typography } = useTheme();
   const router = useRouter();
-  const { activityDays, exams, progress } = useAppData();
+  const { activityDays, exams, latestActivity, progress } = useAppData();
   const examYear = useSettingsStore((state) => state.examYear);
   const language = i18n.language === 'en' ? 'en' : 'tr';
   const today = istanbulDay();
@@ -34,9 +36,12 @@ export default function HomeScreen() {
     activityDays.map((item) => item.day),
     today,
   );
-  const todayActivity = activityDays.find((item) => item.day === today);
-  const todayQuestions = todayActivity?.questions ?? 0;
-  const todayTopics = todayActivity?.topicCount ?? 0;
+  const recentActivity = resolveRecentActivity({
+    activity: latestActivity,
+    exams,
+    progress,
+    subjects: allSubjects(),
+  });
 
   const allExamEvents = calendarPack.events
     .filter((event) => event.type === 'sinav')
@@ -149,14 +154,7 @@ export default function HomeScreen() {
         ) : null}
       </LinearGradient>
 
-      <View style={styles.stats}>
-        <Stat label={t('home.todayQuestions')} value={formatNumber(todayQuestions, language)} />
-        <Stat label={t('home.topicsStudied')} value={formatNumber(todayTopics, language)} />
-        <Stat
-          label={t('home.lastTyt')}
-          value={formatNumber(lastExam ? totalExamNet(lastExam) : 0, language)}
-        />
-      </View>
+      <RecentActivityCard activity={recentActivity} language={language} />
 
       <Card>
         <Text style={[typography.headline, { color: colors.label, marginBottom: 12 }]}>
@@ -264,7 +262,6 @@ const styles = StyleSheet.create({
   examCol: { flex: 1, minWidth: 0, alignItems: 'center', gap: 2 },
   examLabel: { color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 },
   examDate: { color: '#fff', fontWeight: '600', textAlign: 'center' },
-  stats: { flexDirection: 'row', gap: 10, marginBottom: 12 },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   progressPercent: { minWidth: 38, textAlign: 'right', fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },

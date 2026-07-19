@@ -13,17 +13,44 @@ const mockSqlite = {
   ),
   transaction: mockTransaction,
 };
+let mockDbResults: unknown[][] = [];
+const mockDbQueries: {
+  from: jest.Mock;
+  orderBy: jest.Mock;
+  limit: jest.Mock;
+}[] = [];
+const mockDb = {
+  select: jest.fn(() => {
+    const result = mockDbResults.shift() ?? [];
+    const promise = Promise.resolve(result);
+    const query = {
+      from: jest.fn(),
+      orderBy: jest.fn(),
+      limit: jest.fn().mockResolvedValue(result),
+      then: promise.then.bind(promise),
+    };
+    query.from.mockReturnValue(query);
+    query.orderBy.mockReturnValue(query);
+    mockDbQueries.push(query);
+    return query;
+  }),
+};
 
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: jest.fn(() => mockSqlite),
 }));
 jest.mock('drizzle-orm/expo-sqlite', () => ({
-  drizzle: () => ({}),
+  drizzle: () => mockDb,
 }));
 
 import { openDatabaseSync } from 'expo-sqlite';
 
-import { groupExamSectionsByExamId, setFavorite, upsertTopicProgress } from './repository';
+import {
+  groupExamSectionsByExamId,
+  loadAppData,
+  setFavorite,
+  upsertTopicProgress,
+} from './repository';
 
 describe('lazy user database initialization', () => {
   it('does not open SQLite merely by importing the repository module', () => {
@@ -90,6 +117,43 @@ describe('loadUserData helpers', () => {
       'tyt-matematik',
     ]);
     expect(grouped.get('exam-2')?.map((row) => row.sectionId)).toEqual(['ayt-matematik']);
+  });
+});
+
+describe('loadAppData', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockDbQueries.length = 0;
+    mockSqlite.getAllAsync.mockResolvedValue([]);
+  });
+
+  it('hydrates only the newest raw activity alongside the daily summaries', async () => {
+    const latestActivity = {
+      id: 'exam:exam-1',
+      day: '2026-07-19',
+      type: 'exam',
+      questions: 90,
+      topicId: null,
+      createdAt: 1_752_921_000_000,
+    };
+    mockDbResults = [[], [], [], [], [latestActivity]];
+    mockSqlite.getAllAsync.mockResolvedValue([]);
+
+    const snapshot = await loadAppData();
+
+    expect(snapshot.latestActivity).toEqual(latestActivity);
+    expect(snapshot.activityDays).toEqual([]);
+    expect(mockDbQueries).toHaveLength(5);
+    expect(mockDbQueries[4]?.orderBy).toHaveBeenCalledTimes(1);
+    expect(mockDbQueries[4]?.limit).toHaveBeenCalledWith(1);
+  });
+
+  it('returns null when no activity has been recorded', async () => {
+    mockDbResults = [[], [], [], [], []];
+
+    const snapshot = await loadAppData();
+
+    expect(snapshot.latestActivity).toBeNull();
   });
 });
 

@@ -199,12 +199,17 @@ async function loadCoreUserData(): Promise<
 }
 
 export async function loadAppData(): Promise<AppDataSnapshot> {
-  const { sqlite } = getUserRepository();
-  const [core, activityRows] = await Promise.all([
+  const { db, sqlite } = getUserRepository();
+  const [core, activityRows, latestActivityRows] = await Promise.all([
     loadCoreUserData(),
     sqlite.getAllAsync<ActivityDaySummaryRow>(ACTIVITY_DAY_SUMMARY_SQL),
+    db.select().from(activityLog).orderBy(desc(activityLog.createdAt)).limit(1),
   ]);
-  return { ...core, activityDays: mapActivityDaySummaries(activityRows) };
+  return {
+    ...core,
+    activityDays: mapActivityDaySummaries(activityRows),
+    latestActivity: latestActivityRows[0] ?? null,
+  };
 }
 
 export async function loadUserData(): Promise<UserDataSnapshot> {

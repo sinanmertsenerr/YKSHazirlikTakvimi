@@ -38,7 +38,13 @@ type AppDataContextValue = AppDataSnapshot & {
   restoreSnapshot: (snapshot: UserDataSnapshot) => Promise<void>;
 };
 
-const empty: AppDataSnapshot = { progress: [], exams: [], favorites: [], activityDays: [] };
+const empty: AppDataSnapshot = {
+  progress: [],
+  exams: [],
+  favorites: [],
+  activityDays: [],
+  latestActivity: null,
+};
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
