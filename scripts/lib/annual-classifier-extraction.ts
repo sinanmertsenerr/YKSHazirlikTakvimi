@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { CLASSIFIER_FORBIDDEN_TEXT_CONTROL_CHARS } from '../../infra/cloudflare/src/index.ts';
+
 export type PdfTextPage = { page: number; text: string };
 
 export type OfficialPageQuestionScope = {
@@ -49,8 +51,19 @@ function normalizeForDetection(value: string): string {
     .replace(/[ \t]+/g, ' ');
 }
 
+// Worker'ın metin sözleşmesiyle aynı yasak küme: bozuk ToUnicode CMap'li
+// PDF'lerde pdftotext'in sızdırabildiği başıboş C0 baytları burada temizlenir;
+// aksi hâlde sınıflandırıcı isteği 400 alır ve tüm yıllık pas düşer.
+const FORBIDDEN_PDF_CONTROL_CHARS = new RegExp(
+  CLASSIFIER_FORBIDDEN_TEXT_CONTROL_CHARS.source,
+  'g',
+);
+
 export function splitPdfText(raw: string): PdfTextPage[] {
-  const chunks = raw.replace(/\r\n?/g, '\n').split('\f');
+  const chunks = raw
+    .replace(/\r\n?/g, '\n')
+    .split('\f')
+    .map((chunk) => chunk.replace(FORBIDDEN_PDF_CONTROL_CHARS, ''));
   if (chunks.at(-1)?.trim() === '') chunks.pop();
   if (!chunks.length) throw new Error('Poppler produced no PDF text pages');
   return chunks.map((text, index) => ({ page: index + 1, text }));

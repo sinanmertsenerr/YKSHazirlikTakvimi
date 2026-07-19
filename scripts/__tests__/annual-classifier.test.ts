@@ -10,6 +10,7 @@ import worker, {
   type Env as WorkerEnv,
 } from '../../infra/cloudflare/src/index.ts';
 import { parseAnnualClassifierArgs } from '../annual-classifier.ts';
+import { splitPdfText } from '../lib/annual-classifier-extraction.ts';
 import { validateAnnualClassifierArtifacts } from '../validate-annual-classifier-artifacts.ts';
 import {
   ANNUAL_CLASSIFIER_RESPONSE_JSON_SCHEMA,
@@ -874,4 +875,14 @@ test('Cloudflare gateway enforces auth, model/mode and no-store responses', asyn
   ];
   assert.equal((await handleRequest(workerRequest(oversizedVision), env)).status, 400);
   assert.equal(calls.length, 1);
+});
+
+test('splitPdfText strips stray C0 control bytes while keeping tab/newline and page splits', () => {
+  const control = String.fromCharCode(11); // bozuk ToUnicode CMap artığı (dikey sekme)
+  const raw = `Sayfa bir${control} metni\tsekmeli\r\nikinci satır\fSayfa iki ${String.fromCharCode(0)}metni`;
+  const pages = splitPdfText(raw);
+
+  assert.equal(pages.length, 2);
+  assert.equal(pages[0]?.text, 'Sayfa bir metni\tsekmeli\nikinci satır');
+  assert.equal(pages[1]?.text, 'Sayfa iki metni');
 });

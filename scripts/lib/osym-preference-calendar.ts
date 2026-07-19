@@ -1,4 +1,5 @@
-import { htmlToText } from './html-text.ts';
+import { assertDeclaredContentLength, cancelBody } from './fetch-safety.ts';
+import { attributeValue, htmlToText } from './html-text.ts';
 
 const OSYM_HOST = 'www.osym.gov.tr';
 
@@ -73,46 +74,8 @@ const DATE_PATTERN = `(\\d{1,2})\\s+(${MONTH_PATTERN})\\s+(20\\d{2})`;
 const TIME_PATTERN =
   `(?:\\s+saat\\s+((?:[01]?\\d|2[0-3]))[.:]([0-5]\\d)` + `(?:\\s*['’]?(?:de|da|te|ta))?)?`;
 
-function decodeHtml(value: string): string {
-  const named: Record<string, string> = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-    ccedil: 'ç',
-    Ccedil: 'Ç',
-    gbreve: 'ğ',
-    Gbreve: 'Ğ',
-    Idot: 'İ',
-    inodot: 'ı',
-    odot: 'ö',
-    Odot: 'Ö',
-    scedil: 'ş',
-    Scedil: 'Ş',
-    udot: 'ü',
-    Udot: 'Ü',
-  };
-
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
-    if (code.toLocaleLowerCase('en-US').startsWith('#x')) {
-      return String.fromCodePoint(Number.parseInt(code.slice(2), 16));
-    }
-    if (code.startsWith('#')) return String.fromCodePoint(Number.parseInt(code.slice(1), 10));
-    return named[code] ?? entity;
-  });
-}
-
 function plainText(html: string): string {
-  return htmlToText(html).replace(/\s+/g, ' ').trim();
-}
-
-function attributeValue(openingTag: string, name: string): string | undefined {
-  const pattern = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i');
-  const match = openingTag.match(pattern);
-  const value = match?.[1] ?? match?.[2] ?? match?.[3];
-  return value ? decodeHtml(value).trim() : undefined;
+  return htmlToText(html);
 }
 
 function exactTable(html: string, id: string): string {
@@ -417,10 +380,7 @@ export function parsePreferenceDetail(
 }
 
 async function readLimitedHtml(response: Response): Promise<string> {
-  const declaredLength = Number(response.headers.get('content-length') ?? 0);
-  if (declaredLength > MAX_RESPONSE_BYTES) {
-    throw new Error(`ÖSYM preference response exceeds ${MAX_RESPONSE_BYTES} bytes.`);
-  }
+  await assertDeclaredContentLength(response, MAX_RESPONSE_BYTES, 'ÖSYM preference response');
   if (!response.body) throw new Error('ÖSYM preference response has no body.');
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -430,7 +390,7 @@ async function readLimitedHtml(response: Response): Promise<string> {
     if (done) break;
     total += value.byteLength;
     if (total > MAX_RESPONSE_BYTES) {
-      await reader.cancel();
+      await reader.cancel().catch(() => {});
       throw new Error(`ÖSYM preference response exceeds ${MAX_RESPONSE_BYTES} bytes.`);
     }
     chunks.push(value);
@@ -462,16 +422,21 @@ async function fetchOfficialHtml(
     });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
+      await cancelBody(response);
       if (!location || redirectCount === MAX_REDIRECTS) {
         throw new Error('ÖSYM preference source returned an invalid or excessive redirect.');
       }
       url = validateUrl(new URL(location, url).href);
       continue;
     }
-    if (!response.ok) throw new Error(`ÖSYM preference source returned HTTP ${response.status}.`);
+    if (!response.ok) {
+      await cancelBody(response);
+      throw new Error(`ÖSYM preference source returned HTTP ${response.status}.`);
+    }
     const finalUrl = validateUrl(response.url || url.href);
     const contentType = response.headers.get('content-type')?.toLocaleLowerCase('en-US') ?? '';
     if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) {
+      await cancelBody(response);
       throw new Error(
         `ÖSYM preference source returned unsupported content type ${contentType || '<missing>'}.`,
       );

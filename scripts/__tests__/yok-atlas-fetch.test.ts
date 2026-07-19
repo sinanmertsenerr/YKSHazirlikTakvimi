@@ -182,6 +182,25 @@ test('readBoundedText cancels an oversized advertised response before reading', 
   assert.equal(cancelled, true);
 });
 
+test('readBoundedText cancels and rejects a malformed Content-Length header', async () => {
+  let cancelled = false;
+  await assert.rejects(
+    readBoundedText(
+      boundedResponse({
+        contentLength: '12, 12',
+        keepBodyOpen: true,
+        onCancel: () => {
+          cancelled = true;
+        },
+      }),
+      1024,
+      'YÖK payload',
+    ),
+    /invalid Content-Length/,
+  );
+  assert.equal(cancelled, true);
+});
+
 test('readBoundedText aborts once the streamed body exceeds the limit', async () => {
   await assert.rejects(
     readBoundedText(

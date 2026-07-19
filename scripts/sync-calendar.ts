@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { calendarSchema, CURRENT_SCHEMA_VERSION } from './lib/content-schemas.ts';
+import { assertDeclaredContentLength, cancelBody } from './lib/fetch-safety.ts';
 import { htmlToText } from './lib/html-text.ts';
 import {
   preserveStableRecordVerificationTimes,
@@ -79,10 +80,7 @@ function assertAllowedOfficialUrl(rawUrl: string): URL {
 const HTML_LINE_BREAK_TAGS = new Set(['br']);
 
 function htmlLines(html: string): string[] {
-  return htmlToText(html, { lineBreakTags: HTML_LINE_BREAK_TAGS })
-    .split('\n')
-    .map((line) => line.replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
+  return htmlToText(html, { lineBreakTags: HTML_LINE_BREAK_TAGS }).split('\n');
 }
 
 function isValidIsoDate(value: string): boolean {
@@ -366,10 +364,7 @@ export function stabilizeCalendarDocument(
 }
 
 async function readLimitedHtml(response: Response): Promise<string> {
-  const declaredLength = Number(response.headers.get('content-length') ?? 0);
-  if (declaredLength > MAX_RESPONSE_BYTES) {
-    throw new Error(`ÖSYM response exceeds ${MAX_RESPONSE_BYTES} bytes`);
-  }
+  await assertDeclaredContentLength(response, MAX_RESPONSE_BYTES, 'ÖSYM response');
   if (!response.body) throw new Error('ÖSYM response has no body.');
 
   const reader = response.body.getReader();
@@ -380,7 +375,7 @@ async function readLimitedHtml(response: Response): Promise<string> {
     if (done) break;
     total += value.byteLength;
     if (total > MAX_RESPONSE_BYTES) {
-      await reader.cancel();
+      await reader.cancel().catch(() => {});
       throw new Error(`ÖSYM response exceeds ${MAX_RESPONSE_BYTES} bytes`);
     }
     chunks.push(value);
@@ -413,6 +408,7 @@ async function fetchOfficialCalendarHtml(
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
+      await cancelBody(response);
       if (!location || redirectCount === MAX_REDIRECTS) {
         throw new Error('ÖSYM calendar returned an invalid or excessive redirect.');
       }
@@ -420,10 +416,14 @@ async function fetchOfficialCalendarHtml(
       continue;
     }
 
-    if (!response.ok) throw new Error(`ÖSYM calendar returned HTTP ${response.status}`);
+    if (!response.ok) {
+      await cancelBody(response);
+      throw new Error(`ÖSYM calendar returned HTTP ${response.status}`);
+    }
     assertAllowedOfficialUrl(response.url || url.href);
     const contentType = response.headers.get('content-type')?.toLocaleLowerCase('en-US') ?? '';
     if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) {
+      await cancelBody(response);
       throw new Error(
         `ÖSYM calendar returned unsupported content type ${contentType || '<missing>'}`,
       );

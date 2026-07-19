@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { CURRENT_SCHEMA_VERSION, newsItemSchema, newsSchema } from './lib/content-schemas.ts';
-import { htmlToText } from './lib/html-text.ts';
+import { attributeValue, htmlToText } from './lib/html-text.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
   preserveStableRecordVerificationTimes,
@@ -102,59 +102,8 @@ function assertAllowedOfficialUrl(rawUrl: string, authority: Authority): URL {
   return url;
 }
 
-function decodeHtml(value: string): string {
-  const named: Record<string, string> = {
-    amp: '&',
-    acirc: 'â',
-    Acirc: 'Â',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-    ccedil: 'ç',
-    Ccedil: 'Ç',
-    gbreve: 'ğ',
-    Gbreve: 'Ğ',
-    Idot: 'İ',
-    inodot: 'ı',
-    icirc: 'î',
-    Icirc: 'Î',
-    ldquo: '“',
-    lsquo: '‘',
-    mdash: '—',
-    ndash: '–',
-    odot: 'ö',
-    Odot: 'Ö',
-    ouml: 'ö',
-    Ouml: 'Ö',
-    rdquo: '”',
-    rsquo: '’',
-    scedil: 'ş',
-    Scedil: 'Ş',
-    udot: 'ü',
-    Udot: 'Ü',
-    uuml: 'ü',
-    Uuml: 'Ü',
-  };
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
-    if (code.toLowerCase().startsWith('#x')) {
-      return String.fromCodePoint(Number.parseInt(code.slice(2), 16));
-    }
-    if (code.startsWith('#')) return String.fromCodePoint(Number.parseInt(code.slice(1), 10));
-    return named[code] ?? entity;
-  });
-}
-
 function plainText(html: string): string {
-  return htmlToText(html).replace(/\s+/g, ' ').trim();
-}
-
-function attributeValue(openingTag: string, name: string): string | undefined {
-  const pattern = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i');
-  const match = openingTag.match(pattern);
-  const value = match?.[1] ?? match?.[2] ?? match?.[3];
-  return value ? decodeHtml(value).trim() : undefined;
+  return htmlToText(html);
 }
 
 function hasClass(openingTag: string, expectedClass: string): boolean {

@@ -189,15 +189,15 @@ test('Cloudflare classifier hides inference failures behind a bounded error resp
   assert.deepEqual(await response.json(), { error: 'inference-failed' });
 });
 
-test('Cloudflare classifier admits two exact 5 MiB images with maximum escaped text', async () => {
+test('Cloudflare classifier admits two exact 5 MiB images with maximum text', async () => {
   const fullImage = dataImageUrlForBytes(5 * 1024 * 1024);
-  const maximumTextPart = String.fromCharCode(0).repeat(80_000);
+  const maximumTextPart = 'a'.repeat(80_000);
   const visionPayload = {
     model: '@cf/google/gemma-4-26b-a4b-it',
     mode: 'vision',
     requestId: '2026-tyt-turkce-vision-boundary-1',
     messages: [
-      { role: 'system', content: String.fromCharCode(0).repeat(450_000) },
+      { role: 'system', content: 'a'.repeat(450_000) },
       {
         role: 'user',
         content: [
@@ -209,7 +209,7 @@ test('Cloudflare classifier admits two exact 5 MiB images with maximum escaped t
     ],
     responseJsonSchema: {
       type: 'object',
-      description: String.fromCharCode(0).repeat(5_000),
+      description: 'a'.repeat(5_000),
     },
     maxCompletionTokens: 512,
     temperature: 0,
@@ -218,6 +218,125 @@ test('Cloudflare classifier admits two exact 5 MiB images with maximum escaped t
   let calls = 0;
   const response = await handleRequest(
     request(visionPayload),
+    environment(async () => {
+      calls += 1;
+      return { response: '{"topicId":"paragraf"}' };
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(calls, 1);
+});
+
+test('Cloudflare classifier admits one image with six maximum text parts', async () => {
+  const payload = {
+    ...textPayload(),
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    mode: 'vision',
+    messages: [
+      textPayload().messages[0],
+      {
+        role: 'user',
+        content: [
+          ...Array.from({ length: 6 }, () => ({ type: 'text', text: 'a'.repeat(80_000) })),
+          { type: 'image_url', image_url: { url: dataImageUrlForBytes(5 * 1024 * 1024) } },
+        ],
+      },
+    ],
+  };
+  let calls = 0;
+  const response = await handleRequest(
+    request(payload),
+    environment(async () => {
+      calls += 1;
+      return { response: '{"topicId":"paragraf"}' };
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(calls, 1);
+});
+
+test('Cloudflare classifier admits two maximal plain-string messages', async () => {
+  const payload = {
+    ...textPayload(),
+    messages: [
+      { role: 'system', content: 'a'.repeat(450_000) },
+      { role: 'user', content: 'a'.repeat(450_000) },
+    ],
+  };
+  let calls = 0;
+  const response = await handleRequest(
+    request(payload),
+    environment(async () => {
+      calls += 1;
+      return { response: '{"topicId":"paragraf"}' };
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(calls, 1);
+});
+
+test('Cloudflare classifier rejects control characters in message text', async () => {
+  let calls = 0;
+  const env = environment(async () => {
+    calls += 1;
+    return {};
+  });
+  const nulPayload = {
+    ...textPayload(),
+    messages: [
+      textPayload().messages[0],
+      { role: 'user', content: `Metin ${String.fromCharCode(0)} içeriyor.` },
+    ],
+  };
+  const verticalTabPart = {
+    ...textPayload(),
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    mode: 'vision',
+    messages: [
+      textPayload().messages[0],
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: `Metin ${String.fromCharCode(11)} içeriyor.` },
+          { type: 'image_url', image_url: { url: dataImageUrlForBytes(64) } },
+        ],
+      },
+    ],
+  };
+  const allowedWhitespace = {
+    ...textPayload(),
+    messages: [
+      textPayload().messages[0],
+      { role: 'user', content: 'Sekme\tve\nyeni satır\rserbest.' },
+    ],
+  };
+
+  assert.equal((await handleRequest(request(nulPayload), env)).status, 400);
+  assert.equal((await handleRequest(request(verticalTabPart), env)).status, 400);
+  assert.equal(calls, 0);
+  assert.equal((await handleRequest(request(allowedWhitespace), env)).status, 200);
+  assert.equal(calls, 1);
+});
+
+test('Cloudflare classifier admits a fully unicode-escaped non-ASCII schema on the wire', async () => {
+  const payload = {
+    ...textPayload(),
+    responseJsonSchema: { type: 'object', description: 'ç'.repeat(31_000) },
+  };
+  // Python json.dumps(ensure_ascii=True) benzeri istemciyi taklit et: her non-ASCII
+  // karakter telde 6 baytlık bir unicode kaçışı tutar; parse sonrası şema 32k sınırının altındadır.
+  const wireBody = JSON.stringify(payload).split('ç').join('\\u00e7');
+  const escapedRequest = new Request('https://classifier.example/v1/classify', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: wireBody,
+  });
+  let calls = 0;
+  const response = await handleRequest(
+    escapedRequest,
     environment(async () => {
       calls += 1;
       return { response: '{"topicId":"paragraf"}' };

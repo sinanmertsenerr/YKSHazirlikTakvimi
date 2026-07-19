@@ -7,7 +7,8 @@ import path from 'node:path';
 import { z } from 'zod';
 
 import { calendarSchema } from './content-schemas.ts';
-import { htmlToText } from './html-text.ts';
+import { cancelBody } from './fetch-safety.ts';
+import { attributeValue, htmlToText } from './html-text.ts';
 import {
   assertPopplerAvailable,
   locateBookletSectionPages,
@@ -170,54 +171,14 @@ const candidateSchema = z
 
 export type OsymBookletDiscoveryCandidate = z.infer<typeof candidateSchema>;
 
-function decodeHtml(value: string): string {
-  const named: Record<string, string> = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    nbsp: ' ',
-    quot: '"',
-    ccedil: 'ç',
-    Ccedil: 'Ç',
-    gbreve: 'ğ',
-    Gbreve: 'Ğ',
-    Idot: 'İ',
-    inodot: 'ı',
-    odot: 'ö',
-    Odot: 'Ö',
-    scedil: 'ş',
-    Scedil: 'Ş',
-    udot: 'ü',
-    Udot: 'Ü',
-  };
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
-    if (code.toLocaleLowerCase('en-US').startsWith('#x')) {
-      return String.fromCodePoint(Number.parseInt(code.slice(2), 16));
-    }
-    if (code.startsWith('#')) return String.fromCodePoint(Number.parseInt(code.slice(1), 10));
-    return named[code] ?? named[code.toLocaleLowerCase('en-US')] ?? entity;
-  });
-}
-
 function normalizedText(html: string): string {
   return htmlToText(html)
-    .replace(/\s+/g, ' ')
-    .trim()
     .toLocaleUpperCase('tr-TR')
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
     .replace(/İ/g, 'I');
 }
 
-function attributeValue(attributes: string, name: string): string | null {
-  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(
-    `(?:^|\\s)${escapedName}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>\u0060]+))`,
-    'i',
-  ).exec(attributes);
-  return decodeHtml(match?.[1] ?? match?.[2] ?? match?.[3] ?? '') || null;
-}
 
 type HtmlAnchor = { href: string; text: string };
 
@@ -367,17 +328,10 @@ export function discoverSessionPdfUrls(
   ) as Record<Session, string>;
 }
 
-async function cancelBody(response: Response): Promise<void> {
-  try {
-    await response.body?.cancel();
-  } catch {
-    // The connection can already be closed after a redirect or validation failure.
-  }
-}
-
 async function readLimitedBody(response: Response, maxBytes: number): Promise<Uint8Array> {
   const length = response.headers.get('content-length');
   if (length && (!/^\d+$/.test(length) || Number(length) > maxBytes)) {
+    await cancelBody(response);
     throw new Error(`Official response has an invalid or oversized Content-Length: ${length}`);
   }
   if (!response.body) throw new Error('Official response has no body.');

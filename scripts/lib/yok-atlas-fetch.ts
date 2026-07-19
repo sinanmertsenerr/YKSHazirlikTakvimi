@@ -1,3 +1,5 @@
+import { assertDeclaredContentLength, cancelBody } from './fetch-safety.ts';
+
 const YOK_ATLAS_ORIGIN = 'https://yokatlas.yok.gov.tr';
 const MAX_REDIRECTS = 3;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
@@ -16,14 +18,6 @@ function assertYokAtlasUrl(value: string | URL): URL {
     throw new Error('YÖK Atlas request must stay on the exact official HTTPS origin.');
   }
   return url;
-}
-
-async function cancelBody(response: Response): Promise<void> {
-  try {
-    await response.body?.cancel();
-  } catch {
-    // A redirect body may already be closed or absent.
-  }
 }
 
 export async function fetchYokAtlas(
@@ -69,11 +63,7 @@ export async function readBoundedText(
   maxBytes: number,
   label: string,
 ): Promise<string> {
-  const advertised = Number(response.headers.get('content-length'));
-  if (Number.isFinite(advertised) && advertised > maxBytes) {
-    await cancelBody(response);
-    throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit (advertised length).`);
-  }
+  await assertDeclaredContentLength(response, maxBytes, label);
 
   const body = response.body;
   if (!body) {
@@ -91,7 +81,6 @@ export async function readBoundedText(
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      if (!value) continue;
       total += value.byteLength;
       if (total > maxBytes) {
         throw new Error(`${label} exceeds the ${maxBytes}-byte safety limit.`);

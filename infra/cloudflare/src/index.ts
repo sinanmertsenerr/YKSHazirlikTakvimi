@@ -8,20 +8,34 @@ const MAX_REQUEST_ID_CHARACTERS = 240;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_VISION_IMAGES = 2;
 const MAX_BASE64_IMAGE_CHARACTERS = Math.ceil(MAX_IMAGE_BYTES / 3) * 4;
-// JSON can expand one accepted UTF-16 text unit to six ASCII bytes when escaped.
-// Schema size is already measured after JSON.stringify, where one remaining
-// UTF-16 unit needs at most three UTF-8 bytes. Keep a fixed envelope
-// allowance for keys, punctuation, data-URL prefixes, and bounded scalar fields.
-const MAX_JSON_ESCAPED_BYTES_PER_TEXT_CHARACTER = 6;
-const MAX_UTF8_BYTES_PER_SCHEMA_CHARACTER = 3;
+// Tel-düzeyi en kötü durum: dış bir istemci (ör. Python json.dumps'ın
+// ensure_ascii varsayılanı) kabul edilen HER UTF-16 birimini \uXXXX olarak
+// 6 bayta yazabilir; kontrol-karakteri yasağı bunu değiştirmez. Bu yüzden
+// transport tavanı bilinçli CÖMERT türetilir: iki mesaj da düz string olarak
+// MAX_TEXT_CHARACTERS taşıyabilir, parça kipinde 7 parçanın hepsi metin
+// olabilir (görüntü sayısı ≤2'dir, tam-2 değil — eski türetim 5 parça sayıp
+// geçerli "1 görüntü + 6 metin" isteğini 413'lüyordu). Gerçek alan sınırları
+// parse katmanında ayrıca uygulanır; zarf (anahtarlar, data-URL önekleri,
+// sabit alanlar) için 64 KiB pay yeter.
+const MAX_JSON_WIRE_BYTES_PER_CHARACTER = 6;
 const MAX_FIXED_JSON_ENVELOPE_BYTES = 64 * 1024;
-const MAX_VISION_TEXT_PARTS = MAX_MESSAGE_PARTS - MAX_VISION_IMAGES;
 const MAX_NON_IMAGE_BODY_BYTES =
-  (MAX_TEXT_CHARACTERS + MAX_VISION_TEXT_PARTS * MAX_MESSAGE_TEXT_CHARACTERS) *
-    MAX_JSON_ESCAPED_BYTES_PER_TEXT_CHARACTER +
-  MAX_SCHEMA_JSON_CHARACTERS * MAX_UTF8_BYTES_PER_SCHEMA_CHARACTER +
+  (2 * MAX_TEXT_CHARACTERS +
+    MAX_MESSAGE_PARTS * MAX_MESSAGE_TEXT_CHARACTERS +
+    MAX_SCHEMA_JSON_CHARACTERS) *
+    MAX_JSON_WIRE_BYTES_PER_CHARACTER +
   MAX_FIXED_JSON_ENVELOPE_BYTES;
+// Bellek notu: MAX_BODY_BYTES ≈ 21.93 MiB. Tek yetkili istemci
+// (annual-classifier-orchestrator) en fazla 2 eşzamanlı istek atar; workerd
+// izolat sınırı 128 MiB olduğundan eşzamanlılık artırılacaksa bu tavanla
+// birlikte düşünülmelidir.
 const MAX_BODY_BYTES = MAX_BASE64_IMAGE_CHARACTERS * MAX_VISION_IMAGES + MAX_NON_IMAGE_BODY_BYTES;
+// Mesaj metinlerinde \t (09), \n (0A) ve \r (0D) dışındaki C0 kontrol
+// karakterleri yasak: görünmez-karakter tabanlı prompt karıştırma ve bozuk
+// PDF çıkarımı artıklarına karşı. Aynı predicate istemci tarafında da
+// (annual-classifier-extraction.splitPdfText) kullanılır — iki taraf
+// birbirinden sapamaz.
+export const CLASSIFIER_FORBIDDEN_TEXT_CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/;
 export const CLASSIFIER_MAX_BODY_BYTES = MAX_BODY_BYTES;
 export const CLASSIFIER_AI_TIMEOUT_MS = 90_000;
 export const CLASSIFIER_RATE_LIMIT_KEY = 'annual-classifier';
@@ -113,7 +127,13 @@ function parseMessage(value: unknown): Message | undefined {
   if (!isPlainObject(value) || !hasExactKeys(value, ['role', 'content'])) return undefined;
   if (value.role !== 'system' && value.role !== 'user') return undefined;
   if (typeof value.content === 'string') {
-    if (!value.content.length || value.content.length > MAX_TEXT_CHARACTERS) return undefined;
+    if (
+      !value.content.length ||
+      value.content.length > MAX_TEXT_CHARACTERS ||
+      CLASSIFIER_FORBIDDEN_TEXT_CONTROL_CHARS.test(value.content)
+    ) {
+      return undefined;
+    }
     return { role: value.role, content: value.content };
   }
   if (
@@ -131,7 +151,8 @@ function parseMessage(value: unknown): Message | undefined {
         !hasExactKeys(candidate, ['type', 'text']) ||
         typeof candidate.text !== 'string' ||
         !candidate.text.length ||
-        candidate.text.length > MAX_MESSAGE_TEXT_CHARACTERS
+        candidate.text.length > MAX_MESSAGE_TEXT_CHARACTERS ||
+        CLASSIFIER_FORBIDDEN_TEXT_CONTROL_CHARS.test(candidate.text)
       ) {
         return undefined;
       }
@@ -175,7 +196,6 @@ function parseClassifierRequest(value: unknown): ClassifierRequest | undefined {
     !Array.isArray(value.messages) ||
     value.messages.length !== 2 ||
     !isPlainObject(value.responseJsonSchema) ||
-    JSON.stringify(value.responseJsonSchema).length > MAX_SCHEMA_JSON_CHARACTERS ||
     !Number.isInteger(value.maxCompletionTokens) ||
     (value.maxCompletionTokens as number) < 1 ||
     (value.maxCompletionTokens as number) > 8_192 ||
@@ -183,6 +203,13 @@ function parseClassifierRequest(value: unknown): ClassifierRequest | undefined {
   ) {
     return undefined;
   }
+  // Şema boyutu serileştirilmiş uzunluk üzerinden sınırlanır. Kontrol-karakteri
+  // yasağı şemaya uygulanmaz: JSON.parse sonrası şemadaki kontroller ancak
+  // \uXXXX kaçışıyla gelebilir (ham C0 gövdede zaten geçersiz JSON'dur),
+  // şema statik kod-kaynaklıdır ve response_format içinde metin olarak modele
+  // gitmez; uzunluk sınırı yeterli.
+  const schemaJson = JSON.stringify(value.responseJsonSchema);
+  if (schemaJson.length > MAX_SCHEMA_JSON_CHARACTERS) return undefined;
   const system = parseMessage(value.messages[0]);
   const user = parseMessage(value.messages[1]);
   if (!system || !user || system.role !== 'system' || user.role !== 'user') return undefined;
@@ -206,8 +233,14 @@ function parseClassifierRequest(value: unknown): ClassifierRequest | undefined {
 }
 
 async function readJsonBody(request: Request): Promise<unknown> {
-  const declaredLength = Number(request.headers.get('content-length'));
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+  // Content-Length biçimi sıkı doğrulanır: rakam-dışı/birleştirilmiş başlık
+  // ("12, 12") istek-kaçakçılığı sinyalidir ve akışa hiç girilmeden reddedilir.
+  const declaredHeader = request.headers.get('content-length');
+  if (declaredHeader !== null && !/^\d+$/.test(declaredHeader)) {
+    await request.body?.cancel().catch(() => {});
+    throw new RangeError('body-too-large');
+  }
+  if (declaredHeader !== null && Number(declaredHeader) > MAX_BODY_BYTES) {
     await request.body?.cancel().catch(() => {});
     throw new RangeError('body-too-large');
   }
@@ -221,7 +254,6 @@ async function readJsonBody(request: Request): Promise<unknown> {
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      if (!value) continue;
       total += value.byteLength;
       if (total > MAX_BODY_BYTES) throw new RangeError('body-too-large');
       chunks.push(value);
@@ -231,14 +263,12 @@ async function readJsonBody(request: Request): Promise<unknown> {
   }
   if (!total) throw new RangeError('body-too-large');
 
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
+  // Blob, parçaları elle offset aritmetiği yapmadan tek geçişte birleştirip
+  // UTF-8 çözer (geçersiz diziler TextDecoder varsayılanıyla aynı biçimde
+  // replacement karakterine döner). Sadelik kazanımıdır; tepe bellek profili
+  // eski elle-birleştirmeyle aynıdır.
   try {
-    return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+    return JSON.parse(await new Blob(chunks as BlobPart[]).text()) as unknown;
   } catch {
     throw new SyntaxError('invalid-json');
   }
