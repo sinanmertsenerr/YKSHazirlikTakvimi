@@ -8,7 +8,11 @@ updates:
       day: monday
       time: '04:17'
       timezone: Europe/Istanbul
-    open-pull-requests-limit: 10
+    # 0 = sürüm-güncelleme PR'ları kapalı (Expo SDK sürüm pinleriyle çakışıyor,
+    # main-dışı branch bırakmama politikası). Dependabot güvenlik güncellemeleri
+    # bu limitten bağımsız, repo ayarından çalışmaya devam eder. Expo patch'leri
+    # gerektiğinde `npx expo install --fix` ile manuel alınır.
+    open-pull-requests-limit: 0
     versioning-strategy: increase-if-necessary
     groups:
       expo-sdk-patches:
