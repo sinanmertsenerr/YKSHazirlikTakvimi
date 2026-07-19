@@ -4,15 +4,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import {
-  AppHeader,
-  Card,
-  Footnote,
-  ProgressBar,
-  ProgressRing,
-  Screen,
-  SegmentedControl,
-} from '@/components/ui';
+import { AppHeader, Card, Footnote, ProgressRing, Screen, SegmentedControl } from '@/components/ui';
 import { allSubjects, topicsPack, useContentRevisionStore } from '@/data/content';
 import { getAverageTopicProgress } from '@/features/topics/statistics';
 import { useAppData } from '@/providers/AppDataProvider';
@@ -32,20 +24,6 @@ export default function TopicsScreen() {
     () => new Map(progress.map((item) => [item.topicId, item] as const)),
     [progress],
   );
-  const examProgress = getAverageTopicProgress(
-    subjects.flatMap((subject) => subject.topics.map((topic) => `${subject.id}:${topic.id}`)),
-    progressByTopicId,
-  );
-  const examPercent = Math.round(examProgress * 100);
-  const examProgressColor =
-    examProgress >= 1 ? colors.success : examProgress > 0 ? colors.warning : colors.tertiaryLabel;
-  const examProgressTextColor =
-    examProgress >= 1
-      ? colors.successText
-      : examProgress > 0
-        ? colors.warningText
-        : colors.tertiaryLabel;
-
   return (
     <Screen>
       <AppHeader title={t('topics.title')} subtitle={t('topics.subtitle')} />
@@ -64,19 +42,6 @@ export default function TopicsScreen() {
         ]}
         value={examId}
       />
-      <Card>
-        <View style={styles.progressHeader}>
-          <Text style={[typography.subhead, styles.progressTitle, { color: colors.label }]}>
-            {t('topics.examProgress', { exam: examId.toUpperCase() })}
-          </Text>
-          <Text
-            style={[typography.subhead, styles.progressPercent, { color: examProgressTextColor }]}
-          >
-            %{examPercent}
-          </Text>
-        </View>
-        <ProgressBar color={examProgressColor} progress={examProgress} />
-      </Card>
       {subjects.map((subject) => {
         const topicProgressIds = subject.topics.map((topic) => `${subject.id}:${topic.id}`);
         const done = topicProgressIds.filter(
@@ -119,15 +84,6 @@ export default function TopicsScreen() {
 
 const styles = StyleSheet.create({
   notice: { borderLeftWidth: 3 },
-  progressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 10,
-  },
-  progressTitle: { flex: 1, fontWeight: '700' },
-  progressPercent: { fontWeight: '800' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   grow: { flex: 1, minWidth: 0, gap: 2 },
 });

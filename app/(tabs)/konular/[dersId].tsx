@@ -5,7 +5,14 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { AppHeader, Card, Footnote, ScreenView, SegmentedControl } from '@/components/ui';
+import {
+  AppHeader,
+  Card,
+  Footnote,
+  ProgressRing,
+  ScreenView,
+  SegmentedControl,
+} from '@/components/ui';
 import {
   findSubject,
   officialStatsForSubject,
@@ -65,9 +72,10 @@ export default function SubjectScreen() {
         }
       }
       if (effectiveSort === 'incomplete') {
-        const leftDone = progressByTopicId.get(`${subject.id}:${left.topic.id}`)?.status === 'done';
+        const leftDone =
+          (progressByTopicId.get(`${subject.id}:${left.topic.id}`)?.percent ?? 0) >= 100;
         const rightDone =
-          progressByTopicId.get(`${subject.id}:${right.topic.id}`)?.status === 'done';
+          (progressByTopicId.get(`${subject.id}:${right.topic.id}`)?.percent ?? 0) >= 100;
         return Number(leftDone) - Number(rightDone) || left.index - right.index;
       }
       return left.index - right.index;
@@ -126,11 +134,19 @@ export default function SubjectScreen() {
           // the last 5 years hid early questions (a lone 2018 question read as 0 on the card).
           const yearlyStats = verifiedStats.length ? verifiedStats : (officialStat?.yearly ?? []);
           const totalCount = yearlyStats.reduce((sum, stat) => sum + stat.count, 0);
-          const statusColor =
-            itemProgress?.status === 'done'
+          const itemPercent = Math.max(0, Math.min(100, itemProgress?.percent ?? 0));
+          const itemRatio = itemPercent / 100;
+          const ringColor =
+            itemPercent >= 100
               ? colors.success
-              : itemProgress?.status === 'working'
+              : itemPercent > 0
                 ? colors.warning
+                : colors.tertiaryLabel;
+          const ringLabelColor =
+            itemPercent >= 100
+              ? colors.successText
+              : itemPercent > 0
+                ? colors.warningText
                 : colors.tertiaryLabel;
           return (
             <Pressable
@@ -144,9 +160,11 @@ export default function SubjectScreen() {
             >
               <Card>
                 <View style={styles.row}>
-                  <View
-                    accessibilityLabel={itemProgress?.status ?? t('topics.none')}
-                    style={[styles.status, { backgroundColor: statusColor }]}
+                  <ProgressRing
+                    color={ringColor}
+                    labelColor={ringLabelColor}
+                    progress={itemRatio}
+                    size={42}
                   />
                   <View style={styles.grow}>
                     <Text style={[typography.headline, { color: colors.label }]}>
@@ -183,7 +201,6 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 132 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   grow: { flex: 1, minWidth: 0, gap: 3 },
-  status: { width: 10, height: 10, borderRadius: 5 },
   countBadge: {
     minWidth: 34,
     height: 34,
