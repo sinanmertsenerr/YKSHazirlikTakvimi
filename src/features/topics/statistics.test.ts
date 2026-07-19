@@ -1,4 +1,5 @@
 import {
+  getAverageTopicProgress,
   getComparableFrequency,
   getComparableVerifiedYears,
   getVerifiedTopicStats,
@@ -11,6 +12,32 @@ const source = 'https://www.osym.gov.tr/TR,33851/2026-yks-kilavuzu.html';
 function stat(overrides: Partial<TopicStatLike> = {}): TopicStatLike {
   return { year: 2025, count: 1, verified: true, source, ...overrides };
 }
+
+describe('topic progress statistics', () => {
+  it('averages partial progress across every topic, including untouched topics', () => {
+    const progress = new Map([
+      ['turkce:paragraf', { percent: 50 }],
+      ['turkce:anlam', { percent: 100 }],
+    ]);
+
+    expect(
+      getAverageTopicProgress(['turkce:paragraf', 'turkce:anlam', 'turkce:dil-bilgisi'], progress),
+    ).toBe(0.5);
+  });
+
+  it('returns an empty state safely and clamps invalid stored percentages', () => {
+    expect(getAverageTopicProgress([], new Map())).toBe(0);
+    expect(
+      getAverageTopicProgress(
+        ['matematik:sayilar', 'matematik:problemler'],
+        new Map([
+          ['matematik:sayilar', { percent: 120 }],
+          ['matematik:problemler', { percent: -20 }],
+        ]),
+      ),
+    ).toBe(0.5);
+  });
+});
 
 describe('verified topic statistics', () => {
   it('requires a verified record, an official source reference, and a known count', () => {

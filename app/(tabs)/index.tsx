@@ -11,6 +11,7 @@ import { allSubjects, calendarPack, useContentRevisionStore } from '@/data/conte
 import { istanbulDay } from '@/db/repository';
 import { calculateStreak } from '@/features/home/metrics';
 import { RecentActivityCard } from '@/features/home/RecentActivityCard';
+import { getAverageTopicProgress } from '@/features/topics/statistics';
 import { resolveRecentActivity } from '@/features/home/recentActivity';
 import { totalExamNet } from '@/features/progress/calculations';
 import { useAppData } from '@/providers/AppDataProvider';
@@ -63,8 +64,7 @@ export default function HomeScreen() {
     const topicKeys = subjects.flatMap((subject) =>
       subject.topics.map((topic) => `${subject.id}:${topic.id}`),
     );
-    const done = topicKeys.filter((key) => progressByTopicId.get(key)?.status === 'done').length;
-    return topicKeys.length ? done / topicKeys.length : 0;
+    return getAverageTopicProgress(topicKeys, progressByTopicId);
   };
   const tytProgress = progressFor('tyt');
   const aytProgress = progressFor('ayt');

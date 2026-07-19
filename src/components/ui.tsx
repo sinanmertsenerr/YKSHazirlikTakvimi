@@ -273,10 +273,12 @@ export function SegmentedControl<T extends string>({
 export function ProgressRing({
   progress,
   color,
+  labelColor = color,
   size = 48,
 }: {
   progress: number;
   color: string;
+  labelColor?: string;
   size?: number;
 }) {
   const { colors } = useTheme();
@@ -285,13 +287,14 @@ export function ProgressRing({
   const radius = (size - stroke) / 2;
   const circumference = Math.PI * 2 * radius;
   const safeProgress = Math.max(0, Math.min(1, progress));
+  const percent = Math.round(safeProgress * 100);
   return (
     <View
-      accessibilityLabel={t('common.completedPercent', {
-        percent: Math.round(safeProgress * 100),
-      })}
+      accessible
+      accessibilityLabel={t('common.completedPercent', { percent })}
       accessibilityRole="progressbar"
-      accessibilityValue={{ min: 0, max: 100, now: Math.round(safeProgress * 100) }}
+      accessibilityValue={{ min: 0, max: 100, now: percent }}
+      style={[styles.progressRing, { width: size, height: size }]}
     >
       <Svg height={size} style={{ transform: [{ rotate: '-90deg' }] }} width={size}>
         <Circle
@@ -314,6 +317,15 @@ export function ProgressRing({
           strokeWidth={stroke}
         />
       </Svg>
+      <Text
+        accessible={false}
+        adjustsFontSizeToFit
+        numberOfLines={1}
+        pointerEvents="none"
+        style={[styles.progressRingLabel, { color: labelColor }]}
+      >
+        %{percent}
+      </Text>
     </View>
   );
 }
@@ -613,6 +625,14 @@ export function PercentSlider({
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  progressRing: { alignItems: 'center', justifyContent: 'center' },
+  progressRingLabel: {
+    position: 'absolute',
+    maxWidth: '72%',
+    fontSize: 10,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
   sliderTouch: { height: 40, justifyContent: 'center' },
   sliderTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
   sliderFill: { height: 8, borderRadius: 4 },

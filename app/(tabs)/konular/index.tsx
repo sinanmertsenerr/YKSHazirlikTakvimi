@@ -4,8 +4,17 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { AppHeader, Card, Footnote, ProgressRing, Screen, SegmentedControl } from '@/components/ui';
+import {
+  AppHeader,
+  Card,
+  Footnote,
+  ProgressBar,
+  ProgressRing,
+  Screen,
+  SegmentedControl,
+} from '@/components/ui';
 import { allSubjects, topicsPack, useContentRevisionStore } from '@/data/content';
+import { getAverageTopicProgress } from '@/features/topics/statistics';
 import { useAppData } from '@/providers/AppDataProvider';
 import { useTheme } from '@/theme/useTheme';
 
@@ -23,6 +32,19 @@ export default function TopicsScreen() {
     () => new Map(progress.map((item) => [item.topicId, item] as const)),
     [progress],
   );
+  const examProgress = getAverageTopicProgress(
+    subjects.flatMap((subject) => subject.topics.map((topic) => `${subject.id}:${topic.id}`)),
+    progressByTopicId,
+  );
+  const examPercent = Math.round(examProgress * 100);
+  const examProgressColor =
+    examProgress >= 1 ? colors.success : examProgress > 0 ? colors.warning : colors.tertiaryLabel;
+  const examProgressTextColor =
+    examProgress >= 1
+      ? colors.successText
+      : examProgress > 0
+        ? colors.warningText
+        : colors.tertiaryLabel;
 
   return (
     <Screen>
@@ -42,15 +64,29 @@ export default function TopicsScreen() {
         ]}
         value={examId}
       />
+      <Card>
+        <View style={styles.progressHeader}>
+          <Text style={[typography.subhead, styles.progressTitle, { color: colors.label }]}>
+            {t('topics.examProgress', { exam: examId.toUpperCase() })}
+          </Text>
+          <Text
+            style={[typography.subhead, styles.progressPercent, { color: examProgressTextColor }]}
+          >
+            %{examPercent}
+          </Text>
+        </View>
+        <ProgressBar color={examProgressColor} progress={examProgress} />
+      </Card>
       {subjects.map((subject) => {
-        const done = subject.topics.filter(
-          (topic) => progressByTopicId.get(`${subject.id}:${topic.id}`)?.status === 'done',
+        const topicProgressIds = subject.topics.map((topic) => `${subject.id}:${topic.id}`);
+        const done = topicProgressIds.filter(
+          (topicId) => (progressByTopicId.get(topicId)?.percent ?? 0) >= 100,
         ).length;
-        const ratio = subject.topics.length ? done / subject.topics.length : 0;
-        const semanticColor =
-          examId === 'tyt' ? colors.tyt : examId === 'ayt' ? colors.ayt : colors.ydt;
-        const textColor =
-          examId === 'tyt' ? colors.tytText : examId === 'ayt' ? colors.aytText : colors.ydtText;
+        const ratio = getAverageTopicProgress(topicProgressIds, progressByTopicId);
+        const ringColor =
+          ratio >= 1 ? colors.success : ratio > 0 ? colors.warning : colors.tertiaryLabel;
+        const ringLabelColor =
+          ratio >= 1 ? colors.successText : ratio > 0 ? colors.warningText : colors.tertiaryLabel;
         return (
           <Pressable
             accessibilityLabel={`${subject.name[i18n.language === 'en' ? 'en' : 'tr']}, ${Math.round(ratio * 100)}%`}
@@ -60,7 +96,7 @@ export default function TopicsScreen() {
           >
             <Card>
               <View style={styles.row}>
-                <ProgressRing color={semanticColor} progress={ratio} />
+                <ProgressRing color={ringColor} labelColor={ringLabelColor} progress={ratio} />
                 <View style={styles.grow}>
                   <Text style={[typography.headline, { color: colors.label }]}>
                     {subject.name[i18n.language === 'en' ? 'en' : 'tr']}
@@ -71,9 +107,6 @@ export default function TopicsScreen() {
                     {t('topics.completed', { done, total: subject.topics.length })}
                   </Text>
                 </View>
-                <Text style={[typography.footnote, styles.percent, { color: textColor }]}>
-                  %{Math.round(ratio * 100)}
-                </Text>
                 <MaterialIcons color={colors.tertiaryLabel} name="chevron-right" size={24} />
               </View>
             </Card>
@@ -86,7 +119,15 @@ export default function TopicsScreen() {
 
 const styles = StyleSheet.create({
   notice: { borderLeftWidth: 3 },
+  progressHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 10,
+  },
+  progressTitle: { flex: 1, fontWeight: '700' },
+  progressPercent: { fontWeight: '800' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   grow: { flex: 1, minWidth: 0, gap: 2 },
-  percent: { fontWeight: '800' },
 });

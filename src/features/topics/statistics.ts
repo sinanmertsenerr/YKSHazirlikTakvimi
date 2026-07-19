@@ -15,6 +15,24 @@ export type VerifiedTopicStat = TopicStatLike & {
   source: string;
 };
 
+type TopicProgressLike = Readonly<{
+  percent: number;
+}>;
+
+export function getAverageTopicProgress(
+  topicIds: readonly string[],
+  progressByTopicId: ReadonlyMap<string, TopicProgressLike>,
+): number {
+  if (topicIds.length === 0) return 0;
+
+  const totalPercent = topicIds.reduce((sum, topicId) => {
+    const percent = progressByTopicId.get(topicId)?.percent ?? 0;
+    return sum + Math.max(0, Math.min(100, percent));
+  }, 0);
+
+  return totalPercent / (topicIds.length * 100);
+}
+
 export function isVerifiedTopicStat(stat: TopicStatLike): stat is VerifiedTopicStat {
   return (
     stat.verified === true &&
