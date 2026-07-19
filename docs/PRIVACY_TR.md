@@ -16,6 +16,8 @@ Haber, takvim ve içerik güncellemeleri yalnız herkese açık statik dosyalar�
 
 Hatırlatmalar kullanıcı tercihiyle cihaz üzerinde yerel olarak zamanlanır. Uygulama bir push tokenını geliştirici tarafından işletilen bir sunucuya göndermez ve uzaktan kişisel bildirim içeriği göndermez. Bildirim izni yalnız kullanıcı bildirim özelliğini açtığında istenir.
 
+Bildirim altyapısı nedeniyle uygulama paketi Google Firebase (Messaging ve Installations) bileşenlerini içerir; bu bileşenler ilk açılışta Google’a bağlı anonim bir kurulum tanımlayıcısı oluşturabilir. Uygulama bu tanımlayıcıyı kullanıcı verileriyle ilişkilendirmez ve kendi sunucusuna göndermez. Ayrıntılar: <https://firebase.google.com/support/privacy>
+
 ## Çocuklar ve genç kullanıcılar
 
 Uygulama eğitim amaçlıdır ve hesap, reklam, davranışsal profilleme veya geliştirici sunucusuna kişisel veri aktarımı içermez. Ebeveynler ve kullanıcılar cihazdaki verileri Android ayarlarından yönetebilir.

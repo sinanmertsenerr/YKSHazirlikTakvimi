@@ -344,9 +344,16 @@ export default function SettingsScreen() {
       Alert.alert(t('common.externalLink'), t('common.externalLinkFailed'));
       return;
     }
-    void Linking.openURL(privacyPolicyUrl).catch(() =>
-      Alert.alert(t('common.externalLink'), t('common.externalLinkFailed')),
-    );
+    // The public policy page is bilingual with per-language anchors; land on the
+    // section matching the app language instead of the Turkish-first page top.
+    const anchoredUrl = `${privacyPolicyUrl}#${language === 'en' ? 'english' : 'turkce'}`;
+    void Linking.openURL(anchoredUrl).catch((error: unknown) => {
+      console.warn('[settings] failed to open the privacy policy link', {
+        url: anchoredUrl,
+        error,
+      });
+      Alert.alert(t('common.externalLink'), t('common.externalLinkFailed'));
+    });
   };
 
   const syncNotifications = async (

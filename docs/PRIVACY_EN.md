@@ -16,6 +16,8 @@ News, calendar, and content updates download public static files over HTTPS. Top
 
 Reminders are scheduled locally on the device after the user enables them. The app does not send a push token to a developer-operated server and does not send personalised remote notification content. Notification permission is requested only when the user enables a notification feature.
 
+Because of the notification infrastructure, the app package includes Google Firebase (Messaging and Installations) components; on first launch these components may create an anonymous installation identifier associated with Google. The app does not link this identifier to user data and does not send it to a developer-operated server. Details: <https://firebase.google.com/support/privacy>
+
 ## Children and young users
 
 The app is educational and does not include accounts, advertising, behavioural profiling, or personal-data transfer to a developer-operated server. Parents and users can manage on-device data through Android settings.

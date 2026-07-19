@@ -8,8 +8,11 @@ const FORBIDDEN_ANDROID_PERMISSIONS = [
   'android.permission.WRITE_EXTERNAL_STORAGE',
 ] as const;
 
-const LOCAL_OR_PRIVATE_HOST =
-  /^(?:localhost|127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})$/i;
+// Allow-list over deny-list (OWASP SSRF guidance): the policy URL only ever points at
+// this repository's GitHub Pages site, and the previous hand-rolled private-IP deny-list
+// provably missed ranges (IPv6 loopback/link-local, 0.0.0.0, CGNAT). Moving the policy
+// to a custom domain is a deliberate release decision that must update this gate too.
+const TRUSTED_POLICY_HOST_SUFFIX = '.github.io';
 const NOTIFICATION_ICON_PATH = './assets/images/notification-icon.png';
 const NOTIFICATION_ICON_RESOURCE = '@drawable/notification_icon';
 const NOTIFICATION_ICON_METADATA = [
@@ -44,7 +47,7 @@ function validatePublicPrivacyPolicyUrl(value: unknown): void {
     url.username !== '' ||
     url.password !== '' ||
     url.port !== '' ||
-    LOCAL_OR_PRIVATE_HOST.test(url.hostname) ||
+    !url.hostname.endsWith(TRUSTED_POLICY_HOST_SUFFIX) ||
     url.pathname === '/'
   ) {
     throw new Error('Expo privacyPolicyUrl must be a public HTTPS document URL.');
@@ -164,9 +167,18 @@ export function validateGeneratedAndroidManifest(manifest: string): void {
 }
 
 export function validateGeneratedAndroidStyles(styles: string): void {
+  // Scope the check to the splash style element: a guarded item accidentally moved
+  // under a different <style> must fail this gate, not satisfy it from a distance.
+  const splashStyleMatch = styles.match(
+    /<style\b[^>]*name="Theme\.App\.SplashScreen"[^>]*>([\s\S]*?)<\/style>/,
+  );
+  if (!splashStyleMatch) {
+    throw new Error('Generated Android styles must define Theme.App.SplashScreen.');
+  }
+  const splashStyle = splashStyleMatch[1] ?? '';
   const guardedBehavior =
     /<item\b(?=[^>]*name="android:windowSplashScreenBehavior")(?=[^>]*tools:targetApi="33")[^>]*>\s*icon_preferred\s*<\/item>/s;
-  if (!guardedBehavior.test(styles)) {
+  if (!guardedBehavior.test(splashStyle)) {
     throw new Error(
       'Generated Android styles must guard windowSplashScreenBehavior with tools:targetApi="33".',
     );

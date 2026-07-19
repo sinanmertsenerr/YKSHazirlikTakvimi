@@ -138,6 +138,30 @@ test('source policy requires a public HTTPS privacy document', () => {
       }),
     /public HTTPS document URL/,
   );
+  // Host allow-list must be the sole failing condition here: https, credential-free,
+  // default port, non-root path — only the hostname is outside *.github.io.
+  assert.throws(
+    () =>
+      validateExpoNativePolicy({
+        expo: {
+          android: validAppConfig.expo.android,
+          plugins: validAppConfig.expo.plugins,
+          extra: { privacyPolicyUrl: 'https://192.168.1.5/privacy.html' },
+        },
+      }),
+    /public HTTPS document URL/,
+  );
+  assert.throws(
+    () =>
+      validateExpoNativePolicy({
+        expo: {
+          android: validAppConfig.expo.android,
+          plugins: validAppConfig.expo.plugins,
+          extra: { privacyPolicyUrl: 'https://evil.example/privacy.html' },
+        },
+      }),
+    /public HTTPS document URL/,
+  );
 });
 
 test('source policy requires the approved notification small icon', () => {
@@ -222,6 +246,23 @@ test('generated styles require the Android 13 splash behavior API guard', () => 
   assert.throws(
     () => validateGeneratedAndroidStyles(validStyles.replace(' tools:targetApi="33"', '')),
     /windowSplashScreenBehavior/,
+  );
+  // The guarded item must live INSIDE Theme.App.SplashScreen: the same bytes under an
+  // unrelated style must fail instead of satisfying the check from a distance.
+  assert.throws(
+    () =>
+      validateGeneratedAndroidStyles(`
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <style name="Theme.App.SplashScreen" parent="Theme.SplashScreen"></style>
+  <style name="SomeOtherStyle">
+    <item name="android:windowSplashScreenBehavior" tools:targetApi="33">icon_preferred</item>
+  </style>
+</resources>`),
+    /windowSplashScreenBehavior/,
+  );
+  assert.throws(
+    () => validateGeneratedAndroidStyles('<resources xmlns:tools="x"></resources>'),
+    /Theme\.App\.SplashScreen/,
   );
 });
 
