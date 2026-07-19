@@ -82,10 +82,15 @@
     },
     "extra": {
       "packBaseUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/pack",
-      "privacyPolicyUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/privacy.html"
+      "privacyPolicyUrl": "https://sinanmertsenerr.github.io/YKSHazirlikTakvimi/privacy.html",
+      "router": {},
+      "eas": {
+        "projectId": "1365d547-b9a6-41af-aaa2-31a002f9a7c5"
+      }
     },
     "updates": {
       "fallbackToCacheTimeout": 0
-    }
+    },
+    "owner": "fullstackdevv"
   }
 }
