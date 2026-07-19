@@ -51,6 +51,10 @@ const PUBLISHABLE_YEAR_EXISTS = `EXISTS (
   FROM program_year py_exists
   WHERE py_exists.program_id = p.id
     AND ${publishableYearPredicate('py_exists')}
+  -- Keep this explicit LIMIT: SQLite 3.51's bare-EXISTS semijoin plan miscounts
+  -- OFFSET while ix_program_sort drives the outer query. The correlated scalar plan
+  -- preserves indexed ordering and correct pagination across supported runtimes.
+  LIMIT 1
 )`;
 
 /** Mirrors trSearch for the Turkish characters used by YÖK Atlas labels. */

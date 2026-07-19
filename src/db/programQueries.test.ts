@@ -30,6 +30,7 @@ describe('program SQLite query construction', () => {
     expect(query.sql).toContain('p.approximate = 0');
     expect(query.sql).toContain('p.sample = 0');
     expect(query.sql).toContain('py_exists.verified = 1');
+    expect(query.sql).toMatch(/FROM program_year py_exists[\s\S]*LIMIT 1\s*\)/);
     expect(query.sql).toContain('p.score_type = ?');
     expect(query.sql).toContain('p.city = ?');
     expect(query.sql).toContain('p.language = ?');
@@ -70,10 +71,9 @@ describe('program SQLite query construction', () => {
   });
 
   it('applies the same alias expansion to favorites-scoped search', () => {
-    const query = buildFavoriteProgramIdsQuery(
-      { scoreType: 'ea', language: 'tr', search: 'pdr' },
-      ['3001'],
-    );
+    const query = buildFavoriteProgramIdsQuery({ scoreType: 'ea', language: 'tr', search: 'pdr' }, [
+      '3001',
+    ]);
 
     expect(query.parameters).toEqual(['ea', 'pdr', 'rehberlik ve psikolojik danısmanlık', '3001']);
   });
@@ -117,7 +117,9 @@ describe('program SQLite query construction', () => {
     expect(query.sql).toContain('py_latest.min_rank IS NOT NULL');
     expect(query.sql).toContain('ORDER BY latest.min_rank IS NULL, latest.min_rank, p.id');
     // Same filters, same bound parameters — only the ORDER BY mechanism differs.
-    expect(query.parameters).toEqual(buildProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0).parameters);
+    expect(query.parameters).toEqual(
+      buildProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0).parameters,
+    );
   });
 
   it('uses only the selected locale column for city facets', () => {
