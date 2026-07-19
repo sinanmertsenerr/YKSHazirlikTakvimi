@@ -8,10 +8,7 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import {
-  latestPublishableRankSql,
-  RANKLESS_SORT_SENTINEL,
-} from '../../scripts/lib/program-sql';
+import { latestPublishableRankSql, RANKLESS_SORT_SENTINEL } from '../../scripts/lib/program-sql';
 import { buildLegacyProgramListQuery, buildProgramListQuery } from './programQueries';
 
 // require (not static import): under jest-expo's Babel/CJS transform the experimental
@@ -42,9 +39,9 @@ describeWithDb('program list query against the committed bundled pack', () => {
 
   it('serves the browse ORDER BY from ix_program_sort without a TEMP B-TREE', () => {
     const query = buildProgramListQuery({ scoreType: 'say', language: 'tr' }, 61, 0);
-    const plan = database
-      .prepare(`EXPLAIN QUERY PLAN ${query.sql}`)
-      .all(...query.parameters) as { detail: string }[];
+    const plan = database.prepare(`EXPLAIN QUERY PLAN ${query.sql}`).all(...query.parameters) as {
+      detail: string;
+    }[];
 
     const details = plan.map((row) => row.detail).join('\n');
     expect(details).toContain('ix_program_sort');
@@ -62,9 +59,39 @@ describeWithDb('program list query against the committed bundled pack', () => {
       const filters = { scoreType, language: 'tr' as const };
       // Same page through both mechanisms: the materialized column (new) and the
       // correlated walk-back (legacy). Any divergence is a build-time parity bug.
-      expect(rows(buildProgramListQuery(filters, 61, offset))).toEqual(
-        rows(buildLegacyProgramListQuery(filters, 61, offset)),
-      );
+      const modernQuery = buildProgramListQuery(filters, 61, offset);
+      const legacyQuery = buildLegacyProgramListQuery(filters, 61, offset);
+      const modern = rows(modernQuery);
+      const legacy = rows(legacyQuery);
+      if (JSON.stringify(modern) !== JSON.stringify(legacy)) {
+        // This divergence has only ever reproduced on the CI runner's Linux SQLite
+        // build (2026-07-19, deterministic across two runs, unreproducible on macOS
+        // against byte-identical data with the same SQLite version). Dump the plans
+        // and full result cardinalities so the CI log itself pinpoints the engine's
+        // plan choice instead of requiring another blind round-trip.
+        const plan = (query: { sql: string; parameters: (number | string)[] }) =>
+          (
+            database.prepare(`EXPLAIN QUERY PLAN ${query.sql}`).all(...query.parameters) as {
+              detail: string;
+            }[]
+          )
+            .map((row) => row.detail)
+            .join(' | ');
+        const fullCount = (query: { sql: string; parameters: (number | string)[] }) =>
+          database.prepare(query.sql).all(...query.parameters.slice(0, -2), 1_000_000, 0).length;
+        console.error(
+          [
+            `PARITY DIVERGENCE ${scoreType}/offset=${offset}`,
+            `modern plan: ${plan(modernQuery)}`,
+            `legacy plan: ${plan(legacyQuery)}`,
+            `modern full count: ${fullCount(modernQuery)}`,
+            `legacy full count: ${fullCount(legacyQuery)}`,
+            `modern head: ${modern.slice(0, 8).join(',')}`,
+            `legacy head: ${legacy.slice(0, 8).join(',')}`,
+          ].join('\n'),
+        );
+      }
+      expect(modern).toEqual(legacy);
     },
   );
 

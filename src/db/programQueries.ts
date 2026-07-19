@@ -144,12 +144,16 @@ export function buildProgramListQuery(
   return {
     sql: `
       SELECT ${PROGRAM_COLUMNS}
-      FROM program p
+      FROM program p INDEXED BY ix_program_sort
       WHERE ${where.clauses.join('\n        AND ')}
       -- latest_min_rank_sort is materialized at pack build time: the min_rank of the
       -- most recent publishable year WITH a published rank (pending years never sink a
-      -- program), sentinel for rankless programs so they stay last. The plain-column
-      -- key lets ix_program_sort serve the ORDER BY without a per-page TEMP B-TREE.
+      -- program), sentinel for rankless programs so they stay last. INDEXED BY pins the
+      -- browse plan to ix_program_sort: identical content paged differently on the CI
+      -- runner's Linux SQLite build (validate run 2026-07-19, say/offset=600 divergence
+      -- unreproducible on macOS), and a pinned plan removes that engine freedom; packs
+      -- without the index raise "no such index", which the repository degrades to the
+      -- legacy walk-back exactly like the missing-column case.
       ORDER BY p.latest_min_rank_sort, p.id
       LIMIT ? OFFSET ?
     `,

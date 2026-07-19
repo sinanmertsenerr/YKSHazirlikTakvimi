@@ -224,6 +224,31 @@ describe('program database runtime lifecycle', () => {
     expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(1);
   });
 
+  it('degrades to the legacy walk-back query when the pack lacks ix_program_sort', async () => {
+    const location = downloadedLocation('2026.07.6');
+    setMockFile('downloaded/2026.07.6/programs.db', new Uint8Array(128));
+    const database = validDatabase();
+    const getAllAsync = jest
+      .fn<Promise<unknown[]>, unknown[]>()
+      // The INDEXED BY pin raises this on packs built before the index existed.
+      .mockRejectedValueOnce(new Error('no such index: ix_program_sort'))
+      .mockResolvedValueOnce([]);
+    database.getAllAsync = getAllAsync;
+    mockGetActivePackLocation.mockResolvedValue(location);
+    mockOpenDatabaseAsync.mockResolvedValue(database);
+
+    const { queryProgramPage } = loadRepository();
+    await expect(
+      queryProgramPage({ scoreType: 'say', language: 'tr', limit: 10, offset: 0 }),
+    ).resolves.toEqual({ programs: [], hasMore: false });
+
+    expect(getAllAsync).toHaveBeenCalledTimes(2);
+    expect(String(getAllAsync.mock.calls[0]?.[0])).toContain('INDEXED BY ix_program_sort');
+    expect(String(getAllAsync.mock.calls[1]?.[0])).toContain('latest.min_rank IS NULL');
+    expect(mockInvalidateDownloadedPackVersion).not.toHaveBeenCalled();
+    expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(1);
+  });
+
   it('caches the active location and shares the prewarmed connection across queries', async () => {
     const location = downloadedLocation('2026.07.3');
     setMockFile('downloaded/2026.07.3/programs.db', new Uint8Array(128));

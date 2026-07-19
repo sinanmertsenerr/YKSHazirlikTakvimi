@@ -811,7 +811,9 @@ function mapProgramExtras(
  */
 function isMissingSchemaError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return /no such (table|column)/i.test(message);
+  // "no such index": a pre-ix_program_sort pack rejects the INDEXED BY browse query
+  // the same way a pre-latest_min_rank_sort pack rejects the column reference.
+  return /no such (table|column|index)/i.test(message);
 }
 
 /** Reads the official YÖK Atlas detail data of one program; null when unavailable. */
