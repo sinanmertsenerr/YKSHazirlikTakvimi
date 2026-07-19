@@ -293,7 +293,7 @@ export default function ProgramsScreen() {
             />
           ) : scoreType === 'yetenek' && !query && activeFilterCount === 0 ? (
             // Honest empty state: TABLO 5 is legitimately empty until YÖK Atlas loads
-            // each year's kılavuz; the weekly pack refresh picks it up automatically.
+            // each year's kılavuz; the daily pack refresh picks it up automatically.
             <EmptyState
               body={t('preference.talentDataPending')}
               icon="hourglass-empty"

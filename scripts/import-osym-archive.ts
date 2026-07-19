@@ -14,7 +14,7 @@ import {
 
 // One-time (per new archive year) importer for ÖSYM's yearly placement tables. The
 // output fixture is committed and consumed by build-programs at pack build time; the
-// weekly YÖK Atlas cron never runs this. Re-running is idempotent for unchanged files
+// daily YÖK Atlas cron never runs this. Re-running is idempotent for unchanged files
 // (past years are static official publications).
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 

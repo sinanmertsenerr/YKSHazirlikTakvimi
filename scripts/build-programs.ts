@@ -32,7 +32,7 @@ async function readFixture(inputPath: string): Promise<ProgramsFixture> {
 }
 
 // Historical ÖSYM years (2018-2024) merge into the wizard fixture at BUILD time only:
-// the weekly wizard import never rewrites them, and a missing archive file simply means
+// the daily wizard import never rewrites them, and a missing archive file simply means
 // no historical enrichment (fresh clones before the one-time import still build).
 async function applyArchiveYears(fixture: ProgramsFixture, archivePath: string): Promise<ProgramsFixture> {
   let raw: string;

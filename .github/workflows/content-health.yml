@@ -87,7 +87,7 @@ jobs:
           jq -e '.schemaVersion == 2 and (.items | type == "array" and length > 0)' "$news" \
             >/dev/null
 
-          # The program pack refreshes on a weekly cron the 6-hourly publishes never
+          # The program pack refreshes on a daily cron the 6-hourly publishes never
           # touch, so its integrity is verified independently of news freshness.
           programs_path="$(jq -r '.files.programs.path' "$manifest")"
           [[ "$programs_path" =~ ^[a-z0-9][a-z0-9.-]*$ ]] || {

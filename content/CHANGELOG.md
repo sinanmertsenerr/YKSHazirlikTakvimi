@@ -1,5 +1,20 @@
 # Content changelog
 
+## 2026-07-19 — Özel yetenek boş durumu dürüstleştirildi; cron kadansı yorumları düzeltildi
+
+- YETENEK sekmesinin boş durumu artık geçmiş-veri beklentisini de yönetiyor (TR+EN): merkezî
+  yerleştirme olmadığı için geçmiş yıllara ait taban puan verisinin bulunmadığı eklendi.
+  Dış gerçek canlı doğrulandı (2026-07-19): YÖK Atlas search API'sinde yıl parametresi yok
+  (yalnız güncel kılavuz snapshot'ı) ve ÖSYM, Tablo-5 için Tablo-3/4 benzeri arşiv dosyası
+  yayımlamıyor — geriye dönük doldurulacak resmî kaynak mevcut değil.
+- `validate:pack` ilk gerçek TABLO 5 import'unu artık aktif işaretliyor: `yetenek` satır
+  sayısı 0'ın üzerine çıktığında, ERROR tabanı hâlâ 0 iken WARN üretiyor (pasif TODO →
+  kendiliğinden tetiklenen sinyal; taban yükseltilince blok silinir).
+- Beş yerde kalmış "haftalık cron" ifadesi "günlük"e düzeltildi (cron 2026-07-17'de
+  `47 3 * * *`'a alınmıştı; davranış değişikliği yok, yalnız yorum/doküman):
+  `programlar.tsx`, bu changelog'un 2026-07-16 girdisi, `content-health.yml`,
+  `import-osym-archive.ts`, `build-programs.ts`.
+
 ## 2026-07-16 — Özel yetenek (TABLO 5) programları uçtan uca; sıralama ve BESYO araması düzeltildi
 
 - Program şemasına 6. puan türü eklendi: `yetenek` (özel yetenek sınavı ile alan programlar,
@@ -11,7 +26,7 @@
   ("ÖZEL YETENEK", canlı doğrulandı 2026-07-16; SPA bundle canary token'ı sözleşme denetimine
   eklendi). Seviye şu an 0 satır dönüyor (`yil: 2026` — TABLO 5 her yılın kılavuzuyla yüklenir;
   2025 kılavuzu 30 Temmuz'da yayımlanmıştı) ve boş sweep bilinçli olarak başarı sayılıyor
-  (`allowEmpty`). İlk gerçek veri geldiğinde haftalık cron otomatik alır; ilk dolu import'un
+  (`allowEmpty`). İlk gerçek veri geldiğinde günlük cron otomatik alır; ilk dolu import'un
   provenance artefaktını `workflow_dispatch` ile insan gözüyle denetlemek önerilir.
 - Liste sıralaması düzeltildi: sıralama anahtarı artık "en son yılın sıralaması" değil "sıralaması
   YAYIMLANMIŞ en son yıl". Güncel yılı henüz açıklanmamış programlar (ör. 4 Beden Eğitimi ve Spor

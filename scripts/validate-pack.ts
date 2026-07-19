@@ -355,7 +355,8 @@ const PROGRAM_COUNT_ERROR_FLOORS = {
   tyt: 7000,
   dil: 400,
   // TODO(yetenek): raise above zero once the first real TABLO 5 import lands (the level
-  // is empty until YÖK Atlas loads each year's kılavuz — cold-start floor by design).
+  // is empty until YÖK Atlas loads each year's kılavuz — cold-start floor by design;
+  // the self-arming warn in checkProgramsFixture fires on the first non-empty import).
   yetenek: 0,
 } as const satisfies Record<ProgramsFixture['programs'][number]['scoreType'], number>;
 const TOTAL_PROGRAM_ERROR_FLOOR = 15_000;
@@ -442,6 +443,15 @@ function checkProgramsFixture(programs: ProgramsFixture, report: MutableReport):
         `programsFixture: ${scoreType} has ${count} programs, below the ${floor} coverage floor`,
       );
     }
+  }
+  // Self-arming counterpart of TODO(yetenek) above: the first non-empty TABLO 5 import
+  // must not pass silently while the cold-start floor is still zero. Once the floor is
+  // raised, TS flags this comparison as overlap-free — delete the block at that point.
+  const talentCount = countsByScoreType.get('yetenek') ?? 0;
+  if (talentCount > 0 && PROGRAM_COUNT_ERROR_FLOORS.yetenek === 0) {
+    report.warnings.push(
+      `programsFixture: first real TABLO 5 import landed (${talentCount} yetenek programs) — raise PROGRAM_COUNT_ERROR_FLOORS.yetenek to a real coverage floor`,
+    );
   }
   if (sportsFamilyCount < SPORTS_FAMILY_WARN_FLOOR) {
     report.warnings.push(

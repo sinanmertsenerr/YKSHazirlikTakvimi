@@ -331,6 +331,19 @@ test('verified programs and years require a verification timestamp', async () =>
   );
 });
 
+test('the first non-empty TABLO 5 import arms the yetenek coverage-floor warning', async () => {
+  const programs = (await readJson('content/programs.fixture.json')) as ProgramsFixture;
+  const baseline = validateProgramsFixtureData(programs);
+  assert.ok(!baseline.warnings.some((warning) => warning.includes('TABLO 5 import landed')));
+  programs.programs[0]!.scoreType = 'yetenek';
+  const report = validateProgramsFixtureData(programs);
+  assert.ok(
+    report.warnings.some((warning) =>
+      warning.includes('first real TABLO 5 import landed (1 yetenek programs)'),
+    ),
+  );
+});
+
 test('published news contains zero generic, sample, unverified, or unsourced records', async () => {
   const news = (await readJson('content/news.json')) as {
     dataStatus: { approximate: boolean; sample: boolean; source: string | null; verified: boolean };
