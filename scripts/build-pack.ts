@@ -85,6 +85,9 @@ export async function buildPack(options: BuildPackOptions = {}): Promise<string>
   const validation = await validateSourcePack({
     contentDir,
     programsDbPath: resolve(contentDir, sourceManifest.files.programs.path),
+    // This run replaces assets/pack right after; the stale committed copy is expected
+    // here. The bundled gate stays active in standalone validate:pack / CI.
+    skipBundledDatabase: true,
   });
   if (validation.errors.length) {
     throw new Error(

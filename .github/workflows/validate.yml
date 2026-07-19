@@ -26,6 +26,9 @@ jobs:
       - run: npm run validate:native-config
       - run: npm run validate:annual-publication
       - run: npm run validate:ogm-topics
+      # Gates the COMMITTED bundled pack (what EAS ships) BEFORE build:pack regenerates
+      # assets/pack — a schema change merged without the regenerated pack fails here.
+      - run: npm run validate:bundled
       - run: npm run build:pack
       - run: npm run typecheck
       - run: npm run lint

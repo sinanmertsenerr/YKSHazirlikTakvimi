@@ -62,6 +62,8 @@ export const program = sqliteTable('program', {
   language: text('language'),
   verified: integer('verified', { mode: 'boolean' }).notNull().default(false),
   source: text('source'),
+  // Default mirrors RANKLESS_SORT_SENTINEL (scripts/build-programs.ts) — keep in sync.
+  latestMinRankSort: integer('latest_min_rank_sort').notNull().default(99_999_999),
 });
 
 export const programYear = sqliteTable(

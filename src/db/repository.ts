@@ -172,6 +172,21 @@ export function groupExamSectionsByExamId(
   return grouped;
 }
 
+function buildExamRecords(
+  examRows: (typeof mockExam.$inferSelect)[],
+  netRows: (ExamSectionRecord & { examId: string })[],
+): ExamRecord[] {
+  const sectionsByExamId = groupExamSectionsByExamId(netRows);
+  return examRows.map((exam) => ({
+    id: exam.id,
+    date: exam.date,
+    exam: exam.exam,
+    publisher: exam.publisher ?? '',
+    notes: exam.notes ?? '',
+    sections: sectionsByExamId.get(exam.id) ?? [],
+  }));
+}
+
 async function loadCoreUserData(): Promise<
   Pick<AppDataSnapshot, 'progress' | 'exams' | 'favorites'>
 > {
@@ -182,34 +197,54 @@ async function loadCoreUserData(): Promise<
     db.select().from(mockExamNet),
     db.select().from(favoriteProgram).orderBy(asc(favoriteProgram.sortOrder)),
   ]);
-  const sectionsByExamId = groupExamSectionsByExamId(netRows);
-  const exams: ExamRecord[] = examRows.map((exam) => ({
-    id: exam.id,
-    date: exam.date,
-    exam: exam.exam,
-    publisher: exam.publisher ?? '',
-    notes: exam.notes ?? '',
-    sections: sectionsByExamId.get(exam.id) ?? [],
-  }));
   return {
     progress,
-    exams,
+    exams: buildExamRecords(examRows, netRows),
     favorites: favoriteRows.map((favorite) => favorite.programId),
   };
 }
 
-export async function loadAppData(): Promise<AppDataSnapshot> {
+/**
+ * Targeted post-mutation slices. Mutations return only the slices their write can
+ * change, re-read from SQLite: activityDays/latestActivity are GROUP-BY-derived and
+ * cannot be reconstructed client-side (COUNT DISTINCT, delete-on-reset, day moves),
+ * so the database stays the single source of truth without a full loadAppData().
+ */
+type ActivitySlices = Pick<AppDataSnapshot, 'activityDays' | 'latestActivity'>;
+export type ProgressMutationResult = ActivitySlices & { record: TopicProgressRecord };
+export type ExamMutationResult = ActivitySlices & Pick<AppDataSnapshot, 'exams'>;
+export type FavoritesMutationResult = Pick<AppDataSnapshot, 'favorites'>;
+
+async function loadActivitySlices(): Promise<ActivitySlices> {
   const { db, sqlite } = getUserRepository();
-  const [core, activityRows, latestActivityRows] = await Promise.all([
-    loadCoreUserData(),
+  const [activityRows, latestActivityRows] = await Promise.all([
     sqlite.getAllAsync<ActivityDaySummaryRow>(ACTIVITY_DAY_SUMMARY_SQL),
     db.select().from(activityLog).orderBy(desc(activityLog.createdAt)).limit(1),
   ]);
   return {
-    ...core,
     activityDays: mapActivityDaySummaries(activityRows),
     latestActivity: latestActivityRows[0] ?? null,
   };
+}
+
+async function loadExamsSlice(): Promise<ExamRecord[]> {
+  const { db } = getUserRepository();
+  const [examRows, netRows] = await Promise.all([
+    db.select().from(mockExam).orderBy(desc(mockExam.date)),
+    db.select().from(mockExamNet),
+  ]);
+  return buildExamRecords(examRows, netRows);
+}
+
+async function loadFavoritesSlice(): Promise<string[]> {
+  const { db } = getUserRepository();
+  const rows = await db.select().from(favoriteProgram).orderBy(asc(favoriteProgram.sortOrder));
+  return rows.map((favorite) => favorite.programId);
+}
+
+export async function loadAppData(): Promise<AppDataSnapshot> {
+  const [core, activity] = await Promise.all([loadCoreUserData(), loadActivitySlices()]);
+  return { ...core, ...activity };
 }
 
 export async function loadUserData(): Promise<UserDataSnapshot> {
@@ -224,7 +259,7 @@ export async function loadUserData(): Promise<UserDataSnapshot> {
 export async function upsertTopicProgress(
   topicId: string,
   percent: number,
-): Promise<TopicProgressRecord> {
+): Promise<ProgressMutationResult> {
   const { sqlite } = getUserRepository();
   const updatedAt = Date.now();
   const status = percentToStatus(percent);
@@ -258,10 +293,10 @@ export async function upsertTopicProgress(
       await transaction.runAsync('DELETE FROM activity_log WHERE id = ?', activityId);
     }
   });
-  return record;
+  return { record, ...(await loadActivitySlices()) };
 }
 
-export async function upsertExam(record: ExamRecord): Promise<void> {
+export async function upsertExam(record: ExamRecord): Promise<ExamMutationResult> {
   const { sqlite } = getUserRepository();
   const now = Date.now();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
@@ -304,21 +339,28 @@ export async function upsertExam(record: ExamRecord): Promise<void> {
       now,
     );
   });
+  const [exams, activity] = await Promise.all([loadExamsSlice(), loadActivitySlices()]);
+  return { exams, ...activity };
 }
 
-export async function removeExam(id: string): Promise<void> {
+export async function removeExam(id: string): Promise<ExamMutationResult> {
   const { sqlite } = getUserRepository();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     await transaction.runAsync('DELETE FROM deneme WHERE id = ?', id);
     await transaction.runAsync('DELETE FROM activity_log WHERE id = ?', `exam:${id}`);
   });
+  const [exams, activity] = await Promise.all([loadExamsSlice(), loadActivitySlices()]);
+  return { exams, ...activity };
 }
 
-export async function setFavorite(programId: string, favorite: boolean): Promise<void> {
+export async function setFavorite(
+  programId: string,
+  favorite: boolean,
+): Promise<FavoritesMutationResult> {
   const { db, sqlite } = getUserRepository();
   if (!favorite) {
     await db.delete(favoriteProgram).where(eq(favoriteProgram.programId, programId));
-    return;
+    return { favorites: await loadFavoritesSlice() };
   }
   // The subquery and insert are one SQLite statement, so concurrent taps cannot both reserve the
   // same order as they could with a separate count/read followed by an insert.
@@ -329,9 +371,10 @@ export async function setFavorite(programId: string, favorite: boolean): Promise
     programId,
     Date.now(),
   );
+  return { favorites: await loadFavoritesSlice() };
 }
 
-export async function reorderFavorites(ids: string[]): Promise<void> {
+export async function reorderFavorites(ids: string[]): Promise<FavoritesMutationResult> {
   const { sqlite } = getUserRepository();
   await sqlite.withExclusiveTransactionAsync(async (transaction) => {
     for (const [index, id] of ids.entries()) {
@@ -342,6 +385,7 @@ export async function reorderFavorites(ids: string[]): Promise<void> {
       );
     }
   });
+  return { favorites: await loadFavoritesSlice() };
 }
 
 export async function replaceUserData(snapshot: UserDataSnapshot): Promise<void> {

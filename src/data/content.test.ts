@@ -165,3 +165,14 @@ describe('schema-v2 source/runtime parity', () => {
     expect(() => parseRuntimeContentTransaction(input)).toThrow('mismatched display subject');
   });
 });
+
+describe('bundled content module contract', () => {
+  it('exposes the bundled packs synchronously at module scope (never a Promise)', () => {
+    // The startup-phase wrapper around the module-scope parse must stay synchronous:
+    // an async wrapper would silently turn every pack export into undefined/Promise.
+    expect(topicsPack).not.toBeInstanceOf(Promise);
+    expect(Array.isArray((topicsPack as { exams: unknown[] }).exams)).toBe(true);
+    expect(calendarPack).not.toBeInstanceOf(Promise);
+    expect(Array.isArray((calendarPack as { events: unknown[] }).events)).toBe(true);
+  });
+});

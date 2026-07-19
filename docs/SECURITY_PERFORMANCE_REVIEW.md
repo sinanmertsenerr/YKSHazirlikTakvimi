@@ -43,14 +43,30 @@ The moderate findings are concentrated in Expo CLI/config tooling and `uuid` thr
 
 | Artifact/table            |         Baseline |
 | ------------------------- | ---------------: |
-| `assets/pack/programs.db` | 50,978,816 bytes |
+| `assets/pack/programs.db` | 49,721,344 bytes |
 | `program`                 |      21,602 rows |
 | `program_year`            |     136,220 rows |
 | `program_condition`       |      50,316 rows |
 | `program_quota_category`  |      49,128 rows |
 | `program_net`             |      57,336 rows |
 
-The representative latest-year/rank query uses `ix_program_score_type` and the `program_year` primary index, but performs correlated latest-year/availability lookups and a temporary B-tree sort. Query redesign remains measurement-gated because desktop timings were below the shell timer's resolution and do not represent physical-device SQLite behavior.
+The list query was redesigned (2026-07): `latest_min_rank_sort` is materialized at pack
+build time and `ORDER BY latest_min_rank_sort, id` rides the `ix_program_sort
+(score_type, latest_min_rank_sort, id)` index — the latest-year correlated lookup and
+its LEFT JOIN are gone and the browse path builds no temporary B-tree (the cheap
+`PUBLISHABLE_YEAR_EXISTS` correlated probe remains by design). Measured on the
+committed pack via `npm run benchmark:programs` (desktop, repeated runs, ranges over
+n≥5): browse first page p50 ~10.1-10.6 ms → ~0.14-0.19 ms (~55-65×), deep page
+(offset 1200) p50 ~12.7-14.0 ms → ~2.4-3.5 ms (~4-6×). Two honest caveats from
+interleaved A/B runs: the LIKE-bound search leg regressed ~30% at p50 (~11-14 ms →
+~14-17 ms; the wider composite index costs more per row on the full-subset LIKE scan —
+absolute impact is a few ms behind a 250 ms debounce, accepted), and city-filtered
+pages (e.g. ANKARA ≈ 652 matching rows) still sort via a small TEMP B-TREE because the
+planner rightly prefers `ix_program_city` — sub-2 ms, negligible. Older packs without
+the column degrade to the legacy walk-back query at runtime
+(`buildLegacyProgramListQuery`), and `validate-pack` cross-checks the materialized key
+against the publishable-year walk-back on every run, including the committed
+`assets/pack` copy. Physical-device timings remain unmeasured.
 
 ## Confirmed security findings
 
@@ -151,6 +167,9 @@ Gates re-run after this pass: TypeScript (clean), ESLint (clean), Node content/s
 - Branch protection / ruleset on `main` (required status checks including CodeQL, no force-push/deletion) is not yet configured; open high alerts do not currently block merges.
 - Production Cloudflare Worker deployment of the rate-limit binding — intentionally deferred to a separate outward-facing action.
 - EAS production Android/iOS artifact creation and signing/manifest/entitlement inspection (interactive EAS authentication required).
-- Native-device measurements for catalog first-open, changed-pack installation peak memory/battery, and large-history scrolling; repository-level instrumentation is in place.
+- Native-device measurements for catalog first-open, changed-pack installation peak memory/battery, and large-history scrolling; repository-level instrumentation is in place (2026-07 addition: the module-scope bundled-content parse is now visible as the `content.parse-bundled` `[startup]` phase).
+- **On-device legacy-fallback order check (ship gate, until a Detox/on-device SQL target exists).** The sort-critical SQL is proven equivalent on node:sqlite 3.53.2 but has never run on the vendored expo-sqlite engine (3.50.3); before any release that changes `program`/`program_year` schema, manually verify on a device with an OLD downloaded pack that the program list order matches (the legacy walk-back only triggers on such packs — fresh installs never hit it).
+- **On-device release smoke test with R8/minify enabled (ship gate).** `enableMinifyInReleaseBuilds=true` (shrinkResources deliberately off) landed via `expo-build-properties` with `-keep` rules for `com.margelo.nitro.**` (react-native-mmkv v4 and nitro-modules ship no consumer ProGuard rules) and `com.shopify.reactnative.skia.**`. R8 failures are release-only by nature and local `assembleRelease` ≠ EAS output, so before a store release the critical flows (notification scheduling, MMKV read/write, animated charts, SQLite catalog) must be smoke-tested on a real device from BOTH build paths.
+- Future evaluations (flagged 2026-07, not yet acted on): Worklets Bundle Mode pilot — RN 0.85+ Hermes + Reanimated raises Android RAM ~25-30% (reanimated#9650) and Bundle Mode is the documented mitigation; FlashList 2.0.2 → 2.3.x upgrade — intermediate releases carry real fixes (keyExtractor/maintainVisibleContentPosition warning, nested-horizontal-list loop, memo/forwardRef prop support, an Android crash).
 
 This document will be updated with residual advisories and final pass/fail counts as the remaining outward-facing and on-device verifications are performed.

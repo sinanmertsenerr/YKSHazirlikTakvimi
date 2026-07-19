@@ -20,6 +20,7 @@ import {
 import { getActivePackLocation, invalidateDownloadedPackVersion } from '@/data/packUpdater';
 import {
   buildFavoriteProgramIdsQuery,
+  buildLegacyProgramListQuery,
   buildProgramCitiesQuery,
   buildProgramConditionsQuery,
   buildProgramDetailQuery,
@@ -584,8 +585,9 @@ async function queryFavoritePage(
 
 // Parity with the SQL walk-back in buildProgramListQuery: rank by the most recent year
 // that has a PUBLISHED min_rank (fixture years are newest-first, but this doesn't rely
-// on that ordering); programs with no ranked year at all sort last.
-function latestRankedMinRank(program: Program): number {
+// on that ordering); programs with no ranked year at all sort last. Exported (with
+// fallbackProgram) for the parity test that runs this JS leg against the real pack.
+export function latestRankedMinRank(program: Program): number {
   let bestYear = Number.NEGATIVE_INFINITY;
   let bestRank = Number.MAX_SAFE_INTEGER;
   for (const year of program.years) {
@@ -644,17 +646,20 @@ function fallbackPage(query: ProgramPageQuery, limit: number, offset: number): P
   };
 }
 
-function fallbackProgram(program: Program): Program | null {
+// Exported for the parity test; the trim mirrors SQL's `length(trim(source)) > 0` so a
+// whitespace-only source can never be publishable on one leg and not the other.
+export function fallbackProgram(program: Program): Program | null {
+  const publishableSource = (source: string | null) => Boolean(source && source.trim().length > 0);
   const years = program.years.filter(
     (year) =>
       year.verified &&
-      Boolean(year.source) &&
+      publishableSource(year.source) &&
       Boolean(year.verifiedAt) &&
       !year.approximate &&
       !year.sample,
   );
   return program.verified &&
-    Boolean(program.source) &&
+    publishableSource(program.source) &&
     Boolean(program.verifiedAt) &&
     !program.approximate &&
     !program.sample &&
@@ -683,7 +688,26 @@ export async function queryProgramPage(query: ProgramPageQuery): Promise<Program
   return withPerformancePhase(phase, () =>
     withProgramDatabase(async (database) => {
       if (query.favoriteIds) return queryFavoritePage(database, query, limit, offset);
-      const rows = await all<ProgramRow>(database, buildProgramListQuery(query, limit + 1, offset));
+      let rows: ProgramRow[];
+      try {
+        rows = await all<ProgramRow>(database, buildProgramListQuery(query, limit + 1, offset));
+      } catch (error) {
+        // An older active pack (downloaded before latest_min_rank_sort existed, or a
+        // bundled/code skew) lacks the materialized column; the legacy walk-back query
+        // is order-equivalent, so degrade to it instead of invalidating the pack.
+        if (!isMissingSchemaError(error)) throw error;
+        if (__DEV__) {
+          console.warn(
+            `Program list query degraded to the legacy walk-back (pack predates latest_min_rank_sort): ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          );
+        }
+        rows = await all<ProgramRow>(
+          database,
+          buildLegacyProgramListQuery(query, limit + 1, offset),
+        );
+      }
       const hasMore = rows.length > limit;
       return {
         programs: await hydratePrograms(database, rows.slice(0, limit)),
@@ -780,11 +804,12 @@ function mapProgramExtras(
 }
 
 /**
- * True when a query failed only because the open pack predates the detail schema
- * (rollback/older downloaded pack). Detected INSIDE the database operation so the
- * shared error path never invalidates a structurally healthy pack over it.
+ * True when a query failed only because the open pack predates part of the current
+ * schema (rollback/older downloaded pack) — detail tables or the materialized
+ * latest_min_rank_sort column. Detected INSIDE the database operation so the shared
+ * error path never invalidates a structurally healthy pack over it.
  */
-function isMissingDetailSchemaError(error: unknown): boolean {
+function isMissingSchemaError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   return /no such (table|column)/i.test(message);
 }
@@ -806,7 +831,7 @@ export async function queryProgramExtras(id: string): Promise<ProgramExtras | nu
       ]);
       return mapProgramExtras(extras, conditions, categories, nets);
     } catch (error) {
-      if (isMissingDetailSchemaError(error)) return null;
+      if (isMissingSchemaError(error)) return null;
       throw error;
     }
   });

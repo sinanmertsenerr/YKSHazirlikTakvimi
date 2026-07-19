@@ -24,6 +24,7 @@ import {
   type RankTablesDocument,
   type TopicsDocument,
 } from './lib/content-schemas.ts';
+import { latestPublishableRankSql, RANKLESS_SORT_SENTINEL } from './lib/program-sql.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
   programsDetailsFixtureSchema,
@@ -56,11 +57,16 @@ export type ValidatePackOptions = {
   contentDir?: string;
   programsDbPath?: string;
   skipProgramsDatabase?: boolean;
+  /** build-pack sets this: it validates the freshly built content DB right before
+   * atomically REPLACING assets/pack, so gating on the about-to-be-overwritten copy
+   * would deadlock the very step that refreshes it. Standalone validate:pack (and CI)
+   * keeps the bundled gate on. */
+  skipBundledDatabase?: boolean;
 };
 
 type MutableReport = ValidationReport;
 
-function emptyReport(): MutableReport {
+export function emptyReport(): MutableReport {
   return {
     errors: [],
     warnings: [],
@@ -829,7 +835,7 @@ function tableColumns(database: DatabaseSync, table: string): Set<string> {
   );
 }
 
-function validateProgramsDatabase(path: string, report: MutableReport): void {
+export function validateProgramsDatabase(path: string, report: MutableReport): void {
   let database: DatabaseSync | undefined;
   try {
     database = new DatabaseSync(path, { readOnly: true });
@@ -868,6 +874,7 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
       'verified_at',
       'approximate',
       'sample',
+      'latest_min_rank_sort',
     ];
     const requiredYearColumns = [
       'program_id',
@@ -905,6 +912,29 @@ function validateProgramsDatabase(path: string, report: MutableReport): void {
     if (Number(schemaVersion?.value) !== CURRENT_SCHEMA_VERSION) {
       report.errors.push(
         `programs.db.pack_metadata: unsupported schemaVersion ${String(schemaVersion?.value)}`,
+      );
+    }
+
+    // Parity gate for the materialized sort key: the stored latest_min_rank_sort must
+    // equal the publishable-year walk-back recomputed from program_year (the semantics
+    // the legacy SQL and the JS web fallback also implement). A silent drift here is a
+    // wrong-order bug that never throws, so it must fail the pipeline loudly.
+    const sentinelMismatches = database
+      .prepare(
+        `
+      SELECT p.id FROM program p
+      WHERE p.latest_min_rank_sort != COALESCE(
+        (${latestPublishableRankSql('p.id')}
+        ),
+        ${RANKLESS_SORT_SENTINEL}
+      )
+      LIMIT 10
+    `,
+      )
+      .all() as SqliteRow[];
+    for (const row of sentinelMismatches) {
+      report.errors.push(
+        `programs.db.program.${String(row.id)}: latest_min_rank_sort disagrees with the publishable-year walk-back`,
       );
     }
 
@@ -1242,6 +1272,36 @@ export async function validateSourcePack(
       report.errors.push(
         `programs.db: missing at ${databasePath}; run scripts/build-programs.ts first`,
       );
+    }
+
+    // The COMMITTED bundled pack is what EAS ships inside the binary, and no other
+    // automation keeps it in sync with the schema (publish-content.yml discards its
+    // own rebuild of assets/pack). A stale copy would strand every fresh install on
+    // "no such column", so the same structural validation must gate it here. This is
+    // deliberately a schema/content check, not a byte diff — SQLite output is not
+    // byte-reproducible across platforms.
+    const bundledDatabasePath = resolve(process.cwd(), 'assets/pack/programs.db');
+    if (!options.skipBundledDatabase && bundledDatabasePath !== databasePath) {
+      try {
+        await access(bundledDatabasePath);
+        const bundledReport = emptyReport();
+        validateProgramsDatabase(bundledDatabasePath, bundledReport);
+        for (const error of bundledReport.errors) {
+          report.errors.push(`assets/pack bundled ${error}`);
+        }
+        for (const warning of bundledReport.warnings) {
+          report.warnings.push(`assets/pack bundled ${warning}`);
+        }
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        report.warnings.push(
+          code === 'ENOENT'
+            ? `programs.db: bundled copy missing at ${bundledDatabasePath}; run build:pack before release`
+            : `programs.db: bundled copy unreadable at ${bundledDatabasePath} (${
+                error instanceof Error ? error.message : String(error)
+              })`,
+        );
+      }
     }
   }
 

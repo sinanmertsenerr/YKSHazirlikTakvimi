@@ -1,5 +1,6 @@
 import {
   buildFavoriteProgramIdsQuery,
+  buildLegacyProgramListQuery,
   buildProgramCitiesQuery,
   buildProgramLanguagesQuery,
   buildProgramListQuery,
@@ -99,13 +100,24 @@ describe('program SQLite query construction', () => {
     expect(query.parameters).toEqual(['say', 'ybs!_!%', 60, 0]);
   });
 
-  it('ranks by the most recent year with a PUBLISHED rank (pending years never sink a program)', () => {
+  it('orders by the materialized sort key with the id tiebreaker and no join', () => {
     const query = buildProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0);
+
+    // The build-time column encodes the walk-back (newest publishable ranked year,
+    // sentinel when none) as a plain column so ix_program_sort serves the ORDER BY.
+    expect(query.sql).toContain('ORDER BY p.latest_min_rank_sort, p.id');
+    expect(query.sql).not.toContain('LEFT JOIN');
+  });
+
+  it('keeps the legacy walk-back query verbatim for packs without the sort column', () => {
+    const query = buildLegacyProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0);
 
     // The walk-back predicate is what keeps a program whose current-year cutoff is not
     // yet announced sorted by its newest ranked year instead of below every ranked row.
     expect(query.sql).toContain('py_latest.min_rank IS NOT NULL');
     expect(query.sql).toContain('ORDER BY latest.min_rank IS NULL, latest.min_rank, p.id');
+    // Same filters, same bound parameters — only the ORDER BY mechanism differs.
+    expect(query.parameters).toEqual(buildProgramListQuery({ scoreType: 'ea', language: 'tr' }, 60, 0).parameters);
   });
 
   it('uses only the selected locale column for city facets', () => {

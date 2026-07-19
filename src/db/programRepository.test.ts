@@ -146,7 +146,7 @@ function validDatabase(rows: unknown[] = []) {
     getFirstAsync: jest.fn(async (sql: string) =>
       sql.startsWith('PRAGMA') ? { quick_check: 'ok' } : { value: '2' },
     ),
-    getAllAsync: jest.fn(async () => rows),
+    getAllAsync: jest.fn(async (..._args: unknown[]) => rows),
     closeAsync: jest.fn(async () => undefined),
   };
 }
@@ -196,6 +196,32 @@ describe('program database runtime lifecycle', () => {
     expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(2);
     expect(closeCorrupt).toHaveBeenCalledTimes(1);
     expect(rollbackDatabase.getAllAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('degrades to the legacy walk-back query when the pack lacks the sort column', async () => {
+    const location = downloadedLocation('2026.07.5');
+    setMockFile('downloaded/2026.07.5/programs.db', new Uint8Array(128));
+    const database = validDatabase();
+    const getAllAsync = jest
+      .fn<Promise<unknown[]>, unknown[]>()
+      .mockRejectedValueOnce(new Error('no such column: latest_min_rank_sort'))
+      .mockResolvedValueOnce([]);
+    database.getAllAsync = getAllAsync;
+    mockGetActivePackLocation.mockResolvedValue(location);
+    mockOpenDatabaseAsync.mockResolvedValue(database);
+
+    const { queryProgramPage } = loadRepository();
+    await expect(
+      queryProgramPage({ scoreType: 'say', language: 'tr', limit: 10, offset: 0 }),
+    ).resolves.toEqual({ programs: [], hasMore: false });
+
+    // Two list attempts on the SAME connection — new ORDER BY, then the legacy shape.
+    // The pack itself is healthy, so it must NOT be invalidated or reopened.
+    expect(getAllAsync).toHaveBeenCalledTimes(2);
+    expect(String(getAllAsync.mock.calls[0]?.[0])).toContain('latest_min_rank_sort');
+    expect(String(getAllAsync.mock.calls[1]?.[0])).toContain('latest.min_rank IS NULL');
+    expect(mockInvalidateDownloadedPackVersion).not.toHaveBeenCalled();
+    expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(1);
   });
 
   it('caches the active location and shares the prewarmed connection across queries', async () => {

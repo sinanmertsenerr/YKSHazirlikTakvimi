@@ -441,7 +441,10 @@ async function validateProgramsDatabase(file: File): Promise<void> {
     ]);
     const programColumnNames = new Set(programColumns.map((column) => column.name));
     const programYearColumnNames = new Set(programYearColumns.map((column) => column.name));
-    for (const column of ['id', 'verified', 'source', 'verified_at']) {
+    // latest_min_rank_sort gates old-schema packs at activation: every pack published
+    // after the materialized sort column shipped carries it, and rejecting here keeps
+    // the (self-healing but noisier) query-time legacy fallback as the second belt.
+    for (const column of ['id', 'verified', 'source', 'verified_at', 'latest_min_rank_sort']) {
       if (!programColumnNames.has(column)) {
         throw new Error(`Downloaded programs database is missing program.${column}.`);
       }

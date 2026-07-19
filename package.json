@@ -9,11 +9,11 @@
     "@noble/hashes": "^2.2.0",
     "@shopify/flash-list": "2.0.2",
     "@shopify/react-native-skia": "2.6.2",
-    "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.2",
     "expo": "~57.0.7",
     "expo-asset": "~57.0.6",
     "expo-blur": "~57.0.2",
+    "expo-build-properties": "~57.0.6",
     "expo-constants": "~57.0.6",
     "expo-crypto": "~57.0.1",
     "expo-dev-client": "~57.0.7",
@@ -23,7 +23,6 @@
     "expo-font": "~57.0.0",
     "expo-glass-effect": "~57.0.1",
     "expo-haptics": "~57.0.1",
-    "expo-image": "~57.0.1",
     "expo-linear-gradient": "~57.0.1",
     "expo-linking": "~57.0.3",
     "expo-localization": "~57.0.1",
@@ -96,6 +95,7 @@
     "import:osym-archive": "tsx scripts/import-osym-archive.ts",
     "import:programs": "tsx scripts/import-yok-atlas-programs.ts",
     "validate:pack": "npm run build:programs && tsx scripts/validate-pack.ts",
+    "validate:bundled": "tsx scripts/validate-bundled-pack.ts",
     "build:pack": "tsx scripts/build-pack.ts",
     "generate:pack-signing-key": "tsx scripts/generate-pack-signing-key.ts",
     "sign:pack": "tsx scripts/sign-pack.ts",
@@ -123,7 +123,7 @@
     "build:ogm-topic-groups": "tsx scripts/build-topic-group-statistics.ts",
     "build:topics-official": "tsx scripts/build-topics-from-official.ts",
     "fetch:news": "tsx scripts/fetch-news.ts",
-    "check": "npm run validate:pack && npm run validate:annual-publication && npm run validate:booklets && npm run validate:ogm-topics && npm run typecheck && npm run lint && npm test"
+    "check": "npm run validate:pack && npm run validate:bundled && npm run validate:annual-publication && npm run validate:booklets && npm run validate:ogm-topics && npm run typecheck && npm run lint && npm test"
   },
   "private": true
 }

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { File } from 'expo-file-system';
 
 import { subjectOfficialStats, type SubjectOfficialStats } from '../features/topics/officialStats';
+import { measureStartupPhaseSync } from '../utils/startupDiagnostics';
 
 import calendarJson from '../../content/calendar.json';
 import coefficientsJson from '../../content/coefficients.json';
@@ -150,15 +151,19 @@ export function parseRuntimeContentTransaction(
   return parsed;
 }
 
-const bundledDocuments = parseRuntimeContentTransaction({
-  topics: topicsJson,
-  coefficients: coefficientsJson,
-  rankTables: rankTablesJson,
-  calendar: calendarJson,
-  news: newsJson,
-  topicGroupStatistics: topicGroupStatisticsJson,
-  topicGroupMappings: topicGroupMappingsJson,
-});
+// Module-scope on purpose (consumers import the packs synchronously); the sync phase
+// wrapper makes this first-render-blocking parse visible in the [startup] logs.
+const bundledDocuments = measureStartupPhaseSync('content.parse-bundled', () =>
+  parseRuntimeContentTransaction({
+    topics: topicsJson,
+    coefficients: coefficientsJson,
+    rankTables: rankTablesJson,
+    calendar: calendarJson,
+    news: newsJson,
+    topicGroupStatistics: topicGroupStatisticsJson,
+    topicGroupMappings: topicGroupMappingsJson,
+  }),
+);
 
 export let topicsPack = bundledDocuments.topics;
 export let coefficientsPack = bundledDocuments.coefficients;

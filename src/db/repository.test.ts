@@ -1,6 +1,6 @@
 /* eslint-disable import/first */
 
-const mockTransaction = { runAsync: jest.fn() };
+const mockTransaction = { execAsync: jest.fn(), runAsync: jest.fn() };
 const mockSqlite = {
   closeSync: jest.fn(),
   execSync: jest.fn(),
@@ -48,6 +48,8 @@ import { openDatabaseSync } from 'expo-sqlite';
 import {
   groupExamSectionsByExamId,
   loadAppData,
+  removeExam,
+  replaceUserData,
   setFavorite,
   upsertTopicProgress,
 } from './repository';
@@ -76,17 +78,30 @@ describe('lazy user database initialization', () => {
 describe('user-data write atomicity', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDbQueries.length = 0;
+    mockDbResults = [];
+    mockTransaction.execAsync.mockResolvedValue(undefined);
     mockTransaction.runAsync.mockResolvedValue({});
     mockSqlite.runAsync.mockResolvedValue({});
+    // Post-mutation targeted slice re-reads (activity summary + latest activity).
+    mockSqlite.getAllAsync.mockResolvedValue([]);
   });
 
   it('writes topic progress and its activity inside one exclusive transaction', async () => {
-    await upsertTopicProgress('tyt-turkce:paragraf', 100);
+    const patch = await upsertTopicProgress('tyt-turkce:paragraf', 100);
 
     expect(mockSqlite.withExclusiveTransactionAsync).toHaveBeenCalledTimes(1);
     expect(mockTransaction.runAsync).toHaveBeenCalledTimes(2);
     expect(mockTransaction.runAsync.mock.calls[0]?.[0]).toContain('INSERT INTO topic_progress');
     expect(mockTransaction.runAsync.mock.calls[1]?.[0]).toContain('INSERT INTO activity_log');
+    // The mutation returns the written record plus the re-read derived slices.
+    expect(patch.record).toMatchObject({
+      topicId: 'tyt-turkce:paragraf',
+      percent: 100,
+      status: 'done',
+    });
+    expect(patch.activityDays).toEqual([]);
+    expect(patch.latestActivity).toBeNull();
   });
 
   it('removes the matching activity in the same transaction when progress is reset', async () => {
@@ -97,10 +112,73 @@ describe('user-data write atomicity', () => {
   });
 
   it('allocates favorite order in the insert statement instead of a racy pre-read', async () => {
-    await setFavorite('program-1', true);
+    mockDbResults = [[{ programId: 'program-1' }]];
+
+    const patch = await setFavorite('program-1', true);
 
     expect(mockSqlite.runAsync).toHaveBeenCalledTimes(1);
     expect(mockSqlite.runAsync.mock.calls[0]?.[0]).toContain('COALESCE(MAX(sort_order), -1) + 1');
+    // The authoritative favorites order comes from the post-write re-read, not from a
+    // client-side guess about where SQLite placed the row.
+    expect(patch.favorites).toEqual(['program-1']);
+  });
+
+  it('returns the re-read exam and activity slices after a removal', async () => {
+    const secondNewest = {
+      id: 'progress:tyt:2026-07-18',
+      day: '2026-07-18',
+      type: 'progress',
+      questions: 0,
+      topicId: 'tyt',
+      createdAt: 1_752_800_000_000,
+    };
+    // Pop order: loadExamsSlice (exam rows, net rows) then loadActivitySlices (latest).
+    mockDbResults = [
+      [{ id: 'exam-2', date: 2, exam: 'tyt', publisher: null, notes: null }],
+      [],
+      [secondNewest],
+    ];
+    mockSqlite.getAllAsync.mockResolvedValue([
+      { day: '2026-07-18', questions: 0, topic_count: 1 },
+    ]);
+
+    const patch = await removeExam('exam-1');
+
+    expect(mockTransaction.runAsync.mock.calls[0]?.[0]).toContain('DELETE FROM deneme');
+    expect(patch.exams.map((exam) => exam.id)).toEqual(['exam-2']);
+    // latestActivity comes straight from the ORDER BY created_at DESC LIMIT 1 re-read,
+    // so deleting the newest activity falls back to the database's second-newest row.
+    expect(patch.latestActivity).toEqual(secondNewest);
+    expect(patch.activityDays).toEqual([{ day: '2026-07-18', questions: 0, topicCount: 1 }]);
+  });
+
+  it('replaces every table atomically and reinserts the snapshot in dependency order', async () => {
+    await replaceUserData({
+      progress: [{ topicId: 't1', status: 'done', confidence: null, percent: 100, updatedAt: 1 }],
+      exams: [
+        {
+          id: 'exam-1',
+          date: 5,
+          exam: 'tyt',
+          publisher: '',
+          notes: '',
+          sections: [{ sectionId: 'tyt-turkce', correct: 30, wrong: 5, blank: 5 }],
+        },
+      ],
+      favorites: ['program-1'],
+      activities: [
+        { id: 'exam:exam-1', day: '2026-07-19', type: 'exam', questions: 35, topicId: null, createdAt: 9 },
+      ],
+    });
+
+    expect(mockSqlite.withExclusiveTransactionAsync).toHaveBeenCalledTimes(1);
+    expect(mockTransaction.execAsync.mock.calls[0]?.[0]).toContain('DELETE FROM activity_log');
+    const inserted = mockTransaction.runAsync.mock.calls.map((call) => String(call[0]));
+    expect(inserted[0]).toContain('INSERT INTO topic_progress');
+    expect(inserted[1]).toContain('INSERT INTO deneme ');
+    expect(inserted[2]).toContain('INSERT INTO deneme_net');
+    expect(inserted[3]).toContain('INSERT INTO favorite_program');
+    expect(inserted[4]).toContain('INSERT INTO activity_log');
   });
 });
 

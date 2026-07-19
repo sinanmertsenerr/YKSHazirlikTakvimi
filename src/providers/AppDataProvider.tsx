@@ -21,7 +21,12 @@ import {
   upsertExam,
   upsertTopicProgress,
 } from '@/db/repository';
-import type { AppDataSnapshot, ExamRecord, UserDataSnapshot } from '@/db/types';
+import type {
+  AppDataSnapshot,
+  ExamRecord,
+  TopicProgressRecord,
+  UserDataSnapshot,
+} from '@/db/types';
 import { useTheme } from '@/theme/useTheme';
 import { withPerformancePhase } from '@/utils/performanceDiagnostics';
 import { withStartupPhase } from '@/utils/startupDiagnostics';
@@ -46,6 +51,40 @@ const empty: AppDataSnapshot = {
   latestActivity: null,
 };
 const AppDataContext = createContext<AppDataContextValue | null>(null);
+
+// Diagnosable degradation: the fallback is user-invisible by design (the write already
+// committed), but the contract violation itself must leave a trace for dev/QA logs.
+function logPatchFallback(mutation: string, error: unknown): void {
+  if (process.env.NODE_ENV === 'test') return;
+  console.warn('[app-data] mutation patch apply failed, falling back to full refresh', {
+    mutation,
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
+
+// The write committed, so the mutation must resolve either way; both failure legs
+// (patch apply AND the self-heal refresh) leave a trace instead of vanishing.
+async function recoverWithFullRefresh(
+  mutation: string,
+  error: unknown,
+  refresh: () => Promise<void>,
+): Promise<void> {
+  logPatchFallback(mutation, error);
+  await refresh().catch((refreshError: unknown) =>
+    logPatchFallback(`${mutation}.refresh`, refreshError),
+  );
+}
+
+function upsertProgressRecord(
+  list: TopicProgressRecord[],
+  record: TopicProgressRecord,
+): TopicProgressRecord[] {
+  const index = list.findIndex((item) => item.topicId === record.topicId);
+  if (index === -1) return [...list, record];
+  const next = [...list];
+  next[index] = record;
+  return next;
+}
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppDataSnapshot>(empty);
@@ -118,6 +157,22 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     return result;
   }, []);
 
+  // Applied only AFTER the SQLite write committed. The functional updater is mandatory:
+  // queued mutations close over stale renders, so merging into `current` (never the
+  // captured `data`) keeps back-to-back patches of different slices from erasing each
+  // other. Bumping the generation makes any in-flight full load discard its (pre-write)
+  // result instead of overwriting this fresher patch.
+  const applyMutationPatch = useCallback(
+    (merge: (current: AppDataSnapshot) => AppDataSnapshot) => {
+      if (!mounted.current) return;
+      loadGeneration.current += 1;
+      setData(merge);
+      setReady(true);
+      setLoadError(null);
+    },
+    [],
+  );
+
   const value = useMemo<AppDataContextValue>(
     () => ({
       ...data,
@@ -125,38 +180,74 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       refresh,
       readFullSnapshot: () =>
         enqueueMutation(() => withPerformancePhase('user-data.load-full', () => loadUserData())),
+      // Every mutation below patches only the slices its write can change (the write
+      // itself already re-read them — see repository.ts). A malformed patch must not
+      // reject the mutation (the write succeeded); the catch destructures eagerly so
+      // that failure degrades to one silent full refresh instead.
       setTopicProgress: (topicId, percent) =>
         enqueueMutation(async () => {
-          await upsertTopicProgress(topicId, percent);
-          await refresh();
+          const patch = await upsertTopicProgress(topicId, percent);
+          try {
+            const { record, activityDays, latestActivity } = patch;
+            applyMutationPatch((current) => ({
+              ...current,
+              progress: upsertProgressRecord(current.progress, record),
+              activityDays,
+              latestActivity,
+            }));
+          } catch (error) {
+            await recoverWithFullRefresh('setTopicProgress', error, refresh);
+          }
         }),
       saveExam: (exam) =>
         enqueueMutation(async () => {
-          await upsertExam(exam);
-          await refresh();
+          const patch = await upsertExam(exam);
+          try {
+            const { exams, activityDays, latestActivity } = patch;
+            applyMutationPatch((current) => ({ ...current, exams, activityDays, latestActivity }));
+          } catch (error) {
+            await recoverWithFullRefresh('saveExam', error, refresh);
+          }
         }),
       removeExam: (id) =>
         enqueueMutation(async () => {
-          await removeExamFromDb(id);
-          await refresh();
+          const patch = await removeExamFromDb(id);
+          try {
+            const { exams, activityDays, latestActivity } = patch;
+            applyMutationPatch((current) => ({ ...current, exams, activityDays, latestActivity }));
+          } catch (error) {
+            await recoverWithFullRefresh('removeExam', error, refresh);
+          }
         }),
       setFavorite: (programId, favorite) =>
         enqueueMutation(async () => {
-          await setFavoriteInDb(programId, favorite);
-          await refresh();
+          const patch = await setFavoriteInDb(programId, favorite);
+          try {
+            const { favorites } = patch;
+            applyMutationPatch((current) => ({ ...current, favorites }));
+          } catch (error) {
+            await recoverWithFullRefresh('setFavorite', error, refresh);
+          }
         }),
       reorderFavorites: (ids) =>
         enqueueMutation(async () => {
-          await reorderFavoritesInDb(ids);
-          await refresh();
+          const patch = await reorderFavoritesInDb(ids);
+          try {
+            const { favorites } = patch;
+            applyMutationPatch((current) => ({ ...current, favorites }));
+          } catch (error) {
+            await recoverWithFullRefresh('reorderFavorites', error, refresh);
+          }
         }),
+      // Restore rewrites every table; the full reload is the correct (and only) source
+      // of truth here, so this stays on refresh() by design.
       restoreSnapshot: (snapshot) =>
         enqueueMutation(async () => {
           await replaceUserData(snapshot);
           await refresh();
         }),
     }),
-    [data, enqueueMutation, ready, refresh],
+    [applyMutationPatch, data, enqueueMutation, ready, refresh],
   );
 
   return (

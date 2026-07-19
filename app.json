@@ -59,9 +59,18 @@
         }
       ],
       "expo-asset",
-      "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": false,
+            "extraProguardRules": "# Audited 2026-07-19: mmkv v4 + nitro-modules ship NO consumer ProGuard rules\n# (verified in node_modules); reanimated/worklets/notifications/expo-modules-core\n# carry their own; screens/gesture-handler need none under newArchEnabled.\n-keep class com.margelo.nitro.** { *; }\n# Per react-native-skia docs (Expensify precedent).\n-keep class com.shopify.reactnative.skia.** { *; }"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

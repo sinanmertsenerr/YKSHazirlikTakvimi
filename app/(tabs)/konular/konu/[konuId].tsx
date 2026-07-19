@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { Redirect, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +32,9 @@ import { useTheme } from '@/theme/useTheme';
 import { formatInstantDate } from '@/utils/format';
 import { allowedOgmHttpsUrl } from '@/utils/officialUrls';
 
-function TopicProgressEditor({
+// Named export for the regression tests of the unmount guard below; expo-router only
+// treats the default export as the route.
+export function TopicProgressEditor({
   initialPercent,
   progressKey,
   save,
@@ -49,6 +51,15 @@ function TopicProgressEditor({
   // is known to hold, used as the rollback target when a commit fails.
   const pendingPercent = useRef(initialPercent);
   const persistedPercent = useRef(initialPercent);
+  // commit() can resolve after this editor unmounts (successful saves remount it via the
+  // updatedAt key); the guard keeps the failure path from touching unmounted state.
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const derivedStatus = percentToStatus(percent);
   const statusLabel =
     derivedStatus === 'done'
@@ -76,6 +87,7 @@ function TopicProgressEditor({
       await save(progressKey, next);
       persistedPercent.current = next;
     } catch {
+      if (!alive.current) return;
       if (pendingPercent.current === next) {
         pendingPercent.current = persistedPercent.current;
         setPercent(persistedPercent.current);

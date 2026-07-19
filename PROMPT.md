@@ -270,7 +270,11 @@ CREATE TABLE program_year (
   min_score REAL, min_rank INTEGER,
   PRIMARY KEY (program_id, year)
 );
-CREATE INDEX ix_program_year_rank ON program_year(year, min_rank);
+-- program.latest_min_rank_sort: build-time materyalize sıralama anahtarı — en güncel
+-- yayınlanabilir SIRALI yılın min_rank'i; sırasız programlarda 99999999 sentineli.
+-- Liste sorgusu `ORDER BY latest_min_rank_sort, id` ile bu indeksi kullanır (TEMP
+-- B-TREE yok); gerçek DDL scripts/build-programs.ts'tedir (source of truth).
+CREATE INDEX ix_program_sort ON program(score_type, latest_min_rank_sort, id);
 ```
 
 Kaynak: YÖK Atlas'ın kamuya açık verileri (`yokatlas.yok.gov.tr`). Derleme `scripts/` altında yapılır;

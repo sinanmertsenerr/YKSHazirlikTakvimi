@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 import { programsFixtureSchema, type ProgramsFixture } from './lib/content-schemas.ts';
 import { mergeArchiveYears, osymArchiveFixtureSchema } from './lib/osym-archive.ts';
+import { latestPublishableRankSql, RANKLESS_SORT_SENTINEL } from './lib/program-sql.ts';
 import {
   programsDetailsFixtureSchema,
   type ProgramsDetailsFixture,
@@ -67,6 +68,8 @@ async function readDetailsFixture(detailsPath: string): Promise<ProgramsDetailsF
   return programsDetailsFixtureSchema.parse(JSON.parse(raw) as unknown);
 }
 
+export { RANKLESS_SORT_SENTINEL };
+
 function createSchema(database: DatabaseSync): void {
   database.exec(`
     PRAGMA foreign_keys = ON;
@@ -113,6 +116,14 @@ function createSchema(database: DatabaseSync): void {
       verified_at TEXT CHECK (verified_at IS NULL OR datetime(verified_at) IS NOT NULL),
       approximate INTEGER NOT NULL CHECK (approximate IN (0, 1)),
       sample INTEGER NOT NULL CHECK (sample IN (0, 1)),
+      -- Materialized list-sort key (populate() backfills it after the year rows land):
+      -- min_rank of the most recent publishable ranked year, sentinel when none exists.
+      -- Old binaries ignore the extra column; CURRENT_SCHEMA_VERSION deliberately does
+      -- not bump for this additive change (no-bump precedent: programRepository.compat.test.ts;
+      -- this column's own guards: programRepository.test.ts legacy fallback +
+      -- programQueries.integration.test.ts parity).
+      latest_min_rank_sort INTEGER NOT NULL DEFAULT ${RANKLESS_SORT_SENTINEL}
+        CHECK (latest_min_rank_sort > 0),
       CHECK (
         (verified = 1 AND source IS NOT NULL AND length(trim(source)) > 0 AND verified_at IS NOT NULL)
         OR (verified = 0 AND verified_at IS NULL)
@@ -192,7 +203,11 @@ function createSchema(database: DatabaseSync): void {
       verified_at TEXT NOT NULL CHECK (datetime(verified_at) IS NOT NULL),
       PRIMARY KEY (program_id, year)
     ) STRICT;
-    CREATE INDEX ix_program_year_rank ON program_year(year, min_rank);
+    -- ix_program_year_rank(year, min_rank) was removed: EXPLAIN QUERY PLAN showed no
+    -- query (current or legacy) ever used it — every program_year probe goes through
+    -- the (program_id, year) primary key. ix_program_sort serves the browse ORDER BY
+    -- so the paginated list no longer builds a TEMP B-TREE per page.
+    CREATE INDEX ix_program_sort ON program(score_type, latest_min_rank_sort, id);
     CREATE INDEX ix_program_score_type ON program(score_type);
     CREATE INDEX ix_program_city ON program(city);
     CREATE INDEX ix_program_name ON program(name);
@@ -361,6 +376,16 @@ function populate(
         }
       }
     }
+    // Backfill of the materialized sort key — the same "most recent publishable year
+    // WITH a published rank" walk-back as the legacy runtime query and the JS web
+    // fallback (latestRankedMinRank); validate-pack cross-checks this equivalence.
+    database.exec(`
+      UPDATE program SET latest_min_rank_sort = COALESCE(
+        (${latestPublishableRankSql('program.id')}
+        ),
+        ${RANKLESS_SORT_SENTINEL}
+      );
+    `);
     database.exec('COMMIT');
   } catch (error) {
     database.exec('ROLLBACK');

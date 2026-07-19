@@ -141,6 +141,34 @@ export function buildProgramListQuery(
     sql: `
       SELECT ${PROGRAM_COLUMNS}
       FROM program p
+      WHERE ${where.clauses.join('\n        AND ')}
+      -- latest_min_rank_sort is materialized at pack build time: the min_rank of the
+      -- most recent publishable year WITH a published rank (pending years never sink a
+      -- program), sentinel for rankless programs so they stay last. The plain-column
+      -- key lets ix_program_sort serve the ORDER BY without a per-page TEMP B-TREE.
+      ORDER BY p.latest_min_rank_sort, p.id
+      LIMIT ? OFFSET ?
+    `,
+    parameters: [...where.parameters, limit, offset],
+  };
+}
+
+/**
+ * Pre-`latest_min_rank_sort` list query, verbatim. Kept as the runtime fallback for
+ * downloaded packs built before the materialized sort column existed: the repository
+ * retries with this shape when the new ORDER BY hits "no such column".
+ */
+export function buildLegacyProgramListQuery(
+  filters: ProgramListFilters,
+  limit: number,
+  offset: number,
+): SqlQuery {
+  assertPage(limit, offset);
+  const where = filterWhere(filters);
+  return {
+    sql: `
+      SELECT ${PROGRAM_COLUMNS}
+      FROM program p
       LEFT JOIN program_year latest
         ON latest.program_id = p.id
        AND latest.year = (
