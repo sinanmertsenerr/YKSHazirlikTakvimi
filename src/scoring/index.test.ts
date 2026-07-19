@@ -1,4 +1,9 @@
-import { calculateNet, comparePackVersions, validateSectionAnswers } from './index';
+import {
+  calculateNet,
+  comparePackVersions,
+  updateSectionAnswer,
+  validateSectionAnswers,
+} from './index';
 
 describe('scoring engine', () => {
   it('calculates positive and negative net values', () => {
@@ -13,6 +18,18 @@ describe('scoring engine', () => {
     [{ correct: 8, wrong: 2, blank: 0 }, 10, null],
   ])('validates section answers %#', (answers, limit, expected) => {
     expect(validateSectionAnswers(answers, limit)).toBe(expected);
+  });
+
+  it('rejects answer updates that would exceed the section question count', () => {
+    const answers = { correct: 30, wrong: 5, blank: 5 };
+
+    expect(updateSectionAnswer(answers, 'correct', 31, 40)).toBeNull();
+    expect(updateSectionAnswer(answers, 'wrong', 4, 40)).toEqual({
+      correct: 30,
+      wrong: 4,
+      blank: 5,
+    });
+    expect(answers).toEqual({ correct: 30, wrong: 5, blank: 5 });
   });
 
   it('compares segmented pack versions and invalid fallbacks', () => {

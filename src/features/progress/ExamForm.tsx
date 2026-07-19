@@ -16,7 +16,7 @@ import {
 import { sectionsForExam, localized } from '@/data/examStructure';
 import type { ExamRecord, ExamSectionRecord, ExamType } from '@/db/types';
 import { useAppData } from '@/providers/AppDataProvider';
-import { calculateNet, validateSectionAnswers } from '@/scoring';
+import { calculateNet, updateSectionAnswer, validateSectionAnswers } from '@/scoring';
 import { useTheme } from '@/theme/useTheme';
 import {
   displayDatePattern,
@@ -26,6 +26,15 @@ import {
   parseDisplayDate,
 } from '@/utils/format';
 
+type AnswerKey = 'correct' | 'wrong' | 'blank';
+
+type ExamSectionInput = {
+  sectionId: string;
+  correct: string;
+  wrong: string;
+  blank: string;
+};
+
 function emptySections(exam: ExamType): ExamSectionRecord[] {
   return sectionsForExam(exam).map((section) => ({
     sectionId: section.id,
@@ -33,6 +42,24 @@ function emptySections(exam: ExamType): ExamSectionRecord[] {
     wrong: 0,
     blank: 0,
   }));
+}
+
+function toSectionInputs(sections: ExamSectionRecord[]): ExamSectionInput[] {
+  return sections.map((section) => ({
+    sectionId: section.sectionId,
+    correct: String(section.correct),
+    wrong: String(section.wrong),
+    blank: String(section.blank),
+  }));
+}
+
+function toSectionRecord(section: ExamSectionInput): ExamSectionRecord {
+  return {
+    sectionId: section.sectionId,
+    correct: Number(section.correct) || 0,
+    wrong: Number(section.wrong) || 0,
+    blank: Number(section.blank) || 0,
+  };
 }
 
 export function ExamForm({ existing }: { existing?: ExamRecord }) {
@@ -48,13 +75,14 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
   const [date, setDate] = useState(() => formatInstantDate(existing?.date ?? Date.now(), language));
   const [publisher, setPublisher] = useState(existing?.publisher ?? '');
   const [notes, setNotes] = useState(existing?.notes ?? '');
-  const [sections, setSections] = useState<ExamSectionRecord[]>(
-    existing?.sections ?? emptySections(existing?.exam ?? 'tyt'),
+  const [sectionInputs, setSectionInputs] = useState<ExamSectionInput[]>(() =>
+    toSectionInputs(existing?.sections ?? emptySections(existing?.exam ?? 'tyt')),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   const structure = useMemo(() => sectionsForExam(exam), [exam]);
+  const sections = useMemo(() => sectionInputs.map(toSectionRecord), [sectionInputs]);
   const total = sections.reduce((sum, section) => sum + calculateNet(section), 0);
 
   useEffect(() => {
@@ -67,12 +95,15 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
     previousLanguage.current = language;
   }, [language]);
 
-  const setValue = (sectionId: string, key: 'correct' | 'wrong' | 'blank', value: string) => {
-    const parsed = Number(value.replace(/\D/g, '')) || 0;
-    setSections((current) =>
-      current.map((section) =>
-        section.sectionId === sectionId ? { ...section, [key]: parsed } : section,
-      ),
+  const setValue = (sectionId: string, key: AnswerKey, value: string, questionCount: number) => {
+    const sanitized = value.replace(/\D/g, '');
+    const parsed = Number(sanitized) || 0;
+    setSectionInputs((current) =>
+      current.map((section) => {
+        if (section.sectionId !== sectionId) return section;
+        const updated = updateSectionAnswer(toSectionRecord(section), key, parsed, questionCount);
+        return updated ? { ...section, [key]: sanitized } : section;
+      }),
     );
   };
 
@@ -124,7 +155,7 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
         accessibilityLabel={t('progress.examType')}
         onChange={(value) => {
           setExam(value);
-          setSections(emptySections(value));
+          setSectionInputs(toSectionInputs(emptySections(value)));
           setErrors({});
         }}
         options={[
@@ -153,12 +184,14 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
 
       <SectionTitle>{`${exam.toUpperCase()} · ${formatNumber(total, i18n.language)} ${t('common.net')}`}</SectionTitle>
       {structure.map((definition) => {
-        const section = sections.find((item) => item.sectionId === definition.id) ?? {
+        const sectionInput = sectionInputs.find((item) => item.sectionId === definition.id) ?? {
           sectionId: definition.id,
-          correct: 0,
-          wrong: 0,
-          blank: 0,
+          correct: '',
+          wrong: '',
+          blank: '',
         };
+        const section = toSectionRecord(sectionInput);
+        const sectionError = errors[definition.id];
         return (
           <Card key={definition.id}>
             <View style={styles.sectionHeading}>
@@ -176,36 +209,49 @@ export function ExamForm({ existing }: { existing?: ExamRecord }) {
               <Field
                 keyboardType="number-pad"
                 label={t('progress.correct')}
-                maxLength={3}
-                onChangeText={(value) => setValue(definition.id, 'correct', value)}
+                maxLength={String(definition.questionCount).length}
+                testID={`${definition.id}-correct`}
+                onChangeText={(value) =>
+                  setValue(definition.id, 'correct', value, definition.questionCount)
+                }
                 containerStyle={styles.input}
-                value={String(section.correct)}
+                value={sectionInput.correct}
               />
               <Field
                 keyboardType="number-pad"
                 label={t('progress.wrong')}
-                maxLength={3}
-                onChangeText={(value) => setValue(definition.id, 'wrong', value)}
+                maxLength={String(definition.questionCount).length}
+                testID={`${definition.id}-wrong`}
+                onChangeText={(value) =>
+                  setValue(definition.id, 'wrong', value, definition.questionCount)
+                }
                 containerStyle={styles.input}
-                value={String(section.wrong)}
+                value={sectionInput.wrong}
               />
               <Field
                 keyboardType="number-pad"
                 label={t('progress.blank')}
-                maxLength={3}
-                onChangeText={(value) => setValue(definition.id, 'blank', value)}
+                maxLength={String(definition.questionCount).length}
+                testID={`${definition.id}-blank`}
+                onChangeText={(value) =>
+                  setValue(definition.id, 'blank', value, definition.questionCount)
+                }
                 containerStyle={styles.input}
-                value={String(section.blank)}
+                value={sectionInput.blank}
               />
             </View>
-            {errors[definition.id] ? (
-              <Text
-                accessibilityLiveRegion="assertive"
-                style={[typography.footnote, { color: colors.danger }]}
-              >
-                {errors[definition.id]}
-              </Text>
-            ) : null}
+            <Text
+              accessibilityLiveRegion={sectionError ? 'assertive' : 'none'}
+              style={[
+                typography.footnote,
+                { color: sectionError ? colors.danger : colors.secondaryLabel },
+              ]}
+            >
+              {sectionError ??
+                t('progress.sectionLimit', {
+                  count: definition.questionCount,
+                })}
+            </Text>
           </Card>
         );
       })}

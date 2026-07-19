@@ -1,4 +1,5 @@
 export type SectionAnswers = { correct: number; wrong: number; blank: number };
+export type SectionAnswerKey = keyof SectionAnswers;
 
 export function calculateNet(answers: Pick<SectionAnswers, 'correct' | 'wrong'>): number {
   return answers.correct - answers.wrong / 4;
@@ -13,6 +14,16 @@ export function validateSectionAnswers(
   if (values.some((value) => value < 0)) return 'negative';
   if (answers.correct + answers.wrong + answers.blank > questionCount) return 'limit';
   return null;
+}
+
+export function updateSectionAnswer(
+  answers: SectionAnswers,
+  key: SectionAnswerKey,
+  value: number,
+  questionCount: number,
+): SectionAnswers | null {
+  const next = { ...answers, [key]: value };
+  return validateSectionAnswers(next, questionCount) ? null : next;
 }
 
 export function comparePackVersions(left: string, right: string): number {
