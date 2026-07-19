@@ -224,14 +224,16 @@ describe('program database runtime lifecycle', () => {
     expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(1);
   });
 
-  it('degrades to the legacy walk-back query when the pack lacks ix_program_sort', async () => {
+  it.each([
+    ['the pack lacks ix_program_sort', 'no such index: ix_program_sort'],
+    ['the SQLite planner rejects the forced index', 'no query solution'],
+  ])('degrades to the legacy walk-back query when %s', async (_scenario, message) => {
     const location = downloadedLocation('2026.07.6');
     setMockFile('downloaded/2026.07.6/programs.db', new Uint8Array(128));
     const database = validDatabase();
     const getAllAsync = jest
       .fn<Promise<unknown[]>, unknown[]>()
-      // The INDEXED BY pin raises this on packs built before the index existed.
-      .mockRejectedValueOnce(new Error('no such index: ix_program_sort'))
+      .mockRejectedValueOnce(new Error(message))
       .mockResolvedValueOnce([]);
     database.getAllAsync = getAllAsync;
     mockGetActivePackLocation.mockResolvedValue(location);

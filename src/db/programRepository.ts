@@ -692,13 +692,13 @@ export async function queryProgramPage(query: ProgramPageQuery): Promise<Program
       try {
         rows = await all<ProgramRow>(database, buildProgramListQuery(query, limit + 1, offset));
       } catch (error) {
-        // An older active pack (downloaded before latest_min_rank_sort existed, or a
-        // bundled/code skew) lacks the materialized column; the legacy walk-back query
-        // is order-equivalent, so degrade to it instead of invalidating the pack.
-        if (!isMissingSchemaError(error)) throw error;
+        // Older packs can lack the materialized sort schema, while some SQLite planners
+        // reject the forced ix_program_sort plan with "no query solution". The legacy
+        // walk-back is order-equivalent, so degrade to it without invalidating the pack.
+        if (!isProgramListFallbackError(error)) throw error;
         if (__DEV__) {
           console.warn(
-            `Program list query degraded to the legacy walk-back (pack predates latest_min_rank_sort): ${
+            `Program list query degraded to the legacy walk-back: ${
               error instanceof Error ? error.message : String(error)
             }`,
           );
@@ -803,6 +803,10 @@ function mapProgramExtras(
   return parsed.success ? parsed.data : null;
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 /**
  * True when a query failed only because the open pack predates part of the current
  * schema (rollback/older downloaded pack) — detail tables or the materialized
@@ -810,10 +814,15 @@ function mapProgramExtras(
  * error path never invalidates a structurally healthy pack over it.
  */
 function isMissingSchemaError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
   // "no such index": a pre-ix_program_sort pack rejects the INDEXED BY browse query
   // the same way a pre-latest_min_rank_sort pack rejects the column reference.
-  return /no such (table|column|index)/i.test(message);
+  return /no such (table|column|index)/i.test(errorMessage(error));
+}
+
+function isProgramListFallbackError(error: unknown): boolean {
+  // INDEXED BY is a requirement rather than a hint. SQLite builds whose planner cannot
+  // satisfy the forced ix_program_sort plan report this instead of choosing another plan.
+  return isMissingSchemaError(error) || /no query solution/i.test(errorMessage(error));
 }
 
 /** Reads the official YÖK Atlas detail data of one program; null when unavailable. */
