@@ -49,6 +49,25 @@ The active run therefore validates, rebuilds, and deploys the exact commit it cr
 documents the token event behavior in
 [GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token).
 
+### Where to look when a gate fails
+
+Every job failure in `publish-content.yml` reaches a human through the same channel: a
+deduplicated GitHub Issue opened or updated by `notify-issue.yml`, linking the failing run.
+
+- `refresh` failure → issue "Resmî kaynak yenileme başarısız…" (source-side structural change is
+  the usual cause; read the refresh job log).
+- `persist-state` failure → issue "Yenilenen içerik durumu main dalına kalıcılaştırılamadı"
+  (allowlist rejection or branch movement; read the persist-state log).
+- `build-pages` failure → issue "Pages site artefaktı hazırlanamadı" (signing, published-pack
+  mirroring, or privacy artifact prep; read the build-pages log).
+- `deploy` failure → issue "İçerik paketi GitHub Pages dağıtımı doğrulanamadı" (Pages rollout or
+  the post-deploy byte/signature smoke; read the deploy log and the Pages environment).
+- Independently of runs, `content-health.yml` asserts the live pack every 2 hours and publisher
+  recency every run; its failures open "içerik sağlığı" issues.
+
+`validate.yml` failures (PR and post-merge push) surface as red checks on the commit; they do not
+open issues.
+
 ## Content-pack signing keys
 
 The client trusts only public keys in `scripts/lib/trusted-pack-keys.ts`. The matching private key is

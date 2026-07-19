@@ -673,3 +673,34 @@ jobs:
       body: >-
         Pages dağıtımı veya dağıtım sonrası byte/hash smoke testi başarısız oldu.
         Publish static content pack iş günlüğünü ve Pages ortamını inceleyin.
+
+  # A failed dependency leaves downstream jobs "skipped", not "failed": without these
+  # two jobs a persist-state or build-pages failure produced only a red run nobody is
+  # notified about (the deploy notifier can never fire for them).
+  notify-persist-failure:
+    needs: persist-state
+    if: ${{ always() && needs.persist-state.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Yenilenen içerik durumu main dalına kalıcılaştırılamadı'
+      body: >-
+        persist-state işi başarısız oldu: doğrulanan içerik durumu commit/push
+        edilemedi. Publish static content pack iş günlüğünü ve dal ayarlarını
+        inceleyin.
+
+  notify-build-pages-failure:
+    needs: build-pages
+    if: ${{ always() && needs.build-pages.result == 'failure' }}
+    uses: ./.github/workflows/notify-issue.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      title: 'Pages site artefaktı hazırlanamadı'
+      body: >-
+        build-pages işi başarısız oldu: aday paket imzalama, yayın aynalama veya
+        privacy artefaktı hazırlığı kırıldı. Publish static content pack iş
+        günlüğünü inceleyin.
