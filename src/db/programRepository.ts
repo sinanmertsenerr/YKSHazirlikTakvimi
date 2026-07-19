@@ -179,6 +179,16 @@ export type ProgramPageQuery = ProgramListFilters & {
 
 const DEFAULT_PAGE_SIZE = 60;
 const FAVORITE_BIND_CHUNK = 300;
+/**
+ * expo-file-system's File accepts absolute URIs, not bare filesystem paths: Android
+ * returns `/data/user/0/<pkg>/…` from both the SQLite directory constant and
+ * Asset.localUri, and handing either of those to File raises "URI is not absolute".
+ */
+function toFileUri(path: string): string {
+  return path.startsWith('/') ? `file://${path}` : path;
+}
+
+const databaseFileDirectory = toFileUri(defaultDatabaseDirectory);
 const programRuntimeSchema = programsPackSchema.shape.programs.element;
 let databaseEntry: DatabaseEntry | null = null;
 let databaseEntryRequest: Promise<DatabaseEntry> | null = null;
@@ -201,7 +211,7 @@ function validationMarkerFor(
 ): File {
   const safeVersion = packVersion.replace(/[^a-z0-9.-]/gi, '-');
   return new File(
-    defaultDatabaseDirectory,
+    databaseFileDirectory,
     `yks-programs-validated-${source}-${safeVersion}-${identity}.json`,
   );
 }
@@ -302,7 +312,7 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
   await withPerformancePhase('catalog.asset-download', () => asset.downloadAsync());
   if (!asset.localUri) throw new Error('Bundled programs database could not be loaded');
 
-  const destination = new File(defaultDatabaseDirectory, `yks-programs-bundled-${identity}.db`);
+  const destination = new File(databaseFileDirectory, `yks-programs-bundled-${identity}.db`);
   const location: DatabaseLocation = {
     key: destination.uri,
     name: destination.name,
@@ -325,7 +335,7 @@ async function resolveDatabaseLocation(): Promise<DatabaseLocation> {
   if (copyRequired) {
     invalidateValidationMarker(location);
     deleteIfPresent(destination);
-    const source = new File(asset.localUri);
+    const source = new File(toFileUri(asset.localUri));
     if (source.size !== descriptor.bytes) {
       throw new Error('Bundled programs database size does not match its manifest');
     }

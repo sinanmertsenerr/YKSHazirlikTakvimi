@@ -15,7 +15,7 @@ const mockReloadActiveContent = jest.fn();
 let mockContentRevision = 0;
 
 function mockFileUri(...parts: unknown[]): string {
-  return parts
+  const joined = parts
     .map((part) =>
       typeof part === 'string'
         ? part
@@ -23,8 +23,10 @@ function mockFileUri(...parts: unknown[]): string {
           ? String(part.uri)
           : String(part),
     )
-    .join('/')
-    .replace(/\/+/g, '/');
+    .join('/');
+  const schemeEnd = joined.indexOf('://');
+  if (schemeEnd < 0) return joined.replace(/\/+/g, '/');
+  return `${joined.slice(0, schemeEnd + 3)}${joined.slice(schemeEnd + 3).replace(/\/+/g, '/')}`;
 }
 
 function setMockFile(uri: string, bytes: Uint8Array, text = ''): void {
@@ -32,7 +34,8 @@ function setMockFile(uri: string, bytes: Uint8Array, text = ''): void {
 }
 
 jest.mock('expo-sqlite', () => ({
-  defaultDatabaseDirectory: 'sqlite',
+  // Android exposes this as an absolute path, while expo-file-system expects a file URI.
+  defaultDatabaseDirectory: '/sqlite',
   openDatabaseAsync: (...args: unknown[]) => mockOpenDatabaseAsync(...args),
 }));
 
@@ -333,7 +336,10 @@ describe('program database runtime lifecycle', () => {
       hash: 'ignored-asset-hash',
     });
     setMockFile('asset/programs.db', new Uint8Array([1, 2, 3, 4]));
-    setMockFile(`sqlite/yks-programs-bundled-${SHA256_ZERO}-4.db`, new Uint8Array([9, 9, 9]));
+    setMockFile(
+      `file:///sqlite/yks-programs-bundled-${SHA256_ZERO}-4.db`,
+      new Uint8Array([9, 9, 9]),
+    );
     const database = validDatabase();
     mockOpenDatabaseAsync.mockResolvedValue(database);
 
@@ -342,17 +348,49 @@ describe('program database runtime lifecycle', () => {
 
     const expectedName = `yks-programs-bundled-${SHA256_ZERO}-4.db`;
     expect(downloadAsync).toHaveBeenCalledTimes(1);
-    expect(mockCopyFile).toHaveBeenCalledWith('asset/programs.db', `sqlite/${expectedName}`);
+    expect(mockCopyFile).toHaveBeenCalledWith(
+      'asset/programs.db',
+      `file:///sqlite/${expectedName}`,
+    );
     expect(mockDigest).toHaveBeenCalledTimes(1);
     expect(mockOpenDatabaseAsync).toHaveBeenCalledWith(
       expectedName,
       { useNewConnection: true },
-      'sqlite',
+      '/sqlite',
     );
     expect(
       [...mockFileStates.keys()].some((uri) =>
         uri.includes(`yks-programs-validated-bundled-2026.07.4-${SHA256_ZERO}-4.json`),
       ),
     ).toBe(true);
+  });
+
+  it('reads the bundled asset through a file:// URI when Android reports a bare path', async () => {
+    // Release builds resolve Asset.localUri to /data/user/0/<pkg>/cache/ExponentAsset-*.db.
+    // Passing that bare path to expo-file-system's File throws "URI is not absolute", which
+    // aborted the copy and left the Programs screen empty on device.
+    const descriptor = { path: 'programs.db', sha256: SHA256_ZERO, bytes: 4 };
+    const barePath = '/data/user/0/com.sinanmertsener.ykshazirlik/cache/ExponentAsset-abc.db';
+    mockGetActivePackLocation.mockResolvedValue({
+      source: 'bundled',
+      version: '2026.07.4',
+      directory: null,
+      manifest: { files: { programs: descriptor } },
+    });
+    mockAssetFromModule.mockReturnValue({
+      downloadAsync: jest.fn(async () => undefined),
+      localUri: barePath,
+      hash: 'ignored-asset-hash',
+    });
+    setMockFile(`file://${barePath}`, new Uint8Array([1, 2, 3, 4]));
+    mockOpenDatabaseAsync.mockResolvedValue(validDatabase());
+
+    const { prewarmProgramDatabase } = loadRepository();
+    await prewarmProgramDatabase();
+
+    expect(mockCopyFile).toHaveBeenCalledWith(
+      `file://${barePath}`,
+      `file:///sqlite/yks-programs-bundled-${SHA256_ZERO}-4.db`,
+    );
   });
 });
