@@ -36,6 +36,54 @@
       "translationStatus": "source-only"
     },
     {
+      "id": "osym-d58004a08c1e3cdeaa9066ee",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)",
+        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)"
+      },
+      "summary": {
+        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)",
+        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)"
+      },
+      "url": "https://www.osym.gov.tr/TR,34188/2026-yks-cevap-kagitlari-ve-aday-cevaplari-erisime-acildi-21072026.html",
+      "verified": true,
+      "verifiedAt": "2026-07-21T13:00:40.558Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
+        "detailUrl": "https://www.osym.gov.tr/TR,34188/2026-yks-cevap-kagitlari-ve-aday-cevaplari-erisime-acildi-21072026.html",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "yok-8bcc9dcf042090468b8692fe",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS sonuçları açıklandı",
+        "en": "2026-YKS sonuçları açıklandı"
+      },
+      "summary": {
+        "tr": "2026-YKS sonuçları açıklandı",
+        "en": "2026-YKS sonuçları açıklandı"
+      },
+      "url": "https://www.yok.gov.tr/tr/news/2026-yks-sonuclari-aciklandi-k9qqZ",
+      "verified": true,
+      "verifiedAt": "2026-07-21T13:00:40.558Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/news",
+        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-sonuclari-aciklandi-k9qqZ",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-f3f591e6c61f28d8e5a2b8d7",
       "publishedAt": "2026-07-01T00:00:00+03:00",
       "source": "ÖSYM",

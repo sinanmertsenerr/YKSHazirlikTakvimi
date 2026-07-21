@@ -98,7 +98,7 @@
     },
     {
       "id": "yks-2026-sonuc",
-      "start": "2026-07-22",
+      "start": "2026-07-21",
       "end": null,
       "startTime": null,
       "endTime": null,
@@ -108,7 +108,7 @@
         "en": "2026 YKS results"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-21T13:00:37.832Z",
       "approximate": false,
       "sample": false,
       "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
