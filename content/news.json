@@ -12,6 +12,30 @@
   },
   "items": [
     {
+      "id": "osym-1ac1db7fdbc551cdd53e8529",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)",
+        "en": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)"
+      },
+      "summary": {
+        "tr": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)",
+        "en": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)"
+      },
+      "url": "https://www.osym.gov.tr/TR,34187/2026-yks-sinav-sonuclari-aciklandi-21072026.html",
+      "verified": true,
+      "verifiedAt": "2026-07-21T03:51:09.192Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
+        "detailUrl": "https://www.osym.gov.tr/TR,34187/2026-yks-sinav-sonuclari-aciklandi-21072026.html",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-f3f591e6c61f28d8e5a2b8d7",
       "publishedAt": "2026-07-01T00:00:00+03:00",
       "source": "ÖSYM",
