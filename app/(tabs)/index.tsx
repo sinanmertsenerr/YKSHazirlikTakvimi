@@ -18,7 +18,7 @@ import { useAppData } from '@/providers/AppDataProvider';
 import { useSettingsStore } from '@/stores/settings';
 import { useTheme } from '@/theme/useTheme';
 import { daysUntil, formatDateOnly, formatInstantDate, formatNumber } from '@/utils/format';
-import { allowedOsymHttpsUrl } from '@/utils/officialUrls';
+import { officialCalendarEventUrl } from '@/utils/officialUrls';
 
 export default function HomeScreen() {
   useContentRevisionStore((state) => state.revision);
@@ -76,7 +76,7 @@ export default function HomeScreen() {
     lastExam && previousExam ? totalExamNet(lastExam) - totalExamNet(previousExam) : null;
 
   const todayLabel = formatDateOnly(today, language);
-  const upcomingSource = allowedOsymHttpsUrl(upcoming?.source);
+  const upcomingSource = officialCalendarEventUrl(upcoming);
   const upcomingCard = upcoming ? (
     <Card>
       <View style={styles.row}>

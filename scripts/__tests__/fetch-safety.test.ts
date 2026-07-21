@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { assertDeclaredContentLength, cancelBody } from '../lib/fetch-safety.ts';
+import {
+  assertDeclaredContentLength,
+  cancelBody,
+  TRANSIENT_RETRY_DELAYS_MS,
+  withTransientRetries,
+} from '../lib/fetch-safety.ts';
 
 function fakeResponse(options: { contentLength?: string | null; onCancel?: () => void }): Response {
   return {
@@ -49,6 +54,45 @@ test('assertDeclaredContentLength cancels and rejects an oversized header', asyn
     /advertised length/,
   );
   assert.equal(cancelled, true);
+});
+
+test('withTransientRetries returns immediately on first success without sleeping', async () => {
+  const sleeps: number[] = [];
+  const result = await withTransientRetries(async () => 'tamam', {
+    sleep: async (ms) => void sleeps.push(ms),
+  });
+  assert.equal(result, 'tamam');
+  assert.deepEqual(sleeps, []);
+});
+
+test('withTransientRetries retries with the documented backoff and then succeeds', async () => {
+  const sleeps: number[] = [];
+  let attempts = 0;
+  const result = await withTransientRetries(
+    async () => {
+      attempts += 1;
+      if (attempts < 3) throw new TypeError('fetch failed');
+      return attempts;
+    },
+    { sleep: async (ms) => void sleeps.push(ms) },
+  );
+  assert.equal(result, 3);
+  assert.deepEqual(sleeps, [...TRANSIENT_RETRY_DELAYS_MS]);
+});
+
+test('withTransientRetries surfaces the last error once every attempt is spent', async () => {
+  let attempts = 0;
+  await assert.rejects(
+    withTransientRetries(
+      async () => {
+        attempts += 1;
+        throw new Error(`deneme ${attempts}`);
+      },
+      { sleep: async () => {} },
+    ),
+    /deneme 3/,
+  );
+  assert.equal(attempts, TRANSIENT_RETRY_DELAYS_MS.length + 1);
 });
 
 test('cancelBody swallows an already-locked or closed body', async () => {

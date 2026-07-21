@@ -3,7 +3,11 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { calendarSchema, CURRENT_SCHEMA_VERSION } from './lib/content-schemas.ts';
-import { assertDeclaredContentLength, cancelBody } from './lib/fetch-safety.ts';
+import {
+  assertDeclaredContentLength,
+  cancelBody,
+  withTransientRetries,
+} from './lib/fetch-safety.ts';
 import { htmlToText } from './lib/html-text.ts';
 import {
   preserveStableRecordVerificationTimes,
@@ -238,21 +242,34 @@ export function parseOfficialCalendarHtml(
   const sessions = extractCalendarRows(html)
     .map(parseSession)
     .filter((session): session is OfficialSession => session !== null);
-  const byName = new Map(sessions.map((session) => [session.session, session]));
-  if (sessions.length !== 3 || byName.size !== 3) {
+  // Yıllık geçişte ÖSYM sayfası kısa süre iki yılın (veya eksik yeni yılın) satırlarını birlikte
+  // listeleyebilir; insan müdahalesi gerektirmemek için tam ve tekrarsız TYT/AYT/YDT üçlüsü
+  // taşıyan en yeni yıl seçilir. Hiçbir yıl tam değilse eskisi gibi kapalı kalınır (§9.1).
+  const sessionsByYear = new Map<number, OfficialSession[]>();
+  for (const session of sessions) {
+    const group = sessionsByYear.get(session.year) ?? [];
+    group.push(session);
+    sessionsByYear.set(session.year, group);
+  }
+  const year = [...sessionsByYear.entries()]
+    .filter(
+      ([, group]) =>
+        group.length === 3 && new Set(group.map((session) => session.session)).size === 3,
+    )
+    .map(([groupYear]) => groupYear)
+    .sort((left, right) => right - left)[0];
+  if (year === undefined) {
     throw new Error(
-      `Expected exactly TYT, AYT and YDT rows from ÖSYM; received ${sessions.length} YKS row(s).`,
+      `Expected exactly TYT, AYT and YDT rows from ÖSYM; received ${sessions.length} YKS row(s) without a complete exam year.`,
     );
   }
 
+  const byName = new Map(sessionsByYear.get(year)!.map((session) => [session.session, session]));
   const orderedSessions = (['TYT', 'AYT', 'YDT'] as const).map((name) => {
     const session = byName.get(name);
     if (!session) throw new Error(`Missing official ${name} row.`);
     return session;
   });
-  const years = new Set(orderedSessions.map((session) => session.year));
-  if (years.size !== 1) throw new Error('ÖSYM YKS rows contain multiple exam years.');
-  const year = orderedSessions[0]!.year;
 
   const applicationStart = assertSharedField(orderedSessions, 'applicationStart');
   const applicationEnd = assertSharedField(orderedSessions, 'applicationEnd');
@@ -507,7 +524,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   }
 
   if (process.exitCode !== 1) {
-    syncCalendar(options)
+    withTransientRetries(() => syncCalendar(options))
       .then(({ outputPath, count, examYear, changed }) => {
         console.log(
           `${options.dryRun ? 'Validated' : changed ? 'Wrote' : 'Kept'} ${count} official ${examYear}-YKS calendar event(s)${options.dryRun ? ' (dry run)' : ` at ${outputPath}`}.`,

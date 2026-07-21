@@ -21,19 +21,20 @@ function officialRow(
   number: 1 | 2 | 3,
   session: 'TYT' | 'AYT' | 'YDT',
   exam: string,
-  result = '22.07.2026',
+  result?: string,
+  year = 2026,
 ): string {
   return `
     <div class='row'>
       <div class='col-sm-3'>
         <strong><a href='/TR,13493/yks.html'>YKS</a></strong>
         <br />Yükseköğretim Kurumları Sınavı
-        <br />2026-YKS ${number}. Oturum (${session})
+        <br />${year}-YKS ${number}. Oturum (${session})
       </div>
       <div class='col-sm-2'>Sınav Tarihi:<br>${exam}</div>
-      <div class='col-sm-2'>Başvuru Tarihleri:<br>06.02.2026 14:30<br />02.03.2026 23:59</div>
-      <div class='col-sm-2'>Geç Başvuru Günü:<br>10.03.2026<br />12.03.2026 23:59</div>
-      <div class='col-sm-2'>Sonuç Tarihi:<br>${result}</div>
+      <div class='col-sm-2'>Başvuru Tarihleri:<br>06.02.${year} 14:30<br />02.03.${year} 23:59</div>
+      <div class='col-sm-2'>Geç Başvuru Günü:<br>10.03.${year}<br />12.03.${year} 23:59</div>
+      <div class='col-sm-2'>Sonuç Tarihi:<br>${result ?? `22.07.${year}`}</div>
       <div style='display:none;'><br /></div>
     </div>`;
 }
@@ -166,6 +167,38 @@ test('fails closed when an official session row is missing', () => {
     () => parseOfficialCalendarHtml(missingYdt, OFFICIAL_CALENDAR_URL, VERIFIED_AT),
     /exactly TYT, AYT and YDT/u,
   );
+});
+
+test('prefers the newest complete exam year while ÖSYM lists two years at once', () => {
+  const rollover = `
+  <html><body>
+    ${officialRow(1, 'TYT', '20.06.2026 10:15')}
+    ${officialRow(2, 'AYT', '21.06.2026 10:15')}
+    ${officialRow(3, 'YDT', '21.06.2026 15:45')}
+    ${officialRow(1, 'TYT', '19.06.2027 10:15', undefined, 2027)}
+    ${officialRow(2, 'AYT', '20.06.2027 10:15', undefined, 2027)}
+    ${officialRow(3, 'YDT', '20.06.2027 15:45', undefined, 2027)}
+  </body></html>`;
+  const document = calendarSchema.parse(
+    parseOfficialCalendarHtml(rollover, OFFICIAL_CALENDAR_URL, VERIFIED_AT),
+  );
+  assert.equal(document.events.length, 6);
+  assert.ok(document.events.every((event) => event.id.startsWith('yks-2027-')));
+});
+
+test('keeps the current year while the next year is still incomplete', () => {
+  const bridge = `
+  <html><body>
+    ${officialRow(1, 'TYT', '20.06.2026 10:15')}
+    ${officialRow(2, 'AYT', '21.06.2026 10:15')}
+    ${officialRow(3, 'YDT', '21.06.2026 15:45')}
+    ${officialRow(1, 'TYT', '19.06.2027 10:15', undefined, 2027)}
+  </body></html>`;
+  const document = calendarSchema.parse(
+    parseOfficialCalendarHtml(bridge, OFFICIAL_CALENDAR_URL, VERIFIED_AT),
+  );
+  assert.equal(document.events.length, 6);
+  assert.ok(document.events.every((event) => event.id.startsWith('yks-2026-')));
 });
 
 test('fails closed when shared dates disagree between ÖSYM session rows', () => {

@@ -11,7 +11,10 @@ on:
       - 'scripts/**'
       - '.github/workflows/publish-content.yml'
   schedule:
-    - cron: '17 */6 * * *'
+    # Hourly: ÖSYM can announce results/tercih windows mid-day and revises published dates;
+    # unchanged content commits nothing and publishes nothing (check:pack-change), so the
+    # extra runs only cost two light HTML fetches against the official sources.
+    - cron: '17 * * * *'
     # Daily YÖK Atlas program refresh (03:47 UTC = 06:47 TR). Kept daily rather than
     # 6-hourly to stay polite to the source; unchanged snapshots commit nothing
     # (provenance-only audits are restored) and publish nothing (check:pack-change).

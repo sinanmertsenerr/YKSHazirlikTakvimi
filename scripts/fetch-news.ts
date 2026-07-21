@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { CURRENT_SCHEMA_VERSION, newsItemSchema, newsSchema } from './lib/content-schemas.ts';
+import { withTransientRetries } from './lib/fetch-safety.ts';
 import { attributeValue, htmlToText } from './lib/html-text.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
@@ -637,7 +638,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   }
 
   if (process.exitCode !== 1) {
-    fetchNews(options)
+    withTransientRetries(() => fetchNews(options))
       .then(({ outputPath, count, failures, items, changed }) => {
         const osymCount = items.filter((item) => item.source === 'ÖSYM').length;
         const yokCount = items.filter((item) => item.source === 'YÖK').length;

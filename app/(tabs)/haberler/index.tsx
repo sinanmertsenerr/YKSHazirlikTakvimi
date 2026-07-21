@@ -31,7 +31,7 @@ import {
   relativeTime,
 } from '@/utils/format';
 import { getContentUpdateIssue } from '@/utils/contentUpdateError';
-import { allowedOsymHttpsUrl } from '@/utils/officialUrls';
+import { officialCalendarEventUrl } from '@/utils/officialUrls';
 
 const CURRENT_NEWS_LIMIT = 2;
 const ARCHIVE_INITIAL_LIMIT = 5;
@@ -41,6 +41,7 @@ type NewsFilter = 'all' | NewsItem['source'];
 const allowedHosts = new Set([
   'www.osym.gov.tr',
   'osym.gov.tr',
+  'sonuc.osym.gov.tr',
   'www.yok.gov.tr',
   'yok.gov.tr',
   'yokatlas.yok.gov.tr',
@@ -133,7 +134,7 @@ export default function NewsScreen() {
       .filter((event) => daysUntil(event.start, currentDate) >= 0)
       .sort((left, right) => left.start.localeCompare(right.start))[0] ?? null;
   const showUpcomingEvent = upcomingEvent !== null && filter !== 'YÖK';
-  const upcomingSource = upcomingEvent ? allowedOsymHttpsUrl(upcomingEvent.source) : null;
+  const upcomingSource = officialCalendarEventUrl(upcomingEvent);
   const upcomingDays = upcomingEvent ? daysUntil(upcomingEvent.start, currentDate) : null;
   const featuredGradient = dark
     ? (['#282548', '#201F31', colors.surface] as const)

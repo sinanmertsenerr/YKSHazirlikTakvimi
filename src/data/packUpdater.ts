@@ -29,7 +29,7 @@ import { type SettingsState, useSettingsStore } from '@/stores/settings';
 import { withPerformancePhase } from '@/utils/performanceDiagnostics';
 
 export const PACK_SCHEMA_VERSION = CURRENT_PACK_SCHEMA_VERSION;
-export const PACK_CHECK_INTERVAL_MS = 3 * 60 * 60 * 1000;
+export const PACK_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 export const FAILED_CHECK_BACKOFF_MS = 15 * 60 * 1000;
 const PACK_ROOT_NAME = 'yks-content-packs';
 const ACTIVE_POINTER_SLOT_NAMES = ['active-pack.a.json', 'active-pack.b.json'] as const;

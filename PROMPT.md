@@ -433,7 +433,7 @@ SÖZ = TYT + AYT(Edb+Sos1+Sos2) · (DİL/YDT kapsam dışı — backlog).
 1. **Pack yayını:** `content/` düzenlenir → PR → GitHub Action `validate-pack` (zod) →
    merge'de `build-pack` çıktıyı `gh-pages` dalına yayımlar. Uygulama
    `https://<kullanıcı>.github.io/<repo>/pack/manifest.json` adresini kontrol eder.
-2. **Haberler:** GitHub Action **cron (6 saatte bir)** `scripts/fetch-news.ts` çalıştırır:
+2. **Haberler:** GitHub Action **cron (saatte bir)** `scripts/fetch-news.ts` çalıştırır:
    ÖSYM duyuru sayfası + YÖK duyuruları + seçili eğitim RSS'leri → normalize → son 50 kayıt →
    `news.json` olarak Pages'e yazar. Uygulama sadece bu statik JSON'u çeker
    (cihazda scraping yok → kırılganlık ve hukuki risk uygulamaya taşınmaz).

@@ -58,10 +58,13 @@ allowed by the strict v2 schema.
    the SHA-256 manifest and immutable pack files to `assets/pack/`.
 
 The official YKS calendar is refreshed with `npm run sync:calendar`. The command accepts only the
-HTTPS ÖSYM host, limits redirects, response size, and request duration, requires one mutually
-consistent TYT/AYT/YDT row, validates the result, and atomically replaces `calendar.json`. If the
-source is unavailable or changes shape, it exits unsuccessfully and leaves the last verified file
-untouched. Dates that ÖSYM has not published—especially future preference windows—are never
+HTTPS ÖSYM host, limits redirects, response size, and request duration, requires a mutually
+consistent TYT/AYT/YDT trio, validates the result, and atomically replaces `calendar.json`. During
+ÖSYM's annual rollover the page may briefly list two exam years (or an incomplete next year); the
+newest year carrying a complete trio is selected so the transition needs no manual intervention.
+If the source is unavailable, no year is complete, or the page changes shape, it exits
+unsuccessfully and leaves the last verified file untouched. Transient network failures are retried
+with backoff at the CLI entry before the run is reported as failed. Dates that ÖSYM has not published—especially future preference windows—are never
 inferred. The main YKS preference period is discovered separately from ÖSYM's canonical YKS
 announcement list and is emitted only when one exact current-year “Tercihlerin Alınması” detail
 contains one explicit start and one explicit end. Its civil date/time values use the

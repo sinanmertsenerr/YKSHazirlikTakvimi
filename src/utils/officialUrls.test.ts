@@ -1,4 +1,9 @@
-import { allowedOgmHttpsUrl, allowedOsymHttpsUrl } from './officialUrls';
+import {
+  allowedOgmHttpsUrl,
+  allowedOsymHttpsUrl,
+  officialCalendarEventUrl,
+  OSYM_RESULTS_PORTAL_URL,
+} from './officialUrls';
 
 describe('official URL allowlist', () => {
   it('accepts clean ÖSYM HTTPS links and rejects lookalikes or credentials', () => {
@@ -11,6 +16,31 @@ describe('official URL allowlist', () => {
     expect(allowedOsymHttpsUrl('http://www.osym.gov.tr/takvim')).toBeNull();
     expect(allowedOsymHttpsUrl('https://osym.gov.tr.evil.example/takvim')).toBeNull();
     expect(allowedOsymHttpsUrl('https://user@osym.gov.tr/takvim')).toBeNull();
+  });
+});
+
+describe('official calendar event URL', () => {
+  it('sends result events to the ÖSYM results portal', () => {
+    expect(
+      officialCalendarEventUrl({
+        type: 'sonuc',
+        source: 'https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1',
+      }),
+    ).toBe(OSYM_RESULTS_PORTAL_URL);
+  });
+
+  it('keeps other events on their verified source when it is official', () => {
+    expect(
+      officialCalendarEventUrl({
+        type: 'sinav',
+        source: 'https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1',
+      }),
+    ).toBe('https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1');
+    expect(
+      officialCalendarEventUrl({ type: 'sinav', source: 'https://example.com/takvim' }),
+    ).toBeNull();
+    expect(officialCalendarEventUrl(null)).toBeNull();
+    expect(officialCalendarEventUrl(undefined)).toBeNull();
   });
 });
 
