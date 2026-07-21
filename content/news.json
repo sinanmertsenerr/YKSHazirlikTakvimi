@@ -60,6 +60,30 @@
       "translationStatus": "source-only"
     },
     {
+      "id": "osym-b328ef7adfd52e5aaf0febb3",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)",
+        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)"
+      },
+      "summary": {
+        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)",
+        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)"
+      },
+      "url": "https://www.osym.gov.tr/TR,34189/2026-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi-21072026.html",
+      "verified": true,
+      "verifiedAt": "2026-07-21T15:53:48.782Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
+        "detailUrl": "https://www.osym.gov.tr/TR,34189/2026-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi-21072026.html",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "yok-8bcc9dcf042090468b8692fe",
       "publishedAt": "2026-07-21T00:00:00+03:00",
       "source": "YÖK",
