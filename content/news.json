@@ -12,6 +12,30 @@
   },
   "items": [
     {
+      "id": "osym-4ebc59d27c7deb4e6331119a",
+      "publishedAt": "2026-07-22T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)",
+        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)"
+      },
+      "summary": {
+        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)",
+        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)"
+      },
+      "url": "https://www.osym.gov.tr/TR,34190/2026-yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri-22072026.html",
+      "verified": true,
+      "verifiedAt": "2026-07-22T09:39:07.489Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
+        "detailUrl": "https://www.osym.gov.tr/TR,34190/2026-yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri-22072026.html",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-1ac1db7fdbc551cdd53e8529",
       "publishedAt": "2026-07-21T00:00:00+03:00",
       "source": "ÖSYM",
