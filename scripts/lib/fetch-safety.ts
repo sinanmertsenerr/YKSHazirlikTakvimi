@@ -39,7 +39,7 @@ export async function cancelBody(response: Response): Promise<void> {
  * zaman aşımı (UND_ERR_CONNECT_TIMEOUT) bütün cron döngüsünü düşürmesin diye
  * var; kalıcı hatalar tüm denemeler tükendikten sonra aynen fırlatılır.
  */
-export const TRANSIENT_RETRY_DELAYS_MS: readonly number[] = [5_000, 20_000];
+export const TRANSIENT_RETRY_DELAYS_MS: readonly number[] = [5_000, 20_000, 60_000];
 
 export async function withTransientRetries<T>(
   operation: () => Promise<T>,
@@ -58,6 +58,60 @@ export async function withTransientRetries<T>(
     }
   }
   throw lastError;
+}
+
+/**
+ * Hatanın "kaynak sunucuya ulaşılamıyor" sınıfında olup olmadığını söyler.
+ *
+ * Cron'lu yenileme işlerinde bu sınıf hata bizim arızamız değildir: ÖSYM/YÖK
+ * yurt dışı (GitHub runner) trafiğini kısabilir ya da yük altında düşebilir.
+ * Çağıran taraf bu durumda mevcut doğrulanmış içeriği koruyup 0 ile çıkar;
+ * ayrıştırma/doğrulama hataları bu sınıfa girmez ve kırmızı kalır.
+ */
+const UNREACHABLE_ERROR_CODES = new Set([
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_BODY_TIMEOUT',
+  'UND_ERR_SOCKET',
+  'ETIMEDOUT',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ENETUNREACH',
+  'EHOSTUNREACH',
+  'EPIPE',
+]);
+
+export function isUpstreamUnreachable(error: unknown): boolean {
+  let current: unknown = error;
+  for (let depth = 0; depth < 8 && current !== null && typeof current === 'object'; depth += 1) {
+    const candidate = current as { name?: unknown; code?: unknown; message?: unknown; cause?: unknown };
+    if (candidate.name === 'TimeoutError' || candidate.name === 'AbortError') return true;
+    if (typeof candidate.code === 'string' && UNREACHABLE_ERROR_CODES.has(candidate.code)) return true;
+    if (typeof candidate.message === 'string') {
+      // Kaynak okuyucuları HTTP durumunu "... returned HTTP 503" kalıbıyla fırlatır;
+      // 5xx ve 429 sunucu tarafı geçici arızadır. "fetch failed" ise undici'nin
+      // ağ-katmanı sarmalayıcısıdır — cause zinciri kesilmiş olsa bile erişilemezlik say.
+      if (/\bHTTP (429|5\d{2})\b/.test(candidate.message)) return true;
+      if (candidate.message === 'fetch failed') return true;
+    }
+    current = candidate.cause;
+  }
+  return false;
+}
+
+/**
+ * Erişilemeyen kaynak için GitHub Actions uyarısı basar ve 0 ile çıkılmasını sağlar.
+ * Dönen değer: hata bu yolla yutulduysa true; çağıran false'ta kırmızıya düşmeli.
+ */
+export function reportUpstreamOutageAndSucceed(error: unknown, sourceLabel: string): boolean {
+  if (!isUpstreamUnreachable(error)) return false;
+  const detail = error instanceof Error ? error.message : String(error);
+  console.warn(
+    `::warning title=${sourceLabel} erişilemedi::${detail} — mevcut doğrulanmış içerik korunuyor; sonraki zamanlanmış koşu yeniden deneyecek.`,
+  );
+  return true;
 }
 
 export async function assertDeclaredContentLength(

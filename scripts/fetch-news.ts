@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { CURRENT_SCHEMA_VERSION, newsItemSchema, newsSchema } from './lib/content-schemas.ts';
-import { withTransientRetries } from './lib/fetch-safety.ts';
+import { reportUpstreamOutageAndSucceed, withTransientRetries } from './lib/fetch-safety.ts';
 import { attributeValue, htmlToText } from './lib/html-text.ts';
 import { isRelevantNewsTitle } from './lib/news-relevance.ts';
 import {
@@ -22,7 +22,7 @@ export const YOK_LIST_URLS = [
 ] as const;
 export const MAX_RESPONSE_BYTES = 2_000_000;
 
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REDIRECTS = 3;
 const MAX_FETCH_ATTEMPTS = 2;
 const MAX_ITEMS = 50;
@@ -648,6 +648,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         for (const failure of failures) console.warn(`WARN ${failure}`);
       })
       .catch((error: unknown) => {
+        if (reportUpstreamOutageAndSucceed(error, 'Resmî duyuru kaynakları')) return;
         console.error(error);
         process.exitCode = 1;
       });

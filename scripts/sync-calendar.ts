@@ -6,6 +6,7 @@ import { calendarSchema, CURRENT_SCHEMA_VERSION } from './lib/content-schemas.ts
 import {
   assertDeclaredContentLength,
   cancelBody,
+  reportUpstreamOutageAndSucceed,
   withTransientRetries,
 } from './lib/fetch-safety.ts';
 import { htmlToText } from './lib/html-text.ts';
@@ -20,7 +21,7 @@ export const OFFICIAL_CALENDAR_URL = 'https://www.osym.gov.tr/TR,8797/takvim.htm
 
 const MAX_RESPONSE_BYTES = 2_000_000;
 const MAX_REDIRECTS = 3;
-const REQUEST_TIMEOUT_MS = 12_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 type SessionName = 'TYT' | 'AYT' | 'YDT';
@@ -531,6 +532,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         );
       })
       .catch((error: unknown) => {
+        if (reportUpstreamOutageAndSucceed(error, 'ÖSYM takvimi')) return;
         console.error(error);
         process.exitCode = 1;
       });

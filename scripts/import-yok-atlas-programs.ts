@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { programsFixtureSchema, type ProgramsFixture } from './lib/content-schemas.ts';
+import { reportUpstreamOutageAndSucceed } from './lib/fetch-safety.ts';
 import {
   readTextFileIfExists,
   writeTextFileAtomicallyIfChanged,
@@ -428,6 +429,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   }
   if (process.exitCode !== 1) {
     importYokAtlasPrograms(options).catch((error: unknown) => {
+      if (reportUpstreamOutageAndSucceed(error, 'YÖK Atlas')) return;
       console.error(error);
       process.exitCode = 1;
     });
