@@ -72,7 +72,7 @@ jobs:
           echo "block_id=$block_id" >> "$GITHUB_OUTPUT"
           echo "output=tmp/annual-topic-classifier/$year-$MATRIX_EXAM" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.scope.outputs.run == 'true'
         with:
           persist-credentials: false
