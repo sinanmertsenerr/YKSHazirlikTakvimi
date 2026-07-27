@@ -125,5 +125,8 @@
     "fetch:news": "tsx scripts/fetch-news.ts",
     "check": "npm run validate:pack && npm run validate:bundled && npm run validate:annual-publication && npm run validate:booklets && npm run validate:ogm-topics && npm run typecheck && npm run lint && npm test"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "brace-expansion": "^5.0.8"
+  }
 }
