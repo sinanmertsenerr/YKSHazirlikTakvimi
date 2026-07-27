@@ -1186,18 +1186,26 @@ const newsProvenanceSchema = z
   })
   .strict();
 
+// ÖSYM 2026-07'de site yapısını yeniledi: duyuru listeleri /SinavGrubu/Index/<grupNo>
+// ve /Duyurular/Index yollarına, duyuru sayfaları ise kök seviyedeki slug'lara taşındı.
+// Yeni kayıtlar bu kalıpta üretilir; eski /TR,<id>/<slug>.html kalıbı da kabul edilmeye
+// devam eder, çünkü yayımlanmış paketlerde ve cihaz önbelleklerinde o yoldaki
+// doğrulanmış kayıtlar duruyor — daraltmak onları geçersiz kılıp haberleri düşürürdü.
 function isOsymNewsListUrl(value: string): boolean {
   const url = new URL(value);
   return (
     url.hostname === 'www.osym.gov.tr' &&
-    /^\/TR(?:,|%2c)\d+\/(?:yks|20\d{2})\.html$/i.test(url.pathname)
+    (/^\/(?:SinavGrubu\/Index\/\d+|Duyurular\/Index)$/i.test(url.pathname) ||
+      /^\/TR(?:,|%2c)\d+\/(?:yks|20\d{2})\.html$/i.test(url.pathname))
   );
 }
 
 function isOsymNewsDetailUrl(value: string): boolean {
   const url = new URL(value);
   return (
-    url.hostname === 'www.osym.gov.tr' && /^\/TR(?:,|%2c)\d+\/[a-z0-9-]+\.html$/i.test(url.pathname)
+    url.hostname === 'www.osym.gov.tr' &&
+    (/^\/[a-z0-9][a-z0-9-]*$/i.test(url.pathname) ||
+      /^\/TR(?:,|%2c)\d+\/[a-z0-9-]+\.html$/i.test(url.pathname))
   );
 }
 

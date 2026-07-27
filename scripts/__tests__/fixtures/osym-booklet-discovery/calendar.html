@@ -1,32 +1,86 @@
 <!doctype html>
 <html lang="tr">
+  <!--
+    ÖSYM'nin yenilenen sınav takvimi (2026-07): her tarih türü ayrı bir
+    div.takvimSinavKolon.<tür> hücresinde, sınav adı data-sinavad ile etiketli.
+  -->
   <body>
-    <div class="row">
-      <div class="col-sm-3">
-        YKS<br />Yükseköğretim Kurumları Sınavı<br />2027-YKS 1. Oturum (TYT)
-      </div>
-      <div class="col-sm-2">Sınav Tarihi:<br />19.06.2027 10:15</div>
-      <div class="col-sm-2">Başvuru Tarihleri:<br />05.02.2027 10:00<br />01.03.2027 23:59</div>
-      <div class="col-sm-2">Geç Başvuru Günü:<br />09.03.2027<br />11.03.2027 23:59</div>
-      <div class="col-sm-2">Sonuç Tarihi:<br />21.07.2027</div>
+    <div class="takvimSinavKolon sinavtarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 1. Oturum (TYT)</h6>
+      <p>Sınav Tarihi:</p>
+      <p class="ltr">19.06.2027 10:15</p>
     </div>
-    <div class="row">
-      <div class="col-sm-3">
-        YKS<br />Yükseköğretim Kurumları Sınavı<br />2027-YKS 2. Oturum (AYT)
-      </div>
-      <div class="col-sm-2">Sınav Tarihi:<br />20.06.2027 10:15</div>
-      <div class="col-sm-2">Başvuru Tarihleri:<br />05.02.2027 10:00<br />01.03.2027 23:59</div>
-      <div class="col-sm-2">Geç Başvuru Günü:<br />09.03.2027<br />11.03.2027 23:59</div>
-      <div class="col-sm-2">Sonuç Tarihi:<br />21.07.2027</div>
+    <div class="takvimSinavKolon basvurutarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 1. Oturum (TYT)</h6>
+      <p>Başvuru Tarihi:</p>
+      <p class="ltr">05.02.2027 10:00<br />01.03.2027 23:59</p>
     </div>
-    <div class="row">
-      <div class="col-sm-3">
-        YKS<br />Yükseköğretim Kurumları Sınavı<br />2027-YKS 3. Oturum (YDT)
-      </div>
-      <div class="col-sm-2">Sınav Tarihi:<br />20.06.2027 15:45</div>
-      <div class="col-sm-2">Başvuru Tarihleri:<br />05.02.2027 10:00<br />01.03.2027 23:59</div>
-      <div class="col-sm-2">Geç Başvuru Günü:<br />09.03.2027<br />11.03.2027 23:59</div>
-      <div class="col-sm-2">Sonuç Tarihi:<br />21.07.2027</div>
+    <div
+      class="takvimSinavKolon gecbasvurutarihi"
+      data-sinavad="YKS"
+      data-yil="2027"
+      data-aciklama=""
+    >
+      <h6>2027-YKS 1. Oturum (TYT)</h6>
+      <p>Geç Başvuru Tarihi:</p>
+      <p class="ltr">09.03.2027<br />11.03.2027 23:59</p>
+    </div>
+    <div class="takvimSinavKolon sonuctarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 1. Oturum (TYT)</h6>
+      <p>Sonuç Tarihi:</p>
+      <p class="ltr">21.07.2027</p>
+    </div>
+
+    <div class="takvimSinavKolon sinavtarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 2. Oturum (AYT)</h6>
+      <p>Sınav Tarihi:</p>
+      <p class="ltr">20.06.2027 10:15</p>
+    </div>
+    <div class="takvimSinavKolon basvurutarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 2. Oturum (AYT)</h6>
+      <p>Başvuru Tarihi:</p>
+      <p class="ltr">05.02.2027 10:00<br />01.03.2027 23:59</p>
+    </div>
+    <div
+      class="takvimSinavKolon gecbasvurutarihi"
+      data-sinavad="YKS"
+      data-yil="2027"
+      data-aciklama=""
+    >
+      <h6>2027-YKS 2. Oturum (AYT)</h6>
+      <p>Geç Başvuru Tarihi:</p>
+      <p class="ltr">09.03.2027<br />11.03.2027 23:59</p>
+    </div>
+    <div class="takvimSinavKolon sonuctarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 2. Oturum (AYT)</h6>
+      <p>Sonuç Tarihi:</p>
+      <p class="ltr">21.07.2027</p>
+    </div>
+
+    <div class="takvimSinavKolon sinavtarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 3. Oturum (YDT)</h6>
+      <p>Sınav Tarihi:</p>
+      <p class="ltr">20.06.2027 15:45</p>
+    </div>
+    <div class="takvimSinavKolon basvurutarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 3. Oturum (YDT)</h6>
+      <p>Başvuru Tarihi:</p>
+      <p class="ltr">05.02.2027 10:00<br />01.03.2027 23:59</p>
+    </div>
+    <div
+      class="takvimSinavKolon gecbasvurutarihi"
+      data-sinavad="YKS"
+      data-yil="2027"
+      data-aciklama=""
+    >
+      <h6>2027-YKS 3. Oturum (YDT)</h6>
+      <p>Geç Başvuru Tarihi:</p>
+      <p class="ltr">09.03.2027<br />11.03.2027 23:59</p>
+    </div>
+    <div class="takvimSinavKolon sonuctarihi" data-sinavad="YKS" data-yil="2027" data-aciklama="">
+      <h6>2027-YKS 3. Oturum (YDT)</h6>
+      <p>Sonuç Tarihi:</p>
+      <p class="ltr">21.07.2027</p>
     </div>
   </body>
 </html>

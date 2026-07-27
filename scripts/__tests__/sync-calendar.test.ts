@@ -17,6 +17,30 @@ const VERIFIED_AT = '2026-07-14T19:45:00.000Z';
 const FRESH_VERIFIED_AT = '2026-07-15T19:45:00.000Z';
 const PREFERENCE_YEAR_LIST_URL = 'https://www.osym.gov.tr/TR,33849/2026.html';
 
+/**
+ * ÖSYM'nin yenilenen takvim sayfası her tarih türünü ayrı
+ * `div.takvimSinavKolon.<tür>` hücresinde, sınavı `data-sinavad` ile etiketleyerek verir.
+ * Fixture canlı sayfanın (2026-07) hücre biçimini birebir yansıtır.
+ */
+function officialCell(
+  kind: 'sinavtarihi' | 'basvurutarihi' | 'gecbasvurutarihi' | 'sonuctarihi',
+  label: string,
+  session: 'TYT' | 'AYT' | 'YDT',
+  number: 1 | 2 | 3,
+  values: string[],
+  year = 2026,
+  examName = 'YKS',
+): string {
+  return `
+    <div class="takvimSinavKolon ${kind}" data-sinavad="${examName}" data-yil="${year}" data-aciklama="">
+      <h6>
+        ${year}-YKS ${number}. Oturum (${session})
+      </h6>
+      <p>${label}</p>
+      <p class="ltr">${values.join('<br>')}</p>
+    </div>`;
+}
+
 function officialRow(
   number: 1 | 2 | 3,
   session: 'TYT' | 'AYT' | 'YDT',
@@ -24,24 +48,35 @@ function officialRow(
   result?: string,
   year = 2026,
 ): string {
-  return `
-    <div class='row'>
-      <div class='col-sm-3'>
-        <strong><a href='/TR,13493/yks.html'>YKS</a></strong>
-        <br />Yükseköğretim Kurumları Sınavı
-        <br />${year}-YKS ${number}. Oturum (${session})
-      </div>
-      <div class='col-sm-2'>Sınav Tarihi:<br>${exam}</div>
-      <div class='col-sm-2'>Başvuru Tarihleri:<br>06.02.${year} 14:30<br />02.03.${year} 23:59</div>
-      <div class='col-sm-2'>Geç Başvuru Günü:<br>10.03.${year}<br />12.03.${year} 23:59</div>
-      <div class='col-sm-2'>Sonuç Tarihi:<br>${result ?? `22.07.${year}`}</div>
-      <div style='display:none;'><br /></div>
-    </div>`;
+  return [
+    officialCell('sinavtarihi', 'Sınav Tarihi:', session, number, [exam], year),
+    officialCell(
+      'basvurutarihi',
+      'Başvuru Tarihi:',
+      session,
+      number,
+      [`06.02.${year} 14:30`, `02.03.${year} 23:59`],
+      year,
+    ),
+    officialCell(
+      'gecbasvurutarihi',
+      'Geç Başvuru Tarihi:',
+      session,
+      number,
+      [`10.03.${year}`, `12.03.${year} 23:59`],
+      year,
+    ),
+    officialCell('sonuctarihi', 'Sonuç Tarihi:', session, number, [result ?? `22.07.${year}`], year),
+  ].join('\n');
 }
 
 const OFFICIAL_FIXTURE = `
   <html><body>
-    <div class='row'><div class='col-sm-3'>Başka sınav</div></div>
+    <div class="takvimSinavKolon sinavtarihi" data-sinavad="KPSS" data-yil="2026" data-aciklama="">
+      <h6>2026-KPSS Lisans</h6>
+      <p>Sınav Tarihi:</p>
+      <p class="ltr">12.07.2026</p>
+    </div>
     ${officialRow(1, 'TYT', '20.06.2026 10:15')}
     ${officialRow(2, 'AYT', '21.06.2026 10:15')}
     ${officialRow(3, 'YDT', '21.06.2026 15:45')}

@@ -454,9 +454,23 @@ export async function discoverOfficialPreferenceEvent(
     throw new Error(`Invalid preference verification time: ${options.verifiedAt}`);
   }
   const fetchImpl = options.fetchImpl ?? fetch;
-  const list = await fetchOfficialHtml(OSYM_YKS_LIST_URL, fetchImpl, (url) =>
-    assertOfficialListFetchUrl(url, options.targetYear),
-  );
+
+  // Tercih duyurusu takvimin zorunlu değil, ek bir kaydıdır. ÖSYM 2026-07'de site
+  // yapısını yenileyip bu listenin eski yolunu kaldırdı; kaynak bulunamadığında
+  // takvimin tamamını düşürmek yerine tercih kaydı atlanır ve koşu özetine uyarı
+  // düşer. Sentetik tarih üretilmez (§9.1); yeni yola taşıma ayrı iş kalemidir.
+  let list: { html: string; finalUrl: string };
+  try {
+    list = await fetchOfficialHtml(OSYM_YKS_LIST_URL, fetchImpl, (url) =>
+      assertOfficialListFetchUrl(url, options.targetYear),
+    );
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `::warning title=ÖSYM tercih duyurusu kaynağı okunamadı::${detail} — takvim tercih kaydı olmadan üretiliyor.`,
+    );
+    return null;
+  }
   const candidate = parsePreferenceCandidateFromList(list.html, list.finalUrl, options.targetYear);
   if (!candidate) return null;
 

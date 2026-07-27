@@ -1,55 +1,69 @@
 <!doctype html>
 <html lang="tr">
   <body>
+    <!--
+      ÖSYM'nin yenilenen duyuru listesi (2026-07): her kayıt kök seviyedeki slug'a
+      giden bir <a> ve başlık + yayım tarihini birlikte taşıyan data-search-text
+      attribute'u ile verilir. Tarihsiz, alakasız ve site dışı kayıtlar elenmelidir.
+    -->
     <nav>
-      <a href="/TR,99999/sinav-takvimi.html">Sınav Takvimi ve Başvurular</a>
-      <a href="/TR,99998/kpss.html">KPSS Sınav Sonuçları (10.07.2026)</a>
+      <a href="/Sayfa/SinavTakvimi">Sınav Takvimi ve Başvurular</a>
+      <a href="/2026kpss-lisans-sonuclari" data-search-text="2026-KPSS Lisans Sonuçları Açıklandı 10.07.2026 10 Temmuz 2026">KPSS</a>
     </nav>
 
-    <table id="other-list">
-      <tr>
-        <td>
-          <a href="/TR,99997/anasayfa-haberi.html">
-            <h2>2026-YKS Olmayan Başka Bir Bölüm (11.07.2026)</h2>
-          </a>
-        </td>
-      </tr>
-    </table>
+    <div class="duyuru-listesi">
+      <a
+        href="/2026-yuksekogretim-kurumlari-sinavi-degerlendirme"
+        data-search-text="2026-YKS: Değerlendirme İşlemleri 01.07.2026 1 Temmuz 2026"
+        title="2026-YKS: Değerlendirme İşlemleri"
+      >
+        <span class="gun">1</span>
+        <span class="ay">Temmuz 2026</span>
+      </a>
 
-    <table class="table" id="list">
-      <tr class="row">
-        <td>
-          <a href="/TR,34158/2026-yuksekogretim-kurumlari-sinavi-degerlendirme.html">
-            <h2>2026-YKS: Değerlendirme İşlemleri (01.07.2026)</h2>
-          </a>
-        </td>
-      </tr>
-      <tr class="row">
-        <td>
-          <a href="/TR,34128/yuksekogretim-kurumlari-sinavi-kitapciklari.html">
-            <h2>Yükseköğretim Kurumları Sınavı Kitapçıkları Yayımlandı (21.06.2026)</h2>
-          </a>
-        </td>
-      </tr>
-      <tr class="row">
-        <td>
-          <a href="/TR,30000/genel-sinav-duyurusu.html">
-            <h2>Genel Sınav Başvuruları Açıldı (20.06.2026)</h2>
-          </a>
-        </td>
-      </tr>
-      <tr class="row">
-        <td>
-          <a href="/TR,30001/yks-tarihsiz.html"><h2>2026-YKS Tarihsiz Duyuru</h2></a>
-        </td>
-      </tr>
-      <tr class="row">
-        <td>
-          <a href="https://example.com/TR,30002/yks.html">
-            <h2>2026-YKS Haricî Bağlantı (19.06.2026)</h2>
-          </a>
-        </td>
-      </tr>
-    </table>
+      <a
+        href="/yuksekogretim-kurumlari-sinavi-kitapciklari"
+        data-search-text="Yükseköğretim Kurumları Sınavı Kitapçıkları Yayımlandı 21.06.2026 21 Haziran 2026"
+        title="Yükseköğretim Kurumları Sınavı Kitapçıkları Yayımlandı"
+      >
+        <span class="gun">21</span>
+        <span class="ay">Haziran 2026</span>
+      </a>
+
+      <a
+        href="/genel-sinav-duyurusu"
+        data-search-text="Genel Sınav Başvuruları Açıldı 20.06.2026 20 Haziran 2026"
+        title="Genel Sınav Başvuruları Açıldı"
+      >
+        <span class="gun">20</span>
+        <span class="ay">Haziran 2026</span>
+      </a>
+
+      <a
+        href="/yks-tarihsiz"
+        data-search-text="2026-YKS Tarihsiz Duyuru"
+        title="2026-YKS Tarihsiz Duyuru"
+      >
+        <span class="gun"></span>
+      </a>
+
+      <a
+        href="https://example.com/2026-yks-harici-baglanti"
+        data-search-text="2026-YKS Haricî Bağlantı 19.06.2026 19 Haziran 2026"
+        title="2026-YKS Haricî Bağlantı"
+      >
+        <span class="gun">19</span>
+        <span class="ay">Haziran 2026</span>
+      </a>
+
+      <a
+        href="/TR,34158/2026-eski-yol-duyurusu.html"
+        data-search-text="2026-YKS Eski Yol Duyurusu 18.06.2026 18 Haziran 2026"
+        title="2026-YKS Eski Yol Duyurusu"
+      >
+        <span class="gun">18</span>
+        <span class="ay">Haziran 2026</span>
+      </a>
+    </div>
   </body>
 </html>

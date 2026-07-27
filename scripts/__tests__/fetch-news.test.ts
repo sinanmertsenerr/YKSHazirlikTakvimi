@@ -18,7 +18,7 @@ import {
 } from '../fetch-news.ts';
 import { newsSchema } from '../lib/content-schemas.ts';
 
-const OSYM_CURRENT_PAGE_URL = 'https://www.osym.gov.tr/TR,33849/2026.html';
+const OSYM_CURRENT_PAGE_URL = 'https://www.osym.gov.tr/Duyurular/Index';
 const YOK_DETAIL_URL = 'https://www.yok.gov.tr/tr/news/2026-yks-tercih-sureci-AbC12';
 const VERIFIED_AT = '2026-07-14T12:00:00.000Z';
 const FRESH_VERIFIED_AT = '2026-07-15T12:00:00.000Z';
@@ -56,18 +56,20 @@ async function createSuccessfulFetch(): Promise<typeof fetch> {
   }) as typeof fetch;
 }
 
-test('ÖSYM parser reads only the exact table#list and rejects generic exam false positives', async () => {
+test('ÖSYM parser reads dated slug announcements and rejects generic, undated and off-site entries', async () => {
   const html = await fixture('osym-yks-list.html');
   const first = parseOsymYksList(html, OSYM_CURRENT_PAGE_URL, VERIFIED_AT);
   const second = parseOsymYksList(html, OSYM_CURRENT_PAGE_URL, VERIFIED_AT);
 
+  // Yenilenen sayfada yayım tarihi başlıktan ayrı bir attribute'ta durduğu için
+  // başlık artık parantezli tarih eki taşımaz; tarih publishedAt'te saklanır.
   assert.equal(first.length, 2);
   assert.deepEqual(first, second);
   assert.deepEqual(
     first.map((item) => item.title.tr),
     [
-      '2026-YKS: Değerlendirme İşlemleri (01.07.2026)',
-      'Yükseköğretim Kurumları Sınavı Kitapçıkları Yayımlandı (21.06.2026)',
+      '2026-YKS: Değerlendirme İşlemleri',
+      'Yükseköğretim Kurumları Sınavı Kitapçıkları Yayımlandı',
     ],
   );
   assert.deepEqual(

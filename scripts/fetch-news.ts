@@ -15,7 +15,7 @@ import {
 
 export { isRelevantNewsTitle } from './lib/news-relevance.ts';
 
-export const OSYM_YKS_LIST_URL = 'https://www.osym.gov.tr/TR,13493/yks.html';
+export const OSYM_YKS_LIST_URL = 'https://www.osym.gov.tr/SinavGrubu/Index/2';
 export const YOK_LIST_URLS = [
   'https://www.yok.gov.tr/tr/news',
   'https://www.yok.gov.tr/tr/announcements',
@@ -171,10 +171,9 @@ function makeNewsItem(
 function isExpectedDetailUrl(url: URL, source: Source): boolean {
   if (url.search) return false;
   if (source === 'ÖSYM') {
-    return (
-      url.hostname === 'www.osym.gov.tr' &&
-      /^\/TR(?:,|%2c)\d+\/[a-z0-9-]+\.html$/i.test(url.pathname)
-    );
+    // Yenilenen site duyuruları kök seviyede slug olarak yayımlıyor
+    // (ör. /2026yks-sinav-sonuclari-aciklandi); eski /TR,<id>/<slug>.html yolu kaldırıldı.
+    return url.hostname === 'www.osym.gov.tr' && /^\/[a-z0-9][a-z0-9-]*$/i.test(url.pathname);
   }
   return (
     url.hostname === 'www.yok.gov.tr' &&
@@ -182,65 +181,55 @@ function isExpectedDetailUrl(url: URL, source: Source): boolean {
   );
 }
 
-function findTableByExactId(html: string, id: string): string {
-  const openingPattern = /<table\b[^>]*>/gi;
-  const matches = [...html.matchAll(openingPattern)].filter(
-    (match) => attributeValue(match[0], 'id') === id,
-  );
-  if (matches.length !== 1) {
-    throw new Error(`Expected exactly one table#${id}, found ${matches.length}`);
-  }
-  const match = matches[0]!;
-  const start = (match.index ?? 0) + match[0].length;
-  const closingMatch = html.slice(start).match(/<\/table\s*>/i);
-  if (closingMatch?.index === undefined) throw new Error(`table#${id} has no closing tag`);
-  return html.slice(start, start + closingMatch.index);
-}
-
+/**
+ * ÖSYM'nin yenilenen duyuru listesi (2026-07) her kaydı
+ * `<a href="/<slug>" data-search-text="<başlık> <gg.aa.yyyy> <gün ay yıl>">`
+ * biçiminde verir; başlık ve yayım tarihi aynı attribute içinde taşınır ve
+ * eski `table#list` + `<h2>` yapısı kaldırılmıştır. Tarih yalnız bu attribute'un
+ * sonundaki noktalı kalıptan okunur; başlıkta tarih aranmaz (§9.1).
+ */
 export function parseOsymYksList(html: string, pageUrl: string, verifiedAt: string): NewsItem[] {
   const listUrl = assertAllowedOfficialUrl(pageUrl, 'osym');
-  const table = findTableByExactId(html, 'list');
-  const rowPattern = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+  const entryPattern = /<a\b([^>]*\bdata-search-text\s*=\s*(['"])[\s\S]*?\2[^>]*)>/gi;
   const items: NewsItem[] = [];
 
-  for (const rowMatch of table.matchAll(rowPattern)) {
-    const row = rowMatch[1] ?? '';
-    const anchorPattern = /(<a\b[^>]*>)([\s\S]*?)<\/a>/gi;
-    for (const anchorMatch of row.matchAll(anchorPattern)) {
-      const innerHtml = anchorMatch[2] ?? '';
-      const headingMatch = innerHtml.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i);
-      if (!headingMatch) continue;
-      const href = attributeValue(anchorMatch[1] ?? '', 'href');
-      const title = plainText(headingMatch[1] ?? '');
-      const dateMatch = title.match(/\((\d{1,2}\.\d{1,2}\.20\d{2})\)\s*$/);
-      if (!href || !dateMatch?.[1] || !isRelevantNewsTitle(title)) continue;
+  for (const entryMatch of html.matchAll(entryPattern)) {
+    const attributes = entryMatch[1] ?? '';
+    const href = attributeValue(`<a ${attributes}>`, 'href');
+    const searchText = attributeValue(`<a ${attributes}>`, 'data-search-text');
+    if (!href || !searchText) continue;
 
-      let detailUrl: URL;
-      try {
-        detailUrl = assertAllowedOfficialUrl(new URL(href, pageUrl).href, 'osym');
-      } catch {
-        continue;
-      }
-      if (!isExpectedDetailUrl(detailUrl, 'ÖSYM')) continue;
-      const publishedAt = dottedDateToPublishedAt(dateMatch[1]);
-      if (!publishedAt) continue;
-      items.push(
-        makeNewsItem(
-          'ÖSYM',
-          title,
-          detailUrl.href,
-          publishedAt,
-          verifiedAt,
-          listUrl.href,
-          'osym-list-title-date',
-        ),
-      );
+    const normalized = plainText(searchText).replace(/\s+/gu, ' ').trim();
+    const dateMatch = normalized.match(/(\d{1,2}\.\d{1,2}\.20\d{2})/u);
+    if (!dateMatch?.[1]) continue;
+    const title = normalized.slice(0, dateMatch.index).trim();
+    if (!title || !isRelevantNewsTitle(title)) continue;
+
+    let detailUrl: URL;
+    try {
+      detailUrl = assertAllowedOfficialUrl(new URL(href, pageUrl).href, 'osym');
+    } catch {
+      continue;
     }
+    if (!isExpectedDetailUrl(detailUrl, 'ÖSYM')) continue;
+    const publishedAt = dottedDateToPublishedAt(dateMatch[1]);
+    if (!publishedAt) continue;
+    items.push(
+      makeNewsItem(
+        'ÖSYM',
+        title,
+        detailUrl.href,
+        publishedAt,
+        verifiedAt,
+        listUrl.href,
+        'osym-list-title-date',
+      ),
+    );
   }
 
   const deduplicated = new Map(items.map((item) => [item.url, item]));
   if (!deduplicated.size) {
-    throw new Error('table#list contained no strictly dated YKS announcements');
+    throw new Error('The ÖSYM announcement list contained no strictly dated YKS announcements');
   }
   return [...deduplicated.values()];
 }

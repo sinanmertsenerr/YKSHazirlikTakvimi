@@ -17,7 +17,7 @@ import {
 } from './lib/semantic-stability.ts';
 import { discoverOfficialPreferenceEvent } from './lib/osym-preference-calendar.ts';
 
-export const OFFICIAL_CALENDAR_URL = 'https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1';
+export const OFFICIAL_CALENDAR_URL = 'https://www.osym.gov.tr/Sayfa/SinavTakvimi';
 
 const MAX_RESPONSE_BYTES = 2_000_000;
 const MAX_REDIRECTS = 3;
@@ -106,93 +106,147 @@ function parseOfficialDateTime(value: string, context: string): DateTimeParts {
   return { date, time: time ?? null };
 }
 
-function readLabelledValues(lines: string[], label: string, count: number): DateTimeParts[] {
-  if (lines[0] !== label || lines.length !== count + 1) {
-    throw new Error(
-      `Expected ${count} value(s) after “${label}”, received: ${lines.join(' | ') || '<empty>'}`,
-    );
-  }
-  return lines
-    .slice(1)
-    .map((value, index) => parseOfficialDateTime(value, `${label} value ${index + 1}`));
-}
+/**
+ * ÖSYM'nin yenilenen takvim sayfası (2026-07) her tarih türünü ayrı bir
+ * `div.takvimSinavKolon.<tür>` hücresinde verir; hücre `data-sinavad` ile sınavı,
+ * `<h6>` ile oturum kimliğini, `<p class="ltr">` içinde `<br>` ile ayrılmış
+ * tarihleri taşır. Sayfa artık tüm ÖSYM sınavlarını tek listede topladığı için
+ * YKS filtresi hem attribute hem başlık üzerinden iki kez doğrulanır.
+ */
+const CELL_KINDS = {
+  sinavtarihi: 'exam',
+  basvurutarihi: 'application',
+  gecbasvurutarihi: 'lateApplication',
+  sonuctarihi: 'result',
+} as const;
 
-function extractColumns(rowHtml: string): string[][] {
-  const columns: string[][] = [];
-  const pattern =
-    /<div\b[^>]*\bclass\s*=\s*(['"])[^'"]*\bcol-sm-(?:2|3)\b[^'"]*\1[^>]*>([\s\S]*?)<\/div>/gi;
-  for (const match of rowHtml.matchAll(pattern)) columns.push(htmlLines(match[2] ?? ''));
-  return columns;
-}
+type CellKind = (typeof CELL_KINDS)[keyof typeof CELL_KINDS];
 
-function extractCalendarRows(html: string): string[] {
-  const markers = [
-    ...html.matchAll(/<div\b[^>]*\bclass\s*=\s*(['"])[^'"]*\brow\b[^'"]*\1[^>]*>/gi),
-  ];
-  return markers.map((marker, index) => {
-    const start = marker.index ?? 0;
-    const next = markers[index + 1];
-    return html.slice(start, next?.index ?? html.length);
-  });
-}
+/** Her hücre türünün taşıması gereken tarih adedi; sapma fail-closed hatadır (§9.1). */
+const CELL_VALUE_COUNTS: Record<CellKind, number> = {
+  exam: 1,
+  application: 2,
+  lateApplication: 2,
+  result: 1,
+};
 
-function parseSession(rowHtml: string): OfficialSession | null {
-  const columns = extractColumns(rowHtml);
-  const identity = columns[0] ?? [];
-  const sessionLine = identity.find((line) => /-YKS\s+[123]\.\s+Oturum\s+\(/u.test(line));
-  if (!sessionLine) return null;
+type CalendarCell = {
+  kind: CellKind;
+  year: number;
+  session: SessionName;
+  sessionNumber: 1 | 2 | 3;
+  values: DateTimeParts[];
+};
 
-  const identityMatch = sessionLine.match(
-    /^(20\d{2})-YKS\s+([123])\.\s+Oturum\s+\((TYT|AYT|YDT)\)$/u,
-  );
-  if (!identityMatch) throw new Error(`Unrecognized YKS session identity: ${sessionLine}`);
-  if (columns.length !== 5) {
-    throw new Error(`Expected five columns for ${sessionLine}, received ${columns.length}`);
-  }
+function parseSessionIdentity(
+  heading: string,
+): { year: number; session: SessionName; sessionNumber: 1 | 2 | 3 } | null {
+  const match = heading.match(/^(20\d{2})-YKS\s+([123])\.\s+Oturum\s+\((TYT|AYT|YDT)\)$/u);
+  if (!match?.[1] || !match[2] || !match[3]) return null;
 
-  const year = Number(identityMatch[1]);
-  const sessionNumber = Number(identityMatch[2]) as 1 | 2 | 3;
-  const session = identityMatch[3] as SessionName;
+  const session = match[3] as SessionName;
+  const sessionNumber = Number(match[2]) as 1 | 2 | 3;
   const expectedSessions: Record<SessionName, 1 | 2 | 3> = { TYT: 1, AYT: 2, YDT: 3 };
   if (expectedSessions[session] !== sessionNumber) {
-    throw new Error(`Session number/name mismatch: ${sessionLine}`);
+    throw new Error(`Session number/name mismatch: ${heading}`);
+  }
+  return { year: Number(match[1]), session, sessionNumber };
+}
+
+function extractYksCells(html: string): CalendarCell[] {
+  const cellPattern =
+    /<div\b[^>]*\bclass\s*=\s*(['"])takvimSinavKolon\s+([a-z]+)\1([^>]*)>([\s\S]*?)<\/div>/gi;
+  const cells: CalendarCell[] = [];
+
+  for (const match of html.matchAll(cellPattern)) {
+    const kind = CELL_KINDS[match[2] as keyof typeof CELL_KINDS];
+    if (!kind) continue;
+    if (!/\bdata-sinavad\s*=\s*(['"])YKS\1/i.test(match[3] ?? '')) continue;
+
+    const body = match[4] ?? '';
+    const headingMatch = body.match(/<h6\b[^>]*>([\s\S]*?)<\/h6>/i);
+    if (!headingMatch) continue;
+    const identity = parseSessionIdentity(htmlToText(headingMatch[1] ?? '').trim());
+    if (!identity) continue;
+
+    const valuesMatch = body.match(
+      /<p\b[^>]*\bclass\s*=\s*(['"])[^'"]*\bltr\b[^'"]*\1[^>]*>([\s\S]*?)<\/p>/i,
+    );
+    if (!valuesMatch) {
+      throw new Error(`Official ${identity.session} ${kind} cell has no date values.`);
+    }
+
+    const rawValues = htmlLines(valuesMatch[2] ?? '')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+    const expectedCount = CELL_VALUE_COUNTS[kind];
+    if (rawValues.length !== expectedCount) {
+      throw new Error(
+        `Expected ${expectedCount} value(s) in the ${identity.year} YKS ${identity.session} ${kind} cell, received: ${rawValues.join(' | ') || '<empty>'}`,
+      );
+    }
+
+    cells.push({
+      ...identity,
+      kind,
+      values: rawValues.map((value, index) =>
+        parseOfficialDateTime(value, `${identity.session} ${kind} value ${index + 1}`),
+      ),
+    });
   }
 
-  const [exam] = readLabelledValues(columns[1] ?? [], 'Sınav Tarihi:', 1);
-  const [applicationStart, applicationEnd] = readLabelledValues(
-    columns[2] ?? [],
-    'Başvuru Tarihleri:',
-    2,
-  );
-  const [lateApplicationStart, lateApplicationEnd] = readLabelledValues(
-    columns[3] ?? [],
-    'Geç Başvuru Günü:',
-    2,
-  );
-  const [result] = readLabelledValues(columns[4] ?? [], 'Sonuç Tarihi:', 1);
+  return cells;
+}
 
-  if (
-    !exam ||
-    !applicationStart ||
-    !applicationEnd ||
-    !lateApplicationStart ||
-    !lateApplicationEnd ||
-    !result
-  ) {
-    throw new Error(`Incomplete official fields for ${sessionLine}`);
+function collectSessions(html: string): OfficialSession[] {
+  const grouped = new Map<string, Map<CellKind, DateTimeParts[]>>();
+  const identities = new Map<string, { year: number; session: SessionName; sessionNumber: 1 | 2 | 3 }>();
+
+  for (const cell of extractYksCells(html)) {
+    const key = `${cell.year}-${cell.session}`;
+    identities.set(key, { year: cell.year, session: cell.session, sessionNumber: cell.sessionNumber });
+    const byKind = grouped.get(key) ?? new Map<CellKind, DateTimeParts[]>();
+    const existing = byKind.get(cell.kind);
+    if (existing && !existing.every((value, index) => sameDateTime(value, cell.values[index]!))) {
+      throw new Error(`ÖSYM lists conflicting ${cell.kind} values for ${key}.`);
+    }
+    byKind.set(cell.kind, cell.values);
+    grouped.set(key, byKind);
   }
 
-  return {
-    year,
-    session,
-    sessionNumber,
-    exam,
-    applicationStart,
-    applicationEnd,
-    lateApplicationStart,
-    lateApplicationEnd,
-    result,
-  };
+  const sessions: OfficialSession[] = [];
+  for (const [key, byKind] of grouped) {
+    const identity = identities.get(key)!;
+    const exam = byKind.get('exam')?.[0];
+    const [applicationStart, applicationEnd] = byKind.get('application') ?? [];
+    const [lateApplicationStart, lateApplicationEnd] = byKind.get('lateApplication') ?? [];
+    const result = byKind.get('result')?.[0];
+
+    // Eksik hücre bırakan bir oturum sessizce atlanır: tam üçlü kuralı (TYT/AYT/YDT)
+    // aşağıda yılı seçerken zaten eksik yılı eler ve kaynak kapalı kalır (§9.1).
+    if (
+      !exam ||
+      !applicationStart ||
+      !applicationEnd ||
+      !lateApplicationStart ||
+      !lateApplicationEnd ||
+      !result
+    ) {
+      continue;
+    }
+
+    sessions.push({
+      ...identity,
+      exam,
+      applicationStart,
+      applicationEnd,
+      lateApplicationStart,
+      lateApplicationEnd,
+      result,
+    });
+  }
+
+  return sessions;
 }
 
 function sameDateTime(left: DateTimeParts, right: DateTimeParts): boolean {
@@ -240,9 +294,7 @@ export function parseOfficialCalendarHtml(
     throw new Error(`Invalid verification time: ${verifiedAt}`);
   }
 
-  const sessions = extractCalendarRows(html)
-    .map(parseSession)
-    .filter((session): session is OfficialSession => session !== null);
+  const sessions = collectSessions(html);
   // Yıllık geçişte ÖSYM sayfası kısa süre iki yılın (veya eksik yeni yılın) satırlarını birlikte
   // listeleyebilir; insan müdahalesi gerektirmemek için tam ve tekrarsız TYT/AYT/YDT üçlüsü
   // taşıyan en yeni yıl seçilir. Hiçbir yıl tam değilse eskisi gibi kapalı kalınır (§9.1).
