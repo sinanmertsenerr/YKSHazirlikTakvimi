@@ -4,7 +4,7 @@
     "verified": true,
     "approximate": false,
     "sample": false,
-    "source": "https://www.osym.gov.tr/TR,33849/2026.html",
+    "source": "https://www.osym.gov.tr/SinavGrubu/Index/2",
     "note": {
       "tr": "Kayıtlar yalnızca resmî ÖSYM YKS listesi ile detay tarihi doğrulanan YÖK sayfalarından alınır; kaynak dil korunur.",
       "en": "Items come only from the official ÖSYM YKS list and YÖK pages with a verified detail date; source-language text is retained."
@@ -12,23 +12,47 @@
   },
   "items": [
     {
-      "id": "osym-4ebc59d27c7deb4e6331119a",
+      "id": "yok-d2a943e5641d71acc3b70ebe",
+      "publishedAt": "2026-07-27T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME",
+        "en": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME"
+      },
+      "summary": {
+        "tr": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME",
+        "en": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME"
+      },
+      "url": "https://www.yok.gov.tr/tr/announcements/2026-yks-tercih-doneminde-yurt-disinda-yuksekogrenim-planlayan-adaylara-yonelik-tanima-ve-denklik-sureclerine-iliskin-bilgilendirme-fn0hU",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/announcements",
+        "detailUrl": "https://www.yok.gov.tr/tr/announcements/2026-yks-tercih-doneminde-yurt-disinda-yuksekogrenim-planlayan-adaylara-yonelik-tanima-ve-denklik-sureclerine-iliskin-bilgilendirme-fn0hU",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-5aa3430838d02a4df61961d2",
       "publishedAt": "2026-07-22T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)",
-        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)"
+        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri",
+        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri"
       },
       "summary": {
-        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)",
-        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri (22.07.2026)"
+        "tr": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri",
+        "en": "2026-YKS: Okul Birincisi Olan Adayların ÖSYM Aday İşlemleri Sistemindeki Okul Birinciliği Bilgilerini Kontrol Etmeleri"
       },
-      "url": "https://www.osym.gov.tr/TR,34190/2026-yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri-22072026.html",
+      "url": "https://www.osym.gov.tr/2026yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri",
       "verified": true,
-      "verifiedAt": "2026-07-22T09:39:07.489Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34190/2026-yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri-22072026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-okul-birincisi-olan-adaylarin-osym-aday-islemleri-sistemindeki-okul-birinciligi-bilgilerini-kontrol-etmeleri",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -36,23 +60,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-1ac1db7fdbc551cdd53e8529",
-      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "id": "osym-738eca3d07e118bb0542cb01",
+      "publishedAt": "2026-07-22T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)",
-        "en": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)"
+        "tr": "2026-YKS Sınav Sonuçlarına İlişkin Sayısal Bilgiler",
+        "en": "2026-YKS Sınav Sonuçlarına İlişkin Sayısal Bilgiler"
       },
       "summary": {
-        "tr": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)",
-        "en": "2026-YKS: Sınav Sonuçları Açıklandı (21.07.2026)"
+        "tr": "2026-YKS Sınav Sonuçlarına İlişkin Sayısal Bilgiler",
+        "en": "2026-YKS Sınav Sonuçlarına İlişkin Sayısal Bilgiler"
       },
-      "url": "https://www.osym.gov.tr/TR,34187/2026-yks-sinav-sonuclari-aciklandi-21072026.html",
+      "url": "https://www.osym.gov.tr/2026yks-sinav-sonuclarina-iliskin-sayisal-bilgiler",
       "verified": true,
-      "verifiedAt": "2026-07-21T03:51:09.192Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34187/2026-yks-sinav-sonuclari-aciklandi-21072026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-sinav-sonuclarina-iliskin-sayisal-bilgiler",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -60,23 +84,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-d58004a08c1e3cdeaa9066ee",
-      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "id": "osym-08cbfaeeabc9acb3d847593e",
+      "publishedAt": "2026-07-22T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)",
-        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)"
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
       },
       "summary": {
-        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)",
-        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı (21.07.2026)"
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
       },
-      "url": "https://www.osym.gov.tr/TR,34188/2026-yks-cevap-kagitlari-ve-aday-cevaplari-erisime-acildi-21072026.html",
+      "url": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
       "verified": true,
-      "verifiedAt": "2026-07-21T13:00:40.558Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34188/2026-yks-cevap-kagitlari-ve-aday-cevaplari-erisime-acildi-21072026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -84,23 +108,71 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-b328ef7adfd52e5aaf0febb3",
+      "id": "osym-625131e9daec0b273829825f",
       "publishedAt": "2026-07-21T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)",
-        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)"
+        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı",
+        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı"
       },
       "summary": {
-        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)",
-        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması (21.07.2026)"
+        "tr": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı",
+        "en": "2026-YKS: Cevap Kâğıtları ve Aday Cevapları Erişime Açıldı"
       },
-      "url": "https://www.osym.gov.tr/TR,34189/2026-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi-21072026.html",
+      "url": "https://www.osym.gov.tr/2026yks-cevap-kgitlari-ve-aday-cevaplari-erisime-acildi",
       "verified": true,
-      "verifiedAt": "2026-07-21T15:53:48.782Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34189/2026-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi-21072026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-cevap-kgitlari-ve-aday-cevaplari-erisime-acildi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-51b52c636b36473f1132332b",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Sınav Sonuçları Açıklandı",
+        "en": "2026-YKS: Sınav Sonuçları Açıklandı"
+      },
+      "summary": {
+        "tr": "2026-YKS: Sınav Sonuçları Açıklandı",
+        "en": "2026-YKS: Sınav Sonuçları Açıklandı"
+      },
+      "url": "https://www.osym.gov.tr/2026yks-sinav-sonuclari-aciklandi",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-sinav-sonuclari-aciklandi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-c396a9c3a3849610a948906d",
+      "publishedAt": "2026-07-21T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması",
+        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması"
+      },
+      "summary": {
+        "tr": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması",
+        "en": "2026-YKS: Yükseköğretim Programları ve Kontenjanları Kılavuzunun Yayımlanması"
+      },
+      "url": "https://www.osym.gov.tr/2026yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzunun-yayimlanmasi",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -132,23 +204,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-f3f591e6c61f28d8e5a2b8d7",
+      "id": "osym-3855e64e9c5d8797523c29d0",
       "publishedAt": "2026-07-01T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri (01.07.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri (01.07.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri"
       },
       "summary": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri (01.07.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri (01.07.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Değerlendirme İşlemleri"
       },
-      "url": "https://www.osym.gov.tr/TR,34158/2026-yuksekogretim-kurumlari-sinavi-2026-yks-degerlendirme-islemleri-01072026.html",
+      "url": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-degerlendirme-islemleri",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34158/2026-yuksekogretim-kurumlari-sinavi-2026-yks-degerlendirme-islemleri-01072026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-degerlendirme-islemleri",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -156,23 +228,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-d850a51d7e7d9a263bf37ba7",
-      "publishedAt": "2026-06-23T00:00:00+03:00",
+      "id": "osym-4f2df3fa1207fea741b4a4d2",
+      "publishedAt": "2026-06-22T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması (23.06.2026)",
-        "en": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması (23.06.2026)"
+        "tr": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması",
+        "en": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması"
       },
       "summary": {
-        "tr": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması (23.06.2026)",
-        "en": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması (23.06.2026)"
+        "tr": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması",
+        "en": "2026-YKS: Adayların Eğitim Bilgilerinin Kontrol / Güncelleme / Teyit İşlemleri İçin Okul Müdürlüklerine Kamu Kurumları İşlemleri Sisteminin Açılması"
       },
-      "url": "https://www.osym.gov.tr/TR,34131/2026-yks-adaylarin-egitim-bilgilerinin-kontrol--guncelleme--teyit-islemleri-icin-okul-mudurluklerine-kamu-kurumlari-islemleri-sisteminin-acilmasi-23062026.html",
+      "url": "https://www.osym.gov.tr/2026yks-adaylarin-egitim-bilgilerinin-kontrol-guncelleme-teyit-islemleri-icin-okul-mudurluklerine-kamu-kurumlari-islemleri-sisteminin-acilmasi",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34131/2026-yks-adaylarin-egitim-bilgilerinin-kontrol--guncelleme--teyit-islemleri-icin-okul-mudurluklerine-kamu-kurumlari-islemleri-sisteminin-acilmasi-23062026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-adaylarin-egitim-bilgilerinin-kontrol-guncelleme-teyit-islemleri-icin-okul-mudurluklerine-kamu-kurumlari-islemleri-sisteminin-acilmasi",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -180,23 +252,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-b063f9fc3f76ad605d0b73d2",
-      "publishedAt": "2026-06-23T00:00:00+03:00",
+      "id": "osym-23e1e491c46bbcaf56ea77a8",
+      "publishedAt": "2026-06-22T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi (23.06.2026)",
-        "en": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi (23.06.2026)"
+        "tr": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi",
+        "en": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi"
       },
       "summary": {
-        "tr": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi (23.06.2026)",
-        "en": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi (23.06.2026)"
+        "tr": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi",
+        "en": "2026-YKS: Sistemdeki Eğitim Bilgilerinin Adaylar Tarafından Kontrolü ve Eğitim Bilgisi Seçme İşlemi"
       },
-      "url": "https://www.osym.gov.tr/TR,34132/2026-yks-sistemdeki-egitim-bilgilerinin-adaylar-tarafindan-kontrolu-ve-egitim-bilgisi-secme-islemi-23062026.html",
+      "url": "https://www.osym.gov.tr/2026yks-sistemdeki-egitim-bilgilerinin-adaylar-tarafindan-kontrolu-ve-egitim-bilgisi-secme-islemi",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34132/2026-yks-sistemdeki-egitim-bilgilerinin-adaylar-tarafindan-kontrolu-ve-egitim-bilgisi-secme-islemi-23062026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-sistemdeki-egitim-bilgilerinin-adaylar-tarafindan-kontrolu-ve-egitim-bilgisi-secme-islemi",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -204,23 +276,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-24a267d952d4dbe35ec37490",
-      "publishedAt": "2026-06-21T00:00:00+03:00",
+      "id": "osym-651e49d882d8e473fbb07375",
+      "publishedAt": "2026-06-19T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı (21.06.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı (21.06.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı"
       },
       "summary": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı (21.06.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı (21.06.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Temel Soru Kitapçıkları ve Cevap Anahtarları Yayımlandı"
       },
-      "url": "https://www.osym.gov.tr/TR,34128/2026-yuksekogretim-kurumlari-sinavi-2026-yks-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-21062026.html",
+      "url": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34128/2026-yuksekogretim-kurumlari-sinavi-2026-yks-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi-21062026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -228,23 +300,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-c9728deb57302c3e60b3c4b5",
-      "publishedAt": "2026-06-18T00:00:00+03:00",
+      "id": "osym-ccf77e414754cad1b1463229",
+      "publishedAt": "2026-06-19T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri (18.06.2026)",
-        "en": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri (18.06.2026)"
+        "tr": "2026-YKS (TYT, AYT ve YDT) Temel Soru Kitapçıkları ve Cevap Anahtarları",
+        "en": "2026-YKS (TYT, AYT ve YDT) Temel Soru Kitapçıkları ve Cevap Anahtarları"
       },
       "summary": {
-        "tr": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri (18.06.2026)",
-        "en": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri (18.06.2026)"
+        "tr": "2026-YKS (TYT, AYT ve YDT) Temel Soru Kitapçıkları ve Cevap Anahtarları",
+        "en": "2026-YKS (TYT, AYT ve YDT) Temel Soru Kitapçıkları ve Cevap Anahtarları"
       },
-      "url": "https://www.osym.gov.tr/TR,34127/2026-yks-icin-sinav-gunu-acik-tutulacak-ililce-nufus-mudurlukleri-18062026.html",
+      "url": "https://www.osym.gov.tr/2026yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34127/2026-yks-icin-sinav-gunu-acik-tutulacak-ililce-nufus-mudurlukleri-18062026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-tyt-ayt-ve-ydt-temel-soru-kitapciklari-ve-cevap-anahtarlari",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -252,23 +324,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-66847288090981d0c10e8887",
-      "publishedAt": "2026-06-10T00:00:00+03:00",
+      "id": "osym-6c87047f85c8af7a5fbbb94f",
+      "publishedAt": "2026-06-17T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı (10.06.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı (10.06.2026)"
+        "tr": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri",
+        "en": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri"
       },
       "summary": {
-        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı (10.06.2026)",
-        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı (10.06.2026)"
+        "tr": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri",
+        "en": "2026-YKS İçin Sınav Günü Açık Tutulacak İl/İlçe Nüfus Müdürlükleri"
       },
-      "url": "https://www.osym.gov.tr/TR,34108/2026-yuksekogretim-kurumlari-sinavi-2026-yks-sinava-giris-belgeleri-erisime-acildi-10062026.html",
+      "url": "https://www.osym.gov.tr/2026yks-icin-sinav-gunu-acik-tutulacak-ililce-nufus-mudurlukleri",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,34108/2026-yuksekogretim-kurumlari-sinavi-2026-yks-sinava-giris-belgeleri-erisime-acildi-10062026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-icin-sinav-gunu-acik-tutulacak-ililce-nufus-mudurlukleri",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -276,23 +348,23 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-d8512dce6eecb15ca072d2a4",
-      "publishedAt": "2026-03-12T00:00:00+03:00",
+      "id": "osym-8a90d5a6a5b1c9cae57430c9",
+      "publishedAt": "2026-06-09T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Başvuru İşlemlerinin Tamamlanması (12.03.2026)",
-        "en": "2026-YKS: Başvuru İşlemlerinin Tamamlanması (12.03.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı"
       },
       "summary": {
-        "tr": "2026-YKS: Başvuru İşlemlerinin Tamamlanması (12.03.2026)",
-        "en": "2026-YKS: Başvuru İşlemlerinin Tamamlanması (12.03.2026)"
+        "tr": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı",
+        "en": "2026 Yükseköğretim Kurumları Sınavı (2026-YKS): Sınava Giriş Belgeleri Erişime Açıldı"
       },
-      "url": "https://www.osym.gov.tr/TR,33916/2026-yks-basvuru-islemlerinin-tamamlanmasi-12032026.html",
+      "url": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-sinava-giris-belgeleri-erisime-acildi",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,33916/2026-yks-basvuru-islemlerinin-tamamlanmasi-12032026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-2026yks-sinava-giris-belgeleri-erisime-acildi",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
@@ -300,23 +372,143 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "osym-1ad6c566b94082487afcbdbb",
-      "publishedAt": "2026-02-06T00:00:00+03:00",
+      "id": "osym-5c65b963ecfab1b0c66fbcd6",
+      "publishedAt": "2026-04-14T00:00:00+03:00",
       "source": "ÖSYM",
       "title": {
-        "tr": "2026-YKS: Başvuruların Alınması (06.02.2026)",
-        "en": "2026-YKS: Başvuruların Alınması (06.02.2026)"
+        "tr": "Görme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu",
+        "en": "Görme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu"
       },
       "summary": {
-        "tr": "2026-YKS: Başvuruların Alınması (06.02.2026)",
-        "en": "2026-YKS: Başvuruların Alınması (06.02.2026)"
+        "tr": "Görme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu",
+        "en": "Görme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu"
       },
-      "url": "https://www.osym.gov.tr/TR,33850/2026-yks-basvurularin-alinmasi-06022026.html",
+      "url": "https://www.osym.gov.tr/gorme-engelli-adaylar-icin-hazirlanmis-2026yks-kilavuzu",
       "verified": true,
-      "verifiedAt": "2026-07-14T20:29:15.590Z",
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
       "provenance": {
-        "listUrl": "https://www.osym.gov.tr/TR,33849/2026.html",
-        "detailUrl": "https://www.osym.gov.tr/TR,33850/2026-yks-basvurularin-alinmasi-06022026.html",
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/gorme-engelli-adaylar-icin-hazirlanmis-2026yks-kilavuzu",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-216330849987f74dea82d6d2",
+      "publishedAt": "2026-04-14T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "İşitme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu",
+        "en": "İşitme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu"
+      },
+      "summary": {
+        "tr": "İşitme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu",
+        "en": "İşitme Engelli Adaylar İçin Hazırlanmış 2026-YKS Kılavuzu"
+      },
+      "url": "https://www.osym.gov.tr/isitme-engelli-adaylar-icin-hazirlanmis-2026yks-kilavuzu",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/isitme-engelli-adaylar-icin-hazirlanmis-2026yks-kilavuzu",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-33c032aca2fd3e316bb16468",
+      "publishedAt": "2026-03-11T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Başvuru İşlemlerinin Tamamlanması",
+        "en": "2026-YKS: Başvuru İşlemlerinin Tamamlanması"
+      },
+      "summary": {
+        "tr": "2026-YKS: Başvuru İşlemlerinin Tamamlanması",
+        "en": "2026-YKS: Başvuru İşlemlerinin Tamamlanması"
+      },
+      "url": "https://www.osym.gov.tr/2026yks-basvuru-islemlerinin-tamamlanmasi",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-basvuru-islemlerinin-tamamlanmasi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-c6bbcb98453ff91602f5ec91",
+      "publishedAt": "2026-02-19T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Sıkça Sorulan Sorular",
+        "en": "2026-YKS: Sıkça Sorulan Sorular"
+      },
+      "summary": {
+        "tr": "2026-YKS: Sıkça Sorulan Sorular",
+        "en": "2026-YKS: Sıkça Sorulan Sorular"
+      },
+      "url": "https://www.osym.gov.tr/2026yks-sikca-sorulan-sorular",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-sikca-sorulan-sorular",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-0f36e44fdafbc57843cd3f76",
+      "publishedAt": "2026-02-05T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Başvuruların Alınması",
+        "en": "2026-YKS: Başvuruların Alınması"
+      },
+      "summary": {
+        "tr": "2026-YKS: Başvuruların Alınması",
+        "en": "2026-YKS: Başvuruların Alınması"
+      },
+      "url": "https://www.osym.gov.tr/2026yks-basvurularin-alinmasi",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yks-basvurularin-alinmasi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-78eb48b1f6c527c164786995",
+      "publishedAt": "2026-02-05T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Kılavuzu"
+      },
+      "summary": {
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Kılavuzu"
+      },
+      "url": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-kilavuzu",
+      "verified": true,
+      "verifiedAt": "2026-07-27T17:10:28.943Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-kilavuzu",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,

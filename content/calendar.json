@@ -4,7 +4,7 @@
     "verified": true,
     "approximate": false,
     "sample": false,
-    "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1",
+    "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi",
     "note": {
       "tr": "Tarihler ÖSYM sınav takviminden otomatik doğrulanmıştır. ÖSYM takvimi güncelleyebileceği için son doğrulama zamanı her kayıtta tutulur.",
       "en": "Dates are automatically verified against the ÖSYM exam calendar. Each record stores its last verification time because ÖSYM may revise the calendar."
@@ -15,18 +15,18 @@
       "id": "yks-2026-basvuru",
       "start": "2026-02-06",
       "end": "2026-03-02",
-      "startTime": "14:30",
-      "endTime": "23:59",
+      "startTime": null,
+      "endTime": null,
       "type": "basvuru",
       "title": {
         "tr": "2026-YKS başvuruları",
         "en": "2026 YKS applications"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     },
     {
       "id": "yks-2026-gec-basvuru",
@@ -40,16 +40,16 @@
         "en": "2026 YKS late applications"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     },
     {
       "id": "yks-2026-tyt",
       "start": "2026-06-20",
       "end": null,
-      "startTime": "10:15",
+      "startTime": null,
       "endTime": null,
       "type": "sinav",
       "title": {
@@ -57,16 +57,16 @@
         "en": "2026 YKS TYT"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     },
     {
       "id": "yks-2026-ayt",
       "start": "2026-06-21",
       "end": null,
-      "startTime": "10:15",
+      "startTime": null,
       "endTime": null,
       "type": "sinav",
       "title": {
@@ -74,16 +74,16 @@
         "en": "2026 YKS AYT"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     },
     {
       "id": "yks-2026-ydt",
       "start": "2026-06-21",
       "end": null,
-      "startTime": "15:45",
+      "startTime": null,
       "endTime": null,
       "type": "sinav",
       "title": {
@@ -91,16 +91,16 @@
         "en": "2026 YKS YDT"
       },
       "verified": true,
-      "verifiedAt": "2026-07-14T19:38:44.775Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     },
     {
       "id": "yks-2026-sonuc",
       "start": "2026-07-21",
       "end": null,
-      "startTime": null,
+      "startTime": "06:00",
       "endTime": null,
       "type": "sonuc",
       "title": {
@@ -108,10 +108,10 @@
         "en": "2026 YKS results"
       },
       "verified": true,
-      "verifiedAt": "2026-07-21T13:00:37.832Z",
+      "verifiedAt": "2026-07-27T17:10:26.326Z",
       "approximate": false,
       "sample": false,
-      "source": "https://www.osym.gov.tr/TR,8797/takvim.html?category_id=1"
+      "source": "https://www.osym.gov.tr/Sayfa/SinavTakvimi"
     }
   ]
 }
