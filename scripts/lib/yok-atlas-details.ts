@@ -44,29 +44,31 @@ const numberLikeSchema = z.union([
 ]);
 const nullableNumberLikeSchema = numberLikeSchema.nullish();
 
-// Quota categories exactly as the official SPA's "Kontenjan ve Yerleşme" table binds
-// them ({kategori:"Genel", kontenjan:E.kontenjan, yerlesen:E.gkY} and friends).
-// The placed key for the 34+ category is "y34" in the live API (probe-verified), even
-// though the SPA source reads E.y34Y in one spot — the API response is authoritative.
+// Kontenjan kategorileri, resmî SPA'nın "Kontenjan ve Yerleşme" tablosunun bağladığı
+// alanlarla birebir. YÖK 2026-07'de bu aileyi yıl-indeksli hale getirdi; tablo artık
+// {kategori:"Genel", kontenjan:E.gk1, yerlesen:E.gkY1}, {kategori:"Okul Birincisi",
+// kontenjan:E.obk1, yerlesen:E.obkY1} … bağlıyor (canlı doğrulama 2026-07-28, bundle
+// main.ffe6ecf9.js; eski adlar `kontenjanObs`/`obkY` API'den tamamen kalktı).
+// `1` eki son tamamlanmış yerleştirme yılını gösterir — kılavuz yılını değil.
 export const YOK_ATLAS_QUOTA_CATEGORIES = [
-  { category: 'genel', quotaField: 'kontenjan', placedField: 'gkY', officialLabel: 'Genel' },
+  { category: 'genel', quotaField: 'gk1', placedField: 'gkY1', officialLabel: 'Genel' },
   {
     category: 'okul-birincisi',
-    quotaField: 'kontenjanObs',
-    placedField: 'obkY',
+    quotaField: 'obk1',
+    placedField: 'obkY1',
     officialLabel: 'Okul Birincisi',
   },
-  { category: 'deprem', quotaField: 'kontenjanDep', placedField: 'dprmY', officialLabel: 'Deprem' },
+  { category: 'deprem', quotaField: 'dprm1', placedField: 'dprmY1', officialLabel: 'Deprem' },
   {
     category: 'sehit-gazi',
-    quotaField: 'kontenjanSgy',
-    placedField: 'sgyY',
+    quotaField: 'sgy1',
+    placedField: 'sgyY1',
     officialLabel: 'Şehit Gazi',
   },
   {
     category: 'kadin-34',
-    quotaField: 'kontenjanY34',
-    placedField: 'y34',
+    quotaField: 'y34_1',
+    placedField: 'y34Y1',
     officialLabel: '34 Yaş Üstü Kadın',
   },
 ] as const satisfies readonly {
@@ -104,16 +106,22 @@ const detailSourceRowSchema = z.object({
   kosulList: z.array(z.record(z.string(), z.string())).nullish(),
   minPuan: nullableNumberLikeSchema,
   basariSirasi: nullableNumberLikeSchema,
+  // Kılavuz yılının ilan edilen toplam kontenjanı (yerleştirme bundan bağımsız).
   kontenjan: nullableNumberLikeSchema,
-  kontenjanObs: nullableNumberLikeSchema,
-  kontenjanDep: nullableNumberLikeSchema,
-  kontenjanSgy: nullableNumberLikeSchema,
-  kontenjanY34: nullableNumberLikeSchema,
+  // Son tamamlanmış yerleştirme yılının kategori kırılımı (`1` eki o yılı gösterir).
+  gk1: nullableNumberLikeSchema,
+  obk1: nullableNumberLikeSchema,
+  dprm1: nullableNumberLikeSchema,
+  sgy1: nullableNumberLikeSchema,
+  y34_1: nullableNumberLikeSchema,
   gkY: nullableNumberLikeSchema,
-  obkY: nullableNumberLikeSchema,
-  dprmY: nullableNumberLikeSchema,
-  sgyY: nullableNumberLikeSchema,
-  y34: nullableNumberLikeSchema,
+  gkY1: nullableNumberLikeSchema,
+  obkY1: nullableNumberLikeSchema,
+  dprmY1: nullableNumberLikeSchema,
+  sgyY1: nullableNumberLikeSchema,
+  y34Y1: nullableNumberLikeSchema,
+  minPuan1: nullableNumberLikeSchema,
+  basariSirasi1: nullableNumberLikeSchema,
 });
 
 const NET_FIELD_MAPPINGS = [
@@ -360,10 +368,18 @@ function normalizeDetailRow(raw: unknown): {
   const idNumber = parseNonnegativeInteger(row.kilavuzKodu, 'kilavuzKodu');
   if (!idNumber) throw new Error('kilavuzKodu must be a positive integer');
   const id = String(idNumber);
-  const year = parseNonnegativeInteger(row.yil, `${id}.yil`);
-  if (!year || year < 2018 || year > 2100) {
+  const guideYear = parseNonnegativeInteger(row.yil, `${id}.yil`);
+  if (!guideYear || guideYear < 2018 || guideYear > 2100) {
     throw new Error(`${id}.yil is outside the supported range`);
   }
+  // Kategori kırılımı (`gk1`, `obk1`, `dprm1`, …) kılavuz yılına değil bir önceki yıla —
+  // gerçekleşmiş yerleştirmeye — aittir; SPA'nın "Kontenjan ve Yerleşme" tablosu da bu
+  // alanları bağlar. Kayıt bu yüzden `yil - 1` yılına yazılır.
+  const year = guideYear - 1;
+  // Taban puan/sıra serisinin başlangıcı son tamamlanmış yerleştirme yılıdır: suffix'siz
+  // `gkY` doluysa kılavuz yılının yerleştirmesi bitmiştir ve `year`ın puanı `minPuan1`de,
+  // boşsa seri bir yıl geridedir ve aynı puan `minPuan`da durur.
+  const placementCompletedForGuideYear = row.gkY !== null && row.gkY !== undefined;
 
   const staffValues = {
     professor: parseNonnegativeInteger(row.prof, `${id}.prof`),
@@ -376,9 +392,11 @@ function normalizeDetailRow(raw: unknown): {
 
   // Same trust rule as the main importer's placed field: a freshly loaded kılavuz (no
   // cutoffs published yet) reports zeros that mean "placement not run", not "0 placed".
-  const minScore = parsePositiveNumber(row.minPuan, `${id}.minPuan`);
-  const minRank = parsePositiveNumber(row.basariSirasi, `${id}.basariSirasi`);
-  const generalPlaced = parseNonnegativeInteger(row.gkY, `${id}.gkY`);
+  const scoreKey = placementCompletedForGuideYear ? 'minPuan1' : 'minPuan';
+  const rankKey = placementCompletedForGuideYear ? 'basariSirasi1' : 'basariSirasi';
+  const minScore = parsePositiveNumber(row[scoreKey], `${id}.${scoreKey}`);
+  const minRank = parsePositiveNumber(row[rankKey], `${id}.${rankKey}`);
+  const generalPlaced = parseNonnegativeInteger(row.gkY1, `${id}.gkY1`);
   const placedTrusted =
     minScore !== null || minRank !== null || (generalPlaced !== null && generalPlaced > 0);
 

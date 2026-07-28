@@ -33,14 +33,18 @@ const detailRow = {
   arGor: 7,
   kosul: '17,46,343',
   kosulList: [{ '17': 'Birinci koşul metni.' }, { '46': 'İkinci koşul metni.' }],
+  // Kılavuz yılının yerleştirmesi henüz yapılmamış: suffix'siz `gkY` boş, gerçekleşen veri
+  // `1` ekli alanlarda (canlı sözleşme 2026-07-28 — docs/YOK_ATLAS_API_MIGRATION.md).
   minPuan: 501.25,
   basariSirasi: 12345,
-  kontenjan: 80,
-  gkY: 78,
-  kontenjanObs: 2,
-  obkY: 2,
-  kontenjanY34: 1,
-  y34: 0,
+  kontenjan: 95,
+  gkY: null,
+  gk1: 80,
+  gkY1: 78,
+  obk1: 2,
+  obkY1: 2,
+  y34_1: 1,
+  y34Y1: 0,
 };
 
 const netsRow2024 = {
@@ -105,9 +109,9 @@ test('does not trust category placed counts on a cutoff-less kılavuz row', () =
     ...detailRow,
     minPuan: null,
     basariSirasi: null,
-    gkY: 0,
-    obkY: 0,
-    y34: 0,
+    gkY1: 0,
+    obkY1: 0,
+    y34Y1: 0,
   };
   const { fixture } = buildProgramsDetailsFixture({
     rawRows: [pendingRow],

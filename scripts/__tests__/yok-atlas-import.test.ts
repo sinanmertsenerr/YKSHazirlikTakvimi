@@ -29,6 +29,8 @@ const officialRow = {
   ogrenimDiliAdi: 'İngilizce',
   kontenjan: 80,
   gkY: 78,
+  // Kategori kırılımı bir önceki yıla aittir (`1` ekli aile) — details tarafı bunu okur.
+  gkY1: 78,
   minPuan: 501.25,
   basariSirasi: 12_345,
   gk1: 80,
@@ -54,8 +56,8 @@ const officialRow = {
   tyc: '*',
   kosul: '17,46',
   kosulList: [{ '17': 'Örnek koşul metni.' }, { '46': 'İkinci örnek koşul metni.' }],
-  kontenjanObs: 2,
-  obkY: 2,
+  obk1: 2,
+  obkY1: 2,
 } as const;
 
 const onlisansRow = {
@@ -101,8 +103,12 @@ const netsRow = {
 
 const MOCK_BUNDLE =
   'minPuan1 minPuan2 minPuan3 basariSirasi1 basariSirasi2 basariSirasi3 ["gk".concat' +
-  ' {label:"\\xd6ZEL YETENEK",value:48}' +
-  ' yerlesen:E.gkY kontenjan:E.kontenjanObs yerlesen:E.obkY "/netler/search" tytTrkNet';
+  ' {kategori:"Genel",kontenjan:E.gk1||0,yerlesen:E.gkY1||0}' +
+  ' {kontenjan:E.obk1||0,yerlesen:E.obkY1||0}' +
+  ' {kontenjan:E.dprm1||0,yerlesen:E.dprmY1||0}' +
+  ' {kontenjan:E.sgy1||0,yerlesen:E.sgyY1||0}' +
+  ' {kontenjan:E.y34_1||0,yerlesen:E.y34Y1||0}' +
+  ' "/netler/search" tytTrkNet';
 
 test('normalizes only proven current and three-year historical fields', () => {
   const result = normalizeYokAtlasRow(officialRow, verifiedAt);

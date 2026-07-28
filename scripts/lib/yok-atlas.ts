@@ -56,11 +56,14 @@ export const yokAtlasRowSchema = z.object({
   bursOraniAdi: z.string().trim().min(1).nullish(),
   ogrenimDiliAdi: z.string().trim().min(1).nullish(),
   kontenjan: nullableNumberLikeSchema,
-  // gkY = genel kontenjana yerleşen. Proven against the SPA's own render code (the
-  // "Kontenjan ve Yerleşme" table binds {kategori:"Genel", kontenjan, yerlesen:E.gkY}
-  // and the doluluk doughnut charts gkY as "Yerleşen Öğrenci") — canary-pinned in
-  // import-yok-atlas-programs. Only the CURRENT year exposes it; no gk1Y/gk2Y exists.
+  // Genel kontenjana yerleşen. YÖK 2026-07'de bu aileyi yıl-indeksli hale getirdi: SPA'nın
+  // "Kontenjan ve Yerleşme" tablosu artık {kategori:"Genel", kontenjan:E.gk1, yerlesen:E.gkY1}
+  // bağlıyor ve doluluk grafiği de gk1/gkY1 okuyor (canlı doğrulama 2026-07-28, bundle
+  // main.ffe6ecf9.js). Eski suffix'siz `gkY` yalnız yerleştirmesi tamamlanmış kılavuz yılında
+  // dolar; kılavuz yüklenip yerleştirme yapılmadığı ara dönemde boş gelir ve son tamamlanmış
+  // yıl `gkY1`de durur. İkisi de okunur, hangisinin dolu olduğu yıl hizasını belirler.
   gkY: nullableNumberLikeSchema,
+  gkY1: nullableNumberLikeSchema,
   minPuan: nullableNumberLikeSchema,
   basariSirasi: nullableNumberLikeSchema,
   gk1: nullableNumberLikeSchema,
@@ -268,28 +271,59 @@ function incrementCounter(counter: Record<string, number>, key: string): void {
   counter[key] = (counter[key] ?? 0) + 1;
 }
 
+type FieldSuffix = '' | '1' | '2' | '3';
+
+/**
+ * Bir kılavuz satırından tek bir yılın kaydını üretir.
+ *
+ * Kontenjan ve puan aileleri AYNI yıla denk gelmeyebilir: YÖK yeni kılavuzu yüklediğinde
+ * kontenjan serisi ileri kayar (`kontenjan` = kılavuz yılı) ama taban puan/sıra serisi son
+ * tamamlanmış yerleştirmede kalır (`minPuan` = o yıl). Bu yüzden iki suffix ayrı verilir;
+ * `null` "bu yıl için o aile veri taşımıyor" demektir.
+ */
 function makeYear(
   row: YokAtlasTalentRow,
   year: number,
-  suffix: '' | '1' | '2' | '3',
+  quotaSuffix: FieldSuffix | null,
+  metricSuffix: FieldSuffix | null,
+  placedKey: 'gkY' | 'gkY1' | null,
   source: string,
   verifiedAt: string,
 ): ProgramsFixture['programs'][number]['years'][number] | null {
-  const quotaKey = suffix ? (`gk${suffix}` as const) : ('kontenjan' as const);
-  const scoreKey = suffix ? (`minPuan${suffix}` as const) : ('minPuan' as const);
-  const rankKey = suffix ? (`basariSirasi${suffix}` as const) : ('basariSirasi' as const);
-  const quota = parseNonnegativeInteger(row[quotaKey], `${row.kilavuzKodu}.${year}.quota`);
-  const minScore = parsePositiveMetric(row[scoreKey], `${row.kilavuzKodu}.${year}.minScore`, false);
-  const minRank = parsePositiveMetric(row[rankKey], `${row.kilavuzKodu}.${year}.minRank`, true);
+  const quotaKey =
+    quotaSuffix === null ? null : quotaSuffix ? (`gk${quotaSuffix}` as const) : ('kontenjan' as const);
+  const scoreKey =
+    metricSuffix === null
+      ? null
+      : metricSuffix
+        ? (`minPuan${metricSuffix}` as const)
+        : ('minPuan' as const);
+  const rankKey =
+    metricSuffix === null
+      ? null
+      : metricSuffix
+        ? (`basariSirasi${metricSuffix}` as const)
+        : ('basariSirasi' as const);
+  const quota = quotaKey
+    ? parseNonnegativeInteger(row[quotaKey], `${row.kilavuzKodu}.${year}.quota`)
+    : null;
+  const minScore = scoreKey
+    ? parsePositiveMetric(row[scoreKey], `${row.kilavuzKodu}.${year}.minScore`, false)
+    : null;
+  const minRank = rankKey
+    ? parsePositiveMetric(row[rankKey], `${row.kilavuzKodu}.${year}.minRank`, true)
+    : null;
 
-  if (suffix && quota === null && minScore === null && minRank === null) return null;
-  // gkY (genel yerleşen) exists for the CURRENT year only; historical years stay null and
-  // are filled from the official ÖSYM archive tables at build time. A 0 next to a fully
-  // cutoff-less year is indistinguishable from "placement not run yet" (a freshly loaded
-  // kılavuz), so only a published cutoff or a positive count is trusted as a real total.
+  const isCurrentGuideYear = quotaSuffix === '' && metricSuffix === null;
+  if (!isCurrentGuideYear && quota === null && minScore === null && minRank === null) return null;
+  // Yerleşen sayısı yalnız son tamamlanmış yerleştirme yılında yayımlanır; daha eski yıllar
+  // null kalır ve derleme sırasında resmî ÖSYM arşiv tablolarından doldurulur. Taban puanı
+  // hiç yayımlanmamış bir yılın yanındaki 0, "kimse yerleşmedi" ile "yerleştirme henüz
+  // yapılmadı" (yeni yüklenmiş kılavuz) arasında ayrım taşımaz; bu yüzden yalnız yayımlanmış
+  // bir kesme puanı ya da pozitif sayı gerçek toplam sayılır.
   let placed: number | null = null;
-  if (!suffix) {
-    const generalPlaced = parseNonnegativeInteger(row.gkY, `${row.kilavuzKodu}.${year}.placed`);
+  if (placedKey) {
+    const generalPlaced = parseNonnegativeInteger(row[placedKey], `${row.kilavuzKodu}.${year}.placed`);
     if (generalPlaced !== null && (generalPlaced > 0 || minScore !== null || minRank !== null)) {
       placed = generalPlaced;
     }
@@ -363,12 +397,35 @@ function buildNormalizedProgram(
 
   const source = programDetailUrl(id);
   const { scholarship, omittedLabel } = toScholarship(row.bursOraniAdi);
-  const years = [
-    makeYear(row, currentYear, '', source, verifiedAt),
-    makeYear(row, currentYear - 1, '1', source, verifiedAt),
-    makeYear(row, currentYear - 2, '2', source, verifiedAt),
-    makeYear(row, currentYear - 3, '3', source, verifiedAt),
-  ].filter((year): year is NonNullable<typeof year> => Boolean(year));
+  // Kılavuz yılı ile son tamamlanmış yerleştirme yılı aynı olmayabilir. `gkY` (suffix'siz
+  // yerleşen) yalnız yerleştirmesi biten kılavuz yılında dolar; YÖK yeni kılavuzu yükleyip
+  // yerleştirme henüz yapılmadığında bu alan boş gelir ve son gerçekleşen yıl `gkY1`e kayar.
+  // Puan/sıra serisi de o yıldan geriye gider — kanıt: docs/YOK_ATLAS_API_MIGRATION.md.
+  const placementCompletedForGuideYear = row.gkY !== null && row.gkY !== undefined;
+  const placementYear = placementCompletedForGuideYear ? currentYear : currentYear - 1;
+  const placedKey = placementCompletedForGuideYear ? ('gkY' as const) : ('gkY1' as const);
+  const metricSuffixFor = (year: number): FieldSuffix | null => {
+    const offset = placementYear - year;
+    return offset === 0 ? '' : offset === 1 ? '1' : offset === 2 ? '2' : offset === 3 ? '3' : null;
+  };
+  const quotaSuffixFor = (year: number): FieldSuffix | null => {
+    const offset = currentYear - year;
+    return offset === 0 ? '' : offset === 1 ? '1' : offset === 2 ? '2' : offset === 3 ? '3' : null;
+  };
+  const oldestYear = placementYear - 3;
+  const years = [];
+  for (let year = currentYear; year >= oldestYear; year -= 1) {
+    const entry = makeYear(
+      row,
+      year,
+      quotaSuffixFor(year),
+      metricSuffixFor(year),
+      year === placementYear ? placedKey : null,
+      source,
+      verifiedAt,
+    );
+    if (entry) years.push(entry);
+  }
 
   const sourceOnly = (value: string) => ({ tr: value, en: value });
   return {

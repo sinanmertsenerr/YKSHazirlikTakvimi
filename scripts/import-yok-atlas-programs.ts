@@ -123,18 +123,17 @@ async function discoverAndVerifySpaBundle(
     'basariSirasi2',
     'basariSirasi3',
     '["gk".concat',
-    // Özel yetenek canary (live-verified 2026-07-16): the wizard's level selector must
-    // keep offering birimTuruId 48. Matched without the leading Ö so both raw-UTF-8 and
-    // \xd6-escaped bundle encodings pass.
-    'ZEL YETENEK",value:48',
-    // Details contract canaries (live-verified 2026-07-17): the SPA's own detail page
-    // must keep binding gkY/obkY as "yerleşen" in its Kontenjan ve Yerleşme table and
-    // keep serving the nets panel from /netler/search with the tytTrkNet field family.
-    // If YÖK renames or repurposes any of these, the import aborts instead of shipping
-    // silently re-interpreted numbers.
-    '.gkY',
-    '.kontenjanObs',
-    '.obkY',
+    // Kontenjan kırılımı sözleşmesi (canlı doğrulama 2026-07-28, bundle main.ffe6ecf9.js):
+    // SPA'nın "Kontenjan ve Yerleşme" tablosu kategorileri yıl-indeksli alanlara bağlar.
+    // Tam bağlama dizesi pinlenir — `.gkY` gibi kısa bir parça `gkY1` içinde de eşleşip
+    // yeniden adlandırmayı gizlerdi. YÖK bunları yeniden adlandırır ya da anlamını
+    // değiştirirse import, sessizce yeniden yorumlanmış sayı yayımlamak yerine durur.
+    'kategori:"Genel",kontenjan:E.gk1||0,yerlesen:E.gkY1||0',
+    'kontenjan:E.obk1||0,yerlesen:E.obkY1||0',
+    'kontenjan:E.dprm1||0,yerlesen:E.dprmY1||0',
+    'kontenjan:E.sgy1||0,yerlesen:E.sgyY1||0',
+    'kontenjan:E.y34_1||0,yerlesen:E.y34Y1||0',
+    // Netler paneli sözleşmesi (canlı doğrulama 2026-07-17, 2026-07-28'de yeniden görüldü).
     '/netler/search',
     'tytTrkNet',
   ];
