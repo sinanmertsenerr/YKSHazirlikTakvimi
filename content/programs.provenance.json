@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "authority": "Yükseköğretim Kurulu (YÖK)",
   "product": "YÖK Atlas",
-  "verifiedAt": "2026-07-16T23:03:35.851Z",
+  "verifiedAt": "2026-07-28T19:39:08.189Z",
   "source": {
     "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
     "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
     "detailBaseUrl": "https://yokatlas.yok.gov.tr/detay",
     "snapshotSource": "snapshot",
-    "snapshotYear": 2025,
+    "snapshotYear": 2026,
     "talentSnapshotYear": 2026,
     "spaBundle": {
-      "url": "https://yokatlas.yok.gov.tr/static/js/main.c2960988.js",
-      "sha256": "8790166556afe546f29189069aa04805be5068d05fcb4ef8a6cb2c27c85b8914"
+      "url": "https://yokatlas.yok.gov.tr/static/js/main.ffe6ecf9.js",
+      "sha256": "9398230225161e2b86afd81e9636ede7b00be26c503a03f1392618c305104933"
     }
   },
   "selection": {
@@ -55,11 +55,11 @@
     "delayMs": 250,
     "requestCount": 46,
     "totalsByScoreType": {
-      "SAY": 5653,
-      "EA": 3987,
-      "SÖZ": 1948,
-      "DİL": 677,
-      "TYT": 9337
+      "SAY": 5744,
+      "EA": 3900,
+      "SÖZ": 1914,
+      "DİL": 679,
+      "TYT": 9254
     },
     "talentRows": 0
   },
@@ -112,58 +112,58 @@
     "quotaCategories": [
       {
         "category": "genel",
-        "quotaField": "kontenjan",
-        "placedField": "gkY",
+        "quotaField": "gk1",
+        "placedField": "gkY1",
         "officialLabel": "Genel"
       },
       {
         "category": "okul-birincisi",
-        "quotaField": "kontenjanObs",
-        "placedField": "obkY",
+        "quotaField": "obk1",
+        "placedField": "obkY1",
         "officialLabel": "Okul Birincisi"
       },
       {
         "category": "deprem",
-        "quotaField": "kontenjanDep",
-        "placedField": "dprmY",
+        "quotaField": "dprm1",
+        "placedField": "dprmY1",
         "officialLabel": "Deprem"
       },
       {
         "category": "sehit-gazi",
-        "quotaField": "kontenjanSgy",
-        "placedField": "sgyY",
+        "quotaField": "sgy1",
+        "placedField": "sgyY1",
         "officialLabel": "Şehit Gazi"
       },
       {
         "category": "kadin-34",
-        "quotaField": "kontenjanY34",
-        "placedField": "y34",
+        "quotaField": "y34_1",
+        "placedField": "y34Y1",
         "officialLabel": "34 Yaş Üstü Kadın"
       }
     ],
     "excludedFields": "tustt1/tustt2/tusktp/kpss1/kpss2/dus are present in the API but rendered nowhere in the official UI; without an official label their meaning is unverifiable, so they are not imported",
     "statistics": {
-      "receivedRows": 21602,
-      "detailRecords": 21602,
-      "conditionCount": 184,
-      "conditionCodesWithoutText": 4,
+      "receivedRows": 21491,
+      "detailRecords": 21491,
+      "conditionCount": 194,
+      "conditionCodesWithoutText": 0,
       "netRowsReceived": 62975,
-      "netRowsAttached": 57336,
-      "netRowsDropped": 5639,
-      "tuitionPrograms": 9275,
-      "accreditedPrograms": 2885
+      "netRowsAttached": 53634,
+      "netRowsDropped": 9341,
+      "tuitionPrograms": 8652,
+      "accreditedPrograms": 3915
     },
-    "detailsFixtureSha256": "dc07ce039b3985534b1105de6ce490e7cefaeba513dfd64d8c881d71a5694c6b"
+    "detailsFixtureSha256": "9c7ad8f4bc8efff0f3fbd1ceda6acab6e6b96ce145d3f57dbb3ca5e37471cbe0"
   },
   "result": {
-    "receivedRows": 21602,
+    "receivedRows": 21491,
     "receivedTalentRows": 0,
-    "importedPrograms": 21602,
+    "importedPrograms": 21491,
     "importedTalentPrograms": 0,
-    "programYears": 77302,
+    "programYears": 93743,
     "skippedPrograms": 0,
     "skippedByUniversityType": {},
     "omittedScholarshipLabels": {},
-    "fixtureSha256": "3ea7c7431149124101b9c0bfd77420baa330dd0edab83fc5d0eb597539bbc39f"
+    "fixtureSha256": "aecdb27762105dff1f0e91610085f39e6921b1636c0237e9bc47abcdca50e9bb"
   }
 }
