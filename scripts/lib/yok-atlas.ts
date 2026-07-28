@@ -112,7 +112,10 @@ export type ImportStatistics = {
 
 export type FetchStatistics = {
   requestCount: number;
+  /** Kılavuz yılı — ilan edilen kontenjanın ait olduğu yıl. */
   snapshotYear: number;
+  /** Yerleştirmesi tamamlanmış son yıl; taban puan ve netler serisi buradan geriye gider. */
+  placementYear: number;
   snapshotSource: 'snapshot';
   totalsByScoreType: Record<YokAtlasScoreType, number>;
 };
@@ -699,11 +702,17 @@ export async function fetchAllYokAtlasPrograms(
   }
 
   if (snapshotYear === null) throw new Error('YÖK Atlas returned no snapshot year');
+  // Kılavuz yılının yerleştirmesi tamamlanmadıysa (YÖK yeni kılavuzu yükledi ama yerleştirme
+  // henüz yapılmadı) suffix'siz `gkY` hiçbir satırda dolmaz ve gerçekleşen veri bir yıl
+  // geridedir. Netler penceresi ve puan serisi bu yıla göre kurulur — kılavuz yılına göre
+  // kurulursa en eski yıl kaybolur ve yerine boş bir yıl gelir.
+  const placementCompleted = rows.some((row) => row.gkY !== null && row.gkY !== undefined);
   return {
     rows,
     statistics: {
       requestCount,
       snapshotYear,
+      placementYear: placementCompleted ? snapshotYear : snapshotYear - 1,
       snapshotSource: 'snapshot',
       totalsByScoreType,
     },

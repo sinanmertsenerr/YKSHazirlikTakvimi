@@ -253,12 +253,13 @@ export async function importYokAtlasPrograms(options: ImportOptions): Promise<vo
     onProgress: (message) => console.log(message),
     onRawRow: (raw) => rawDetailRows.push(raw),
   });
-  // Nets are archived from 2023; the sweep covers the snapshot year and up to two
-  // preceding years so the detail screen can show the full published nets history.
+  // Netler 2023'ten itibaren arşivli; tarama son YERLEŞTİRME yılını ve öncesindeki iki yılı
+  // kapsar. Kılavuz yılına göre kurulursa (YÖK yeni kılavuzu yükleyip yerleştirme henüz
+  // yapılmadığında) en eski yıl pencereden düşer ve yerine hiç satır dönmeyen bir yıl gelir.
   const netYears: number[] = [];
   for (
-    let year = Math.max(YOK_ATLAS_NETS_FIRST_YEAR, fetched.statistics.snapshotYear - 2);
-    year <= fetched.statistics.snapshotYear;
+    let year = Math.max(YOK_ATLAS_NETS_FIRST_YEAR, fetched.statistics.placementYear - 2);
+    year <= fetched.statistics.placementYear;
     year += 1
   ) {
     netYears.push(year);
