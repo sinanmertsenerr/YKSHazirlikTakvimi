@@ -12,6 +12,54 @@
   },
   "items": [
     {
+      "id": "osym-09d1a60ca26bef616c5a6622",
+      "publishedAt": "2026-07-29T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Tercihlerin Alınması",
+        "en": "2026-YKS: Tercihlerin Alınması"
+      },
+      "summary": {
+        "tr": "2026-YKS: Tercihlerin Alınması",
+        "en": "2026-YKS: Tercihlerin Alınması"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-tercihlerin-alinmasi",
+      "verified": true,
+      "verifiedAt": "2026-07-29T09:49:22.884Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-tercihlerin-alinmasi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-bc3542a411bf00b28a6b1b84",
+      "publishedAt": "2026-07-29T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
+      },
+      "summary": {
+        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
+        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
+      },
+      "url": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
+      "verified": true,
+      "verifiedAt": "2026-07-29T09:49:22.884Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "yok-d2a943e5641d71acc3b70ebe",
       "publishedAt": "2026-07-27T00:00:00+03:00",
       "source": "YÖK",
@@ -77,30 +125,6 @@
       "provenance": {
         "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
         "detailUrl": "https://www.osym.gov.tr/2026yks-sinav-sonuclarina-iliskin-sayisal-bilgiler",
-        "publishedAtEvidence": "osym-list-title-date"
-      },
-      "approximate": false,
-      "sample": false,
-      "translationStatus": "source-only"
-    },
-    {
-      "id": "osym-08cbfaeeabc9acb3d847593e",
-      "publishedAt": "2026-07-22T00:00:00+03:00",
-      "source": "ÖSYM",
-      "title": {
-        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
-        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
-      },
-      "summary": {
-        "tr": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu",
-        "en": "2026-Yükseköğretim Kurumları Sınavı (YKS) Yükseköğretim Programları ve Kontenjanları Kılavuzu"
-      },
-      "url": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
-      "verified": true,
-      "verifiedAt": "2026-07-27T17:10:28.943Z",
-      "provenance": {
-        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
-        "detailUrl": "https://www.osym.gov.tr/2026yuksekogretim-kurumlari-sinavi-yks-yuksekogretim-programlari-ve-kontenjanlari-kilavuzu",
         "publishedAtEvidence": "osym-list-title-date"
       },
       "approximate": false,
