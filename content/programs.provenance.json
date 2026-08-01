@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "authority": "Yükseköğretim Kurulu (YÖK)",
   "product": "YÖK Atlas",
-  "verifiedAt": "2026-07-31T06:34:22.540Z",
+  "verifiedAt": "2026-08-01T06:17:18.210Z",
   "source": {
     "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
     "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
@@ -153,7 +153,7 @@
       "tuitionPrograms": 8652,
       "accreditedPrograms": 3915
     },
-    "detailsFixtureSha256": "4a929bf5d80658d69a1eb227b557840ef6bef44c32c9fcb92a6f74b41dbef99c"
+    "detailsFixtureSha256": "9c249afd6b481c5b6d3988ff33580814c147d2c8af3d31c20f7ce907b3e788e0"
   },
   "result": {
     "receivedRows": 21491,
