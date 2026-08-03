@@ -204,30 +204,6 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "yok-8bcc9dcf042090468b8692fe",
-      "publishedAt": "2026-07-21T00:00:00+03:00",
-      "source": "YÖK",
-      "title": {
-        "tr": "2026-YKS sonuçları açıklandı",
-        "en": "2026-YKS sonuçları açıklandı"
-      },
-      "summary": {
-        "tr": "2026-YKS sonuçları açıklandı",
-        "en": "2026-YKS sonuçları açıklandı"
-      },
-      "url": "https://www.yok.gov.tr/tr/news/2026-yks-sonuclari-aciklandi-k9qqZ",
-      "verified": true,
-      "verifiedAt": "2026-07-21T13:00:40.558Z",
-      "provenance": {
-        "listUrl": "https://www.yok.gov.tr/tr/news",
-        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-sonuclari-aciklandi-k9qqZ",
-        "publishedAtEvidence": "yok-detail-update-date"
-      },
-      "approximate": false,
-      "sample": false,
-      "translationStatus": "source-only"
-    },
-    {
       "id": "osym-3855e64e9c5d8797523c29d0",
       "publishedAt": "2026-07-01T00:00:00+03:00",
       "source": "ÖSYM",
