@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "authority": "Yükseköğretim Kurulu (YÖK)",
   "product": "YÖK Atlas",
-  "verifiedAt": "2026-08-03T06:48:16.377Z",
+  "verifiedAt": "2026-08-04T06:16:46.522Z",
   "source": {
     "applicationUrl": "https://yokatlas.yok.gov.tr/tercih-sihirbazi-t4.php",
     "apiUrl": "https://yokatlas.yok.gov.tr/api/tercih-kilavuz/search",
@@ -150,10 +150,10 @@
       "netRowsReceived": 62975,
       "netRowsAttached": 53634,
       "netRowsDropped": 9341,
-      "tuitionPrograms": 8652,
+      "tuitionPrograms": 9222,
       "accreditedPrograms": 3915
     },
-    "detailsFixtureSha256": "7bd255cb44505a54997b9f458e04cd7da60d2a77c5a767c346f8a242661e5c14"
+    "detailsFixtureSha256": "3e59001a9e14c82088be8ab55bd85913f6b2a76fc957b6c65300c69421f4e355"
   },
   "result": {
     "receivedRows": 21491,
