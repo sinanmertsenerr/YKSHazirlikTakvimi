@@ -12,6 +12,126 @@
   },
   "items": [
     {
+      "id": "osym-1ef47e6e4efc122f15559cdf",
+      "publishedAt": "2026-08-18T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Yerleştirme Sonuçları Açıklandı",
+        "en": "2026-YKS: Yerleştirme Sonuçları Açıklandı"
+      },
+      "summary": {
+        "tr": "2026-YKS: Yerleştirme Sonuçları Açıklandı",
+        "en": "2026-YKS: Yerleştirme Sonuçları Açıklandı"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-yerlestirme-sonuclari-aciklandi",
+      "verified": true,
+      "verifiedAt": "2026-08-18T19:41:52.443Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-yerlestirme-sonuclari-aciklandi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-1806bcd6101567c55efa90a9",
+      "publishedAt": "2026-08-18T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS Yerleştirme Sonuçlarına İlişkin Sayısal Bilgiler",
+        "en": "2026-YKS Yerleştirme Sonuçlarına İlişkin Sayısal Bilgiler"
+      },
+      "summary": {
+        "tr": "2026-YKS Yerleştirme Sonuçlarına İlişkin Sayısal Bilgiler",
+        "en": "2026-YKS Yerleştirme Sonuçlarına İlişkin Sayısal Bilgiler"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
+      "verified": true,
+      "verifiedAt": "2026-08-18T19:41:52.443Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "yok-d692201137243c7ef8a55438",
+      "publishedAt": "2026-08-18T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS yerleştirme sonuçları açıklandı",
+        "en": "2026-YKS yerleştirme sonuçları açıklandı"
+      },
+      "summary": {
+        "tr": "2026-YKS yerleştirme sonuçları açıklandı",
+        "en": "2026-YKS yerleştirme sonuçları açıklandı"
+      },
+      "url": "https://www.yok.gov.tr/tr/news/2026-yks-yerlestirme-sonuclari-aciklandi-Dv5H0",
+      "verified": true,
+      "verifiedAt": "2026-08-18T19:41:52.443Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/news",
+        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-yerlestirme-sonuclari-aciklandi-Dv5H0",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-2434e249c73f327011ebee1e",
+      "publishedAt": "2026-08-17T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS Millî Sporcuların Yükseköğretim Programlarına Yerleştirme İşlemleri: Tercihlerin Alınması",
+        "en": "2026-YKS Millî Sporcuların Yükseköğretim Programlarına Yerleştirme İşlemleri: Tercihlerin Alınması"
+      },
+      "summary": {
+        "tr": "2026-YKS Millî Sporcuların Yükseköğretim Programlarına Yerleştirme İşlemleri: Tercihlerin Alınması",
+        "en": "2026-YKS Millî Sporcuların Yükseköğretim Programlarına Yerleştirme İşlemleri: Tercihlerin Alınması"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-mill-sporcularin-yuksekogretim-programlarina-yerlestirme-islemleri-tercihlerin-alinmasi",
+      "verified": true,
+      "verifiedAt": "2026-08-18T19:41:52.443Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-mill-sporcularin-yuksekogretim-programlarina-yerlestirme-islemleri-tercihlerin-alinmasi",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "osym-4b6f30b80ab510b38ea01ef4",
+      "publishedAt": "2026-08-17T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS Milli Sporcu Yerleştirme İşlemleri: Başvuru Bilgileri",
+        "en": "2026-YKS Milli Sporcu Yerleştirme İşlemleri: Başvuru Bilgileri"
+      },
+      "summary": {
+        "tr": "2026-YKS Milli Sporcu Yerleştirme İşlemleri: Başvuru Bilgileri",
+        "en": "2026-YKS Milli Sporcu Yerleştirme İşlemleri: Başvuru Bilgileri"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-milli-sporcu-yerlestirme-islemleri-basvuru-bilgileri",
+      "verified": true,
+      "verifiedAt": "2026-08-18T19:41:52.443Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-milli-sporcu-yerlestirme-islemleri-basvuru-bilgileri",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-09d1a60ca26bef616c5a6622",
       "publishedAt": "2026-07-29T00:00:00+03:00",
       "source": "ÖSYM",
