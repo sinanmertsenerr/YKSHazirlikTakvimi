@@ -12,6 +12,54 @@
   },
   "items": [
     {
+      "id": "yok-a77ba7650547a0f1d6c710c9",
+      "publishedAt": "2026-09-01T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "YKS’de ilk binin tercihi tıp ve mühendislikler oldu",
+        "en": "YKS’de ilk binin tercihi tıp ve mühendislikler oldu"
+      },
+      "summary": {
+        "tr": "YKS’de ilk binin tercihi tıp ve mühendislikler oldu",
+        "en": "YKS’de ilk binin tercihi tıp ve mühendislikler oldu"
+      },
+      "url": "https://www.yok.gov.tr/tr/news/yksde-ilk-binin-tercihi-tip-ve-muhendislikler-oldu-TcRnR",
+      "verified": true,
+      "verifiedAt": "2026-09-01T14:56:03.301Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/news",
+        "detailUrl": "https://www.yok.gov.tr/tr/news/yksde-ilk-binin-tercihi-tip-ve-muhendislikler-oldu-TcRnR",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "yok-a00f2cd4ab2d822a534c7d90",
+      "publishedAt": "2026-08-28T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS Mazeret Kayıt Hakkı",
+        "en": "2026-YKS Mazeret Kayıt Hakkı"
+      },
+      "summary": {
+        "tr": "2026-YKS Mazeret Kayıt Hakkı",
+        "en": "2026-YKS Mazeret Kayıt Hakkı"
+      },
+      "url": "https://www.yok.gov.tr/tr/news/2026-yks-mazeret-kayit-hakki-JnDLH",
+      "verified": true,
+      "verifiedAt": "2026-09-01T14:56:03.301Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/news",
+        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-mazeret-kayit-hakki-JnDLH",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-1ef47e6e4efc122f15559cdf",
       "publishedAt": "2026-08-18T00:00:00+03:00",
       "source": "ÖSYM",
@@ -54,30 +102,6 @@
         "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
         "detailUrl": "https://www.osym.gov.tr/2026-yks-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
         "publishedAtEvidence": "osym-list-title-date"
-      },
-      "approximate": false,
-      "sample": false,
-      "translationStatus": "source-only"
-    },
-    {
-      "id": "yok-d692201137243c7ef8a55438",
-      "publishedAt": "2026-08-18T00:00:00+03:00",
-      "source": "YÖK",
-      "title": {
-        "tr": "2026-YKS yerleştirme sonuçları açıklandı",
-        "en": "2026-YKS yerleştirme sonuçları açıklandı"
-      },
-      "summary": {
-        "tr": "2026-YKS yerleştirme sonuçları açıklandı",
-        "en": "2026-YKS yerleştirme sonuçları açıklandı"
-      },
-      "url": "https://www.yok.gov.tr/tr/news/2026-yks-yerlestirme-sonuclari-aciklandi-Dv5H0",
-      "verified": true,
-      "verifiedAt": "2026-08-18T19:41:52.443Z",
-      "provenance": {
-        "listUrl": "https://www.yok.gov.tr/tr/news",
-        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-yerlestirme-sonuclari-aciklandi-Dv5H0",
-        "publishedAtEvidence": "yok-detail-update-date"
       },
       "approximate": false,
       "sample": false,
