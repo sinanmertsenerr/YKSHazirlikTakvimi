@@ -180,30 +180,6 @@
       "translationStatus": "source-only"
     },
     {
-      "id": "yok-d2a943e5641d71acc3b70ebe",
-      "publishedAt": "2026-07-27T00:00:00+03:00",
-      "source": "YÖK",
-      "title": {
-        "tr": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME",
-        "en": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME"
-      },
-      "summary": {
-        "tr": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME",
-        "en": "2026-YKS TERCİH DÖNEMİNDE YURT DIŞINDA YÜKSEKÖĞRENİM PLANLAYAN ADAYLARA YÖNELİK TANIMA VE DENKLİK SÜREÇLERİNE İLİŞKİN BİLGİLENDİRME"
-      },
-      "url": "https://www.yok.gov.tr/tr/announcements/2026-yks-tercih-doneminde-yurt-disinda-yuksekogrenim-planlayan-adaylara-yonelik-tanima-ve-denklik-sureclerine-iliskin-bilgilendirme-fn0hU",
-      "verified": true,
-      "verifiedAt": "2026-07-27T17:10:28.943Z",
-      "provenance": {
-        "listUrl": "https://www.yok.gov.tr/tr/announcements",
-        "detailUrl": "https://www.yok.gov.tr/tr/announcements/2026-yks-tercih-doneminde-yurt-disinda-yuksekogrenim-planlayan-adaylara-yonelik-tanima-ve-denklik-sureclerine-iliskin-bilgilendirme-fn0hU",
-        "publishedAtEvidence": "yok-detail-update-date"
-      },
-      "approximate": false,
-      "sample": false,
-      "translationStatus": "source-only"
-    },
-    {
       "id": "osym-5aa3430838d02a4df61961d2",
       "publishedAt": "2026-07-22T00:00:00+03:00",
       "source": "ÖSYM",
