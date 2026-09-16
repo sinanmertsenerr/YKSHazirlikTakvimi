@@ -12,6 +12,54 @@
   },
   "items": [
     {
+      "id": "osym-3e83154aabb2cac3894e8c3d",
+      "publishedAt": "2026-09-16T00:00:00+03:00",
+      "source": "ÖSYM",
+      "title": {
+        "tr": "2026-YKS: Ek Yerleştirme İçin Tercih İşlemleri",
+        "en": "2026-YKS: Ek Yerleştirme İçin Tercih İşlemleri"
+      },
+      "summary": {
+        "tr": "2026-YKS: Ek Yerleştirme İçin Tercih İşlemleri",
+        "en": "2026-YKS: Ek Yerleştirme İçin Tercih İşlemleri"
+      },
+      "url": "https://www.osym.gov.tr/2026-yks-ek-yerlestirme-icin-tercih-islemleri",
+      "verified": true,
+      "verifiedAt": "2026-09-16T22:57:49.754Z",
+      "provenance": {
+        "listUrl": "https://www.osym.gov.tr/SinavGrubu/Index/2",
+        "detailUrl": "https://www.osym.gov.tr/2026-yks-ek-yerlestirme-icin-tercih-islemleri",
+        "publishedAtEvidence": "osym-list-title-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
+      "id": "yok-0d03daa6d064aa1466abfb13",
+      "publishedAt": "2026-09-16T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS Ek Yerleştirme Tercihleri Başladı",
+        "en": "2026-YKS Ek Yerleştirme Tercihleri Başladı"
+      },
+      "summary": {
+        "tr": "2026-YKS Ek Yerleştirme Tercihleri Başladı",
+        "en": "2026-YKS Ek Yerleştirme Tercihleri Başladı"
+      },
+      "url": "https://www.yok.gov.tr/tr/announcements/2026-yks-ek-yerlestirme-tercihleri-basladi-qDJpq",
+      "verified": true,
+      "verifiedAt": "2026-09-16T22:57:49.754Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/announcements",
+        "detailUrl": "https://www.yok.gov.tr/tr/announcements/2026-yks-ek-yerlestirme-tercihleri-basladi-qDJpq",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-0f3d2795dc8e957c8e2c681c",
       "publishedAt": "2026-09-03T00:00:00+03:00",
       "source": "ÖSYM",
