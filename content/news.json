@@ -12,6 +12,30 @@
   },
   "items": [
     {
+      "id": "yok-94040579a1640cb095ad2128",
+      "publishedAt": "2026-09-23T00:00:00+03:00",
+      "source": "YÖK",
+      "title": {
+        "tr": "2026-YKS ile üniversitelere yerleşenler de öğrenci affından yararlanabilecek",
+        "en": "2026-YKS ile üniversitelere yerleşenler de öğrenci affından yararlanabilecek"
+      },
+      "summary": {
+        "tr": "2026-YKS ile üniversitelere yerleşenler de öğrenci affından yararlanabilecek",
+        "en": "2026-YKS ile üniversitelere yerleşenler de öğrenci affından yararlanabilecek"
+      },
+      "url": "https://www.yok.gov.tr/tr/news/2026-yks-ile-universitelere-yerlesenler-de-ogrenci-affindan-yararlanabilecek-EAd9E",
+      "verified": true,
+      "verifiedAt": "2026-09-24T15:07:46.930Z",
+      "provenance": {
+        "listUrl": "https://www.yok.gov.tr/tr/news",
+        "detailUrl": "https://www.yok.gov.tr/tr/news/2026-yks-ile-universitelere-yerlesenler-de-ogrenci-affindan-yararlanabilecek-EAd9E",
+        "publishedAtEvidence": "yok-detail-update-date"
+      },
+      "approximate": false,
+      "sample": false,
+      "translationStatus": "source-only"
+    },
+    {
       "id": "osym-89436ae90b72d64387ffc7b9",
       "publishedAt": "2026-09-17T00:00:00+03:00",
       "source": "ÖSYM",
